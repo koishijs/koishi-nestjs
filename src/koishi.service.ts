@@ -11,6 +11,7 @@ import { KoishiModuleOptions } from './koishi.interfaces';
 import { Server } from 'http';
 import Koa from 'koa';
 import KoaRouter from '@koa/router';
+import KoaBodyParser from 'koa-bodyparser';
 
 @Injectable()
 export class KoishiService
@@ -27,6 +28,7 @@ export class KoishiService
     this.router = new KoaRouter();
     this._nestKoaTmpInstance.use(this.router.routes());
     this._nestKoaTmpInstance.use(this.router.allowedMethods());
+    this._nestKoaTmpInstance.use(KoaBodyParser());
   }
 
   _nestKoaTmpInstance = new Koa();
