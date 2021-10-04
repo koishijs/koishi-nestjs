@@ -1,10 +1,10 @@
 import {
   DynamicModule,
+  MiddlewareConsumer,
   Module,
-  OnApplicationShutdown,
+  NestModule,
   Provider,
 } from '@nestjs/common';
-import { ModuleRef } from '@nestjs/core';
 import {
   KoishiModuleAsyncOptions,
   KoishiModuleOptions,
@@ -17,6 +17,9 @@ import {
   KOISHI_CONTEXT_PRIVATE,
   KOISHI_MODULE_OPTIONS,
 } from './koishi.constants';
+import { KoishiMiddleware } from './koishi.middleware';
+import { createServer } from 'http';
+import { AddressInfo } from 'net';
 
 const koishiContextProvider: Provider = {
   provide: KOISHI_CONTEXT,
@@ -38,10 +41,25 @@ const koishiContextProviderPrivate: Provider = {
 
 @Module({
   providers: [
-    KoishiService,
+    {
+      provide: KoishiService,
+      inject: [KOISHI_MODULE_OPTIONS],
+      useFactory: async (options: KoishiModuleOptions) => {
+        const koishi = new KoishiService(options);
+        koishi._nestKoaTmpServer = createServer(
+          koishi._nestKoaTmpInstance.callback(),
+        );
+        await new Promise<void>((resolve) => {
+          koishi._nestKoaTmpServer.listen(0, 'localhost', resolve);
+        });
+        koishi._nestKoaTmpServerPort = (koishi._nestKoaTmpServer.address() as AddressInfo).port;
+        return koishi;
+      },
+    },
     koishiContextProvider,
     koishiContextProviderChannel,
     koishiContextProviderPrivate,
+    KoishiMiddleware,
   ],
   exports: [
     KoishiService,
@@ -50,8 +68,10 @@ const koishiContextProviderPrivate: Provider = {
     koishiContextProviderPrivate,
   ],
 })
-export class KoishiModule implements OnApplicationShutdown {
-  constructor(private readonly moduleRef: ModuleRef) {}
+export class KoishiModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(KoishiMiddleware).forRoutes('*');
+  }
 
   static register(options: KoishiModuleOptions): DynamicModule {
     return {
@@ -99,10 +119,5 @@ export class KoishiModule implements OnApplicationShutdown {
         optionsFactory.createKoishiOptions(),
       inject: [options.useExisting || options.useClass],
     };
-  }
-
-  async onApplicationShutdown() {
-    const koishiApp = this.moduleRef.get(KoishiService);
-    await koishiApp.stop();
   }
 }

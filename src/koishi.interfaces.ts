@@ -1,5 +1,5 @@
 import { ModuleMetadata, Provider, Type } from '@nestjs/common';
-import { App, Plugin, MaybeArray } from 'koishi';
+import { App, MaybeArray, Plugin } from 'koishi';
 import { AbstractHttpAdapter } from '@nestjs/core';
 
 const selectors = [
