@@ -4,6 +4,12 @@ Koishi.js as NestModule
 
 Only Koishi v4 is supported.
 
+## Install
+
+```bash
+npm install koishi-nestjs koishi proxy-agent
+```
+
 ## Configuration
 
 ### Sync
