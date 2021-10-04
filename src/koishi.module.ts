@@ -17,31 +17,35 @@ import {
   KOISHI_CONTEXT_PRIVATE,
   KOISHI_MODULE_OPTIONS,
 } from './koishi.constants';
-const koishiContextProviderAny: Provider = {
+
+const koishiContextProvider: Provider = {
   provide: KOISHI_CONTEXT,
+  inject: [KoishiService],
   useFactory: (koishiApp: KoishiService) => koishiApp.any(),
 };
 
 const koishiContextProviderChannel: Provider = {
   provide: KOISHI_CONTEXT_CHANNEL,
+  inject: [KoishiService],
   useFactory: (koishiApp: KoishiService) => koishiApp.channel(),
 };
 
 const koishiContextProviderPrivate: Provider = {
   provide: KOISHI_CONTEXT_PRIVATE,
+  inject: [KoishiService],
   useFactory: (koishiApp: KoishiService) => koishiApp.private(),
 };
 
 @Module({
   providers: [
     KoishiService,
-    koishiContextProviderAny,
+    koishiContextProvider,
     koishiContextProviderChannel,
     koishiContextProviderPrivate,
   ],
   exports: [
     KoishiService,
-    koishiContextProviderAny,
+    koishiContextProvider,
     koishiContextProviderChannel,
     koishiContextProviderPrivate,
   ],
