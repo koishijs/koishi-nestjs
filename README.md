@@ -23,13 +23,14 @@ import PluginOnebot from '@koishijs/plugin-onebot';
   imports: [
     KoishiModule.register({
       // Koishi config goes here
+      prefix: '.',
       usePlugins: [
         // Plugins to install
         PluginDef(PluginOnebot, {
       	  protocol: 'ws',
-          endpoint: config.get('CQ_ENDPOINT'),
-          selfId: config.get('CQ_SELFID'),
-          token: config.get('CQ_TOKEN'),
+          endpoint: 'CQ_ENDPOINT',
+          selfId: 'CQ_ENDPOINT',
+          token: 'CQ_ENDPOINT',
         }),
       ],
     })
@@ -44,14 +45,24 @@ You may also register Koishi plugins later.
 
 ```ts
 import { Module } from '@nestjs/common';
+import { HttpAdapterHost } from '@nestjs/core';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { KoishiModule, PluginDef } from 'koishi-nestjs';
 import PluginOnebot from '@koishijs/plugin-onebot';
 
 @Module({
   imports: [
     KoishiModule.registerAsync({
-      useFactory: () => ({
+      imports: [ConfigModule.forRoot()],
+      inject: [ConfigService, HttpAdapterHost],
+      useFactory: async (
+        config: ConfigService,
+        adapterHost: HttpAdapterHost,
+      ) => ({
         // Koishi config goes here
+        prefix: '.',
+        // OPTIONAL: Injects Http Server here to Koishi instance making routes functioning.
+        httpAdapter: adapterHost.httpAdapter,
         usePlugins: [
           // Plugins to install
           PluginDef(PluginOnebot, {
