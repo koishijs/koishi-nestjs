@@ -67,6 +67,8 @@ export class AppModule {}
 ### Inject Koishi instance
 
 ```ts
+import { KoishiService } from 'koishi-nestjs';
+
 @Injectable()
 export class AppService {
   constructor(private koishi: KoishiService) {}
