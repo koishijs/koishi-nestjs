@@ -1,6 +1,6 @@
 {
   "name": "koishi-nestjs",
-  "version": "1.0.13",
+  "version": "1.0.14",
   "description": "Koishi.js as Nest.js Module",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",

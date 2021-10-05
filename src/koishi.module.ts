@@ -73,6 +73,7 @@ const koishiContextProviderPrivate: Provider = {
     KoishiService,
     koishiContextProvider,
     koishiContextProviderChannel,
+    koishiContextProviderGuild,
     koishiContextProviderPrivate,
   ],
 })
