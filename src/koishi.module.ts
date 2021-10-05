@@ -14,6 +14,7 @@ import { KoishiService } from './koishi.service';
 import {
   KOISHI_CONTEXT,
   KOISHI_CONTEXT_CHANNEL,
+  KOISHI_CONTEXT_GUILD,
   KOISHI_CONTEXT_PRIVATE,
   KOISHI_MODULE_OPTIONS,
 } from './koishi.constants';
@@ -31,6 +32,12 @@ const koishiContextProviderChannel: Provider = {
   provide: KOISHI_CONTEXT_CHANNEL,
   inject: [KoishiService],
   useFactory: (koishiApp: KoishiService) => koishiApp.channel(),
+};
+
+const koishiContextProviderGuild: Provider = {
+  provide: KOISHI_CONTEXT_GUILD,
+  inject: [KoishiService],
+  useFactory: (koishiApp: KoishiService) => koishiApp.guild(),
 };
 
 const koishiContextProviderPrivate: Provider = {
@@ -58,6 +65,7 @@ const koishiContextProviderPrivate: Provider = {
     },
     koishiContextProvider,
     koishiContextProviderChannel,
+    koishiContextProviderGuild,
     koishiContextProviderPrivate,
     KoishiMiddleware,
   ],
