@@ -129,3 +129,16 @@ export class AppService {
   constructor(@InjectContextChannel() private ctx: Context) {}
 }
 ```
+
+### Inject Context of guild
+
+```ts
+import { Injectable } from '@nestjs/common';
+import { KoishiService, InjectContextGuild } from 'koishi-nestjs';
+import { Context } from 'koishi';
+
+@Injectable()
+export class AppService {
+  constructor(@InjectContextGuild() private ctx: Context) {}
+}
+```
