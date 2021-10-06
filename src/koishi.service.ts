@@ -1,4 +1,4 @@
-import { App, Logger } from 'koishi';
+import { App } from 'koishi';
 import {
   ConsoleLogger,
   Inject,
