@@ -1,21 +1,16 @@
 import { App } from 'koishi';
 import {
   ConsoleLogger,
-  Inject,
   Injectable,
   OnApplicationBootstrap,
   OnModuleDestroy,
   OnModuleInit,
 } from '@nestjs/common';
-import { KOISHI_MODULE_OPTIONS } from './koishi.constants';
 import { KoishiModuleOptions } from './koishi.interfaces';
 import { Server } from 'http';
 import Koa from 'koa';
 import KoaRouter from '@koa/router';
 import KoaBodyParser from 'koa-bodyparser';
-import { KoishiLoggerService } from './koishi-logger.service';
-
-const nestLogger = new ConsoleLogger('koishi');
 
 @Injectable()
 export class KoishiService
