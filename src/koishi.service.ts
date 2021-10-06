@@ -1,6 +1,5 @@
 import { App } from 'koishi';
 import {
-  ConsoleLogger,
   Injectable,
   OnApplicationBootstrap,
   OnModuleDestroy,
