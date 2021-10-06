@@ -1,5 +1,6 @@
-import { App } from 'koishi';
+import { App, Logger } from 'koishi';
 import {
+  ConsoleLogger,
   Inject,
   Injectable,
   OnApplicationBootstrap,
@@ -12,6 +13,8 @@ import { Server } from 'http';
 import Koa from 'koa';
 import KoaRouter from '@koa/router';
 import KoaBodyParser from 'koa-bodyparser';
+
+const nestLogger = new ConsoleLogger('koishi');
 
 @Injectable()
 export class KoishiService

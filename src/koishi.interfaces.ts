@@ -37,7 +37,8 @@ export function PluginDef<T extends Plugin>(
 
 export interface KoishiModuleOptions extends App.Config {
   usePlugins?: KoishiModulePlugin<Plugin>[];
-  httpAdapter: AbstractHttpAdapter;
+  httpAdapter?: AbstractHttpAdapter;
+  loggerPrefix?: string;
 }
 
 export interface KoishiModuleOptionsFactory {

@@ -21,6 +21,7 @@ import {
 import { KoishiMiddleware } from './koishi.middleware';
 import { createServer } from 'http';
 import { AddressInfo } from 'net';
+import { KoishiLoggerService } from './koishi-logger.service';
 
 const koishiContextProvider: Provider = {
   provide: KOISHI_CONTEXT,
@@ -63,6 +64,7 @@ const koishiContextProviderPrivate: Provider = {
         return koishi;
       },
     },
+    KoishiLoggerService,
     koishiContextProvider,
     koishiContextProviderChannel,
     koishiContextProviderGuild,
