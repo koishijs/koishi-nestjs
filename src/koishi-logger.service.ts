@@ -7,8 +7,6 @@ import { KoishiModuleOptions } from './koishi.interfaces';
 export class KoishiLoggerService extends ConsoleLogger {
   constructor(@Inject(KOISHI_MODULE_OPTIONS) options: KoishiModuleOptions) {
     super(options.loggerPrefix || 'koishi');
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
-    const _this = this;
     Logger.targets = [
       {
         colors: 3,
