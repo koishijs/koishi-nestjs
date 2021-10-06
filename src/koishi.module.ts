@@ -51,7 +51,7 @@ const koishiContextProviderPrivate: Provider = {
   providers: [
     {
       provide: KoishiService,
-      inject: [KOISHI_MODULE_OPTIONS],
+      inject: [KOISHI_MODULE_OPTIONS, KoishiLoggerService],
       useFactory: async (options: KoishiModuleOptions) => {
         const koishi = new KoishiService(options);
         koishi._nestKoaTmpServer = createServer(

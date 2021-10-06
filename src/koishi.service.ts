@@ -13,6 +13,7 @@ import { Server } from 'http';
 import Koa from 'koa';
 import KoaRouter from '@koa/router';
 import KoaBodyParser from 'koa-bodyparser';
+import { KoishiLoggerService } from './koishi-logger.service';
 
 const nestLogger = new ConsoleLogger('koishi');
 
@@ -20,10 +21,7 @@ const nestLogger = new ConsoleLogger('koishi');
 export class KoishiService
   extends App
   implements OnModuleInit, OnApplicationBootstrap, OnModuleDestroy {
-  constructor(
-    @Inject(KOISHI_MODULE_OPTIONS)
-    private readonly koishiModuleOptions: KoishiModuleOptions,
-  ) {
+  constructor(private readonly koishiModuleOptions: KoishiModuleOptions) {
     super({
       ...koishiModuleOptions,
       port: 0,
