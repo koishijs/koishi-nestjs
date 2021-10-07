@@ -58,7 +58,6 @@ const koishiContextProviderPrivate: Provider = {
         KOISHI_MODULE_OPTIONS,
         KoishiMetascanService,
         KoishiLoggerService,
-        DiscoveryService,
       ],
       useFactory: async (
         options: KoishiModuleOptions,
