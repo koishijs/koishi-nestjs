@@ -1,6 +1,6 @@
 {
   "name": "koishi-nestjs",
-  "version": "1.0.23",
+  "version": "1.0.24",
   "description": "Koishi.js as Nest.js Module",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -30,8 +30,8 @@
   "author": "Nanahira",
   "license": "MIT",
   "peerDependencies": {
-    "@nestjs/common": "^7.0.0 || ^8.0.0",
-    "@nestjs/core": "^7.0.0 || ^8.0.0",
+    "@nestjs/common": "^8.0.0",
+    "@nestjs/core": "^8.0.0",
     "koishi": "^4.0.0-alpha.9",
     "proxy-agent": "^5.0.0",
     "reflect-metadata": "^0.1.13"

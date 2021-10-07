@@ -44,7 +44,7 @@ export class KoishiMetascanService {
     );
     if (instanceContextFilters) {
       for (const filter of instanceContextFilters) {
-        baseContext = filter(baseContext);
+        baseContext = filter(baseContext) || baseContext;
       }
     }
     const methodContextFilters: OnContextFunction[] = this.reflector.get(
@@ -53,7 +53,7 @@ export class KoishiMetascanService {
     );
     if (methodContextFilters) {
       for (const filter of methodContextFilters) {
-        baseContext = filter(baseContext);
+        baseContext = filter(baseContext) || baseContext;
       }
     }
     console.log(regData);
@@ -65,9 +65,8 @@ export class KoishiMetascanService {
         );
         break;
       case 'onevent':
-        const {
-          data: eventData,
-        } = regData as DoRegisterConfig<EventNameAndPrepend>;
+        const { data: eventData } =
+          regData as DoRegisterConfig<EventNameAndPrepend>;
         baseContext.on(eventData.name, (...args: any[]) =>
           methodFun.call(instance, ...args),
         );
@@ -76,6 +75,9 @@ export class KoishiMetascanService {
         const pluginDesc: KoishiModulePlugin<any> = await methodFun.call(
           instance,
         );
+        if (!pluginDesc || !pluginDesc.plugin) {
+          throw new Error(`Invalid plugin from method ${methodKey}.`);
+        }
         const pluginCtx = pluginDesc.select
           ? baseContext.select(pluginDesc.select)
           : baseContext.any();
@@ -85,10 +87,9 @@ export class KoishiMetascanService {
         const { data: commandData } = regData as DoRegisterConfig<
           ContextFunction<Command>
         >;
-        let command = commandData(
-          baseContext,
-        ).action((argv: Argv, ...args: any[]) =>
-          methodFun.call(instance, argv, ...args),
+        let command = commandData(baseContext).action(
+          (argv: Argv, ...args: any[]) =>
+            methodFun.call(instance, argv, ...args),
         );
         const commandDefs: CommandDefinitionFun[] = this.reflector.get(
           KoishiCommandDefinition,
@@ -96,7 +97,7 @@ export class KoishiMetascanService {
         );
         if (commandDefs) {
           for (const commandDef of commandDefs) {
-            command = commandDef(command);
+            command = commandDef(command) || command;
           }
         }
         break;
