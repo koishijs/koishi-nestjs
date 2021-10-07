@@ -13,18 +13,14 @@ export class KoishiMiddleware
   async onModuleInit() {
     this.proxyMiddleware = createProxyMiddleware({
       target: `http://localhost:${this.koishi._nestKoaTmpServerPort}`,
-      ws: true,
+      ws: false,
       logLevel: 'silent',
     });
   }
 
   use(req: Request, res: Response, next: NextFunction) {
     const match = this.koishi.router.match(req.baseUrl, req.method);
-    if (
-      !match.route &&
-      // ws-reverse onebot goes here
-      !req.header('x-self-id')
-    ) {
+    if (!match.route) {
       return next();
     }
     return this.proxyMiddleware(req, res, next);
