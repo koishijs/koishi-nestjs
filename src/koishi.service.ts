@@ -10,12 +10,16 @@ import { Server } from 'http';
 import Koa from 'koa';
 import KoaRouter from '@koa/router';
 import KoaBodyParser from 'koa-bodyparser';
+import { KoishiMetascanService } from './koishi-metascan.service';
 
 @Injectable()
 export class KoishiService
   extends App
   implements OnModuleInit, OnApplicationBootstrap, OnModuleDestroy {
-  constructor(private readonly koishiModuleOptions: KoishiModuleOptions) {
+  constructor(
+    private readonly koishiModuleOptions: KoishiModuleOptions,
+    private readonly metascan: KoishiMetascanService,
+  ) {
     super({
       ...koishiModuleOptions,
       port: 0,
@@ -54,7 +58,8 @@ export class KoishiService
     }
   }
 
-  onApplicationBootstrap() {
+  async onApplicationBootstrap() {
+    await this.metascan.registerContext(this.any());
     return this.start();
   }
 

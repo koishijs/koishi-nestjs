@@ -142,3 +142,44 @@ export class AppService {
   constructor(@InjectContextGuild() private ctx: Context) {}
 }
 ```
+
+## Register Koishi events with decorators
+
+```ts
+@Injectable()
+// You may define a context scope here
+@OnGuild('111111111')
+export class AppService {
+  // equal to `ctx.on('message', (session) => { })`
+  @UseEvent('message')
+  async onMessage(session: Session.Payload<'message'>) {
+    console.log(`event ${session.userId}: ${session.content}`);
+  }
+
+
+  // You may also define a context scope at a specific function
+  @OnPlatform('onebot')
+  // equal to `ctx.middleware((session, next) => { })`
+  @UseMiddleware(true)
+  async onMiddleware(session: Session.Payload<'message'>, next: NextFunction) {
+    console.log(`middleware ${session.userId}: ${session.content}`);
+    next();
+  }
+
+  // Plugins could be registered asynchronously
+  @UsePlugin()
+  async installPlugin() {
+    const config = await someAsyncThings();
+    return PluginDef(PluginCommon, config);
+  }
+
+  // Define command
+  @UseCommand('my-echo <content:string>')
+  @CommandDescription('Echo command from decorators!')
+  @CommandUsage('Command usage')
+  @CommandExample('Command example')
+  testEchoCommand(session: Session, content: string) {
+    return content;
+  }
+}
+```

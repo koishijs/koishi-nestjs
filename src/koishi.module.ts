@@ -22,6 +22,8 @@ import { KoishiMiddleware } from './koishi.middleware';
 import { createServer } from 'http';
 import { AddressInfo } from 'net';
 import { KoishiLoggerService } from './koishi-logger.service';
+import { KoishiMetascanService } from './koishi-metascan.service';
+import { DiscoveryModule, DiscoveryService } from '@nestjs/core';
 
 const koishiContextProvider: Provider = {
   provide: KOISHI_CONTEXT,
@@ -48,12 +50,21 @@ const koishiContextProviderPrivate: Provider = {
 };
 
 @Module({
+  imports: [DiscoveryModule],
   providers: [
     {
       provide: KoishiService,
-      inject: [KOISHI_MODULE_OPTIONS, KoishiLoggerService],
-      useFactory: async (options: KoishiModuleOptions) => {
-        const koishi = new KoishiService(options);
+      inject: [
+        KOISHI_MODULE_OPTIONS,
+        KoishiMetascanService,
+        KoishiLoggerService,
+        DiscoveryService,
+      ],
+      useFactory: async (
+        options: KoishiModuleOptions,
+        metascan: KoishiMetascanService,
+      ) => {
+        const koishi = new KoishiService(options, metascan);
         koishi._nestKoaTmpServer = createServer(
           koishi._nestKoaTmpInstance.callback(),
         );
@@ -65,6 +76,7 @@ const koishiContextProviderPrivate: Provider = {
       },
     },
     KoishiLoggerService,
+    KoishiMetascanService,
     koishiContextProvider,
     koishiContextProviderChannel,
     koishiContextProviderGuild,

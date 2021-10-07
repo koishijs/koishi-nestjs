@@ -1,5 +1,5 @@
 import { ModuleMetadata, Provider, Type } from '@nestjs/common';
-import { App, MaybeArray, Plugin } from 'koishi';
+import { App, Command, Context, EventMap, MaybeArray, Plugin } from 'koishi';
 import { AbstractHttpAdapter } from '@nestjs/core';
 
 const selectors = [
@@ -55,3 +55,24 @@ export interface KoishiModuleAsyncOptions
   inject?: any[];
   extraProviders?: Provider[];
 }
+
+export type EventName = keyof EventMap;
+export interface EventNameAndPrepend {
+  name: EventName;
+  prepend?: boolean;
+}
+export type Promisify<T> = T extends Promise<unknown> ? T : Promise<T>;
+
+export type ContextFunction<T> = (ctx: Context) => T;
+export type OnContextFunction = ContextFunction<Context>;
+export type DoRegisterType = 'middleware' | 'command' | 'onevent' | 'plugin';
+export interface DoRegisterConfig<T = any> {
+  type: DoRegisterType;
+  data?: T;
+}
+
+export interface CommandConfigWIthDescription extends Command.Config {
+  desc?: string;
+}
+
+export type CommandDefinitionFun = (cmd: Command) => Command;
