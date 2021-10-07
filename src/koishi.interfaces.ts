@@ -69,7 +69,7 @@ export interface DoRegisterConfig<T = any> {
   data?: T;
 }
 
-export interface CommandConfigWIthDescription extends Command.Config {
+export interface CommandConfigWithDescription extends Command.Config {
   desc?: string;
 }
 
