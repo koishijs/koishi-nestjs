@@ -1,6 +1,5 @@
 import { ModuleMetadata, Provider, Type } from '@nestjs/common';
 import { App, Command, Context, EventMap, MaybeArray, Plugin } from 'koishi';
-import { AbstractHttpAdapter } from '@nestjs/core';
 
 const selectors = [
   'user',
@@ -37,7 +36,6 @@ export function PluginDef<T extends Plugin>(
 
 export interface KoishiModuleOptions extends App.Config {
   usePlugins?: KoishiModulePlugin<Plugin>[];
-  httpAdapter?: AbstractHttpAdapter;
   loggerPrefix?: string;
 }
 

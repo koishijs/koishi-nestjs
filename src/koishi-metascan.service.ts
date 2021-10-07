@@ -1,5 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { DiscoveryService, MetadataScanner, Reflector } from '@nestjs/core';
+import {
+  AbstractHttpAdapter,
+  DiscoveryService,
+  HttpAdapterHost,
+  MetadataScanner,
+  ModulesContainer,
+  Reflector,
+} from '@nestjs/core';
 import { Argv, Command, Context } from 'koishi';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import {
@@ -22,7 +29,19 @@ export class KoishiMetascanService {
     private readonly discoveryService: DiscoveryService,
     private readonly metadataScanner: MetadataScanner,
     private readonly reflector: Reflector,
+    private readonly moduleContainer: ModulesContainer,
   ) {}
+
+  getHttpAdapter(): AbstractHttpAdapter {
+    for (const module of this.moduleContainer.values()) {
+      const adapterHost = module.providers.get(HttpAdapterHost);
+      if (adapterHost) {
+        return (adapterHost as InstanceWrapper<HttpAdapterHost>).instance
+          .httpAdapter;
+      }
+    }
+    return null;
+  }
 
   private async handleInstance(
     ctx: Context,
@@ -56,7 +75,6 @@ export class KoishiMetascanService {
         baseContext = filter(baseContext) || baseContext;
       }
     }
-    console.log(regData);
     switch (regData.type) {
       case 'middleware':
         baseContext.middleware(
@@ -65,8 +83,9 @@ export class KoishiMetascanService {
         );
         break;
       case 'onevent':
-        const { data: eventData } =
-          regData as DoRegisterConfig<EventNameAndPrepend>;
+        const {
+          data: eventData,
+        } = regData as DoRegisterConfig<EventNameAndPrepend>;
         baseContext.on(eventData.name, (...args: any[]) =>
           methodFun.call(instance, ...args),
         );
@@ -87,9 +106,10 @@ export class KoishiMetascanService {
         const { data: commandData } = regData as DoRegisterConfig<
           ContextFunction<Command>
         >;
-        let command = commandData(baseContext).action(
-          (argv: Argv, ...args: any[]) =>
-            methodFun.call(instance, argv, ...args),
+        let command = commandData(
+          baseContext,
+        ).action((argv: Argv, ...args: any[]) =>
+          methodFun.call(instance, argv, ...args),
         );
         const commandDefs: CommandDefinitionFun[] = this.reflector.get(
           KoishiCommandDefinition,

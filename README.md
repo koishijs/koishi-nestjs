@@ -43,7 +43,6 @@ export class AppModule {}
 
 ```ts
 import { Module } from '@nestjs/common';
-import { HttpAdapterHost } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { KoishiModule, PluginDef } from 'koishi-nestjs';
 import PluginOnebot from '@koishijs/plugin-onebot';
@@ -52,15 +51,10 @@ import PluginOnebot from '@koishijs/plugin-onebot';
   imports: [
     KoishiModule.registerAsync({
       imports: [ConfigModule.forRoot()],
-      inject: [ConfigService, HttpAdapterHost],
-      useFactory: async (
-        config: ConfigService,
-        adapterHost: HttpAdapterHost,
-      ) => ({
+      inject: [ConfigService],
+      useFactory: async (config: ConfigService) => ({
         // 在这里填写 Koishi 配置参数
         prefix: '.',
-        // 可选，如果使用 Onebot 的 ws reverse 协议，那么需要配置该项来保证 ws 服务器正常运行
-        httpAdapter: adapterHost.httpAdapter,
         usePlugins: [
           // 预安装的插件
           PluginDef(PluginOnebot, {
@@ -82,8 +76,6 @@ export class AppModule {}
 Koishi-Nest 的配置项和 Koishi 配置项一致，参照 [Koishi 文档](https://koishi.js.org/v4/api/core/app.html#%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0%E9%80%89%E9%A1%B9) 。下列配置项为 Koishi-Nest 特有的配置项。
 
 * `loggerPrefix`: `string` Nest 日志中 Logger 的前缀。默认 `koishi`。
-
-* `httpAdapter`: `AbstractHttpAdapter` Nest 的 HTTP 适配器引用，用于 `@koishijs/plugin-adapter-onebot` 中 `ws:reverse` 协议的适配。非该协议可以忽略该项。
 
 * `usePlugins`: `KoishiModulePlugin[]` 可选。预先安装的 Koishi 插件列表。使用 `PluginDef(plugin, options, select)` 方法生成该项的定义。该配置项的成员参数如下。
 

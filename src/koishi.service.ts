@@ -35,8 +35,9 @@ export class KoishiService
   _nestKoaTmpServerPort: number;
 
   private async setHttpServer() {
-    if (this.koishiModuleOptions.httpAdapter) {
-      const httpServer: Server = this.koishiModuleOptions.httpAdapter.getHttpServer();
+    const httpAdapter = this.metascan.getHttpAdapter();
+    if (httpAdapter) {
+      const httpServer: Server = httpAdapter.getHttpServer();
       if (httpServer instanceof Server) {
         this.logger('app').info('App using Nest HTTP Server.');
         this._httpServer = httpServer;

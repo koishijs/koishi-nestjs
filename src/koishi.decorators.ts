@@ -9,7 +9,6 @@ import {
   KoishiOnContextScope,
 } from './koishi.constants';
 import {
-  CommandConfigWIthDescription,
   CommandDefinitionFun,
   ContextFunction,
   DoRegisterConfig,
@@ -18,7 +17,7 @@ import {
   OnContextFunction,
   Selection,
 } from './koishi.interfaces';
-import { Context, Command, Argv } from 'koishi';
+import { Argv, Command } from 'koishi';
 
 // Injections
 export const InjectContext = () => Inject(KOISHI_CONTEXT);
