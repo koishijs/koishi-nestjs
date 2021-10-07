@@ -1,13 +1,13 @@
 # Koishi-Nest
 
-[Nest.js](http://nestjs.com/) 下的 [Koishi](https://koishi.js.org) 模块，在 Nest.js 下使用 Koishi 打造规模化的机器人应用。
+[Nest.js](http://nestjs.com/) 下的 [Koishi](https://koishi.js.org) 模块。Koishi-Nest 在 Nest.js 下使用 Koishi 打造规模化的机器人应用。
 
 目前只支持 Koishi v4 和 Nest v8 。
 
 ## 安装
 
 ```bash
-npm install Koishi-Nest koishi@^4.0.0-alpha.9 proxy-agent
+npm install koishi-nestjs koishi@^4.0.0-alpha.9 proxy-agent
 ```
 
 ## 配置
