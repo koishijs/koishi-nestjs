@@ -33,14 +33,30 @@ export class KoishiMetascanService {
   ) {}
 
   getHttpAdapter(): AbstractHttpAdapter {
+    const possibleHttpAdapters: AbstractHttpAdapter[] = [];
     for (const module of this.moduleContainer.values()) {
       const adapterHost = module.providers.get(HttpAdapterHost);
       if (adapterHost) {
-        return (adapterHost as InstanceWrapper<HttpAdapterHost>).instance
-          .httpAdapter;
+        const httpAdapter = (adapterHost as InstanceWrapper<HttpAdapterHost>)
+          .instance.httpAdapter;
+        possibleHttpAdapters.push(httpAdapter);
       }
     }
-    return null;
+    if (!possibleHttpAdapters.length) {
+      return null;
+    }
+    // Try those adapters one by one
+    const adapterTypesToTry = ['express', 'fastify', 'koa'];
+    for (const adapterType of adapterTypesToTry) {
+      const foundAdapter = possibleHttpAdapters.find(
+        (adapter) => adapter.getType() === adapterType,
+      );
+      if (foundAdapter) {
+        return foundAdapter;
+      }
+    }
+    // Fallback to first adapter
+    return possibleHttpAdapters[0];
   }
 
   private async handleInstance(
@@ -83,8 +99,9 @@ export class KoishiMetascanService {
         );
         break;
       case 'onevent':
-        const { data: eventData } =
-          regData as DoRegisterConfig<EventNameAndPrepend>;
+        const {
+          data: eventData,
+        } = regData as DoRegisterConfig<EventNameAndPrepend>;
         baseContext.on(eventData.name, (...args: any[]) =>
           methodFun.call(instance, ...args),
         );
