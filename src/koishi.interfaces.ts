@@ -34,7 +34,11 @@ export function PluginDef<T extends Plugin>(
   return { plugin, options, select };
 }
 
-export interface KoishiModuleOptions extends App.Config {
+export interface WhetherGlobalOption {
+  isGlobal?: boolean;
+}
+
+export interface KoishiModuleOptions extends App.Config, WhetherGlobalOption {
   usePlugins?: KoishiModulePlugin<Plugin>[];
   loggerPrefix?: string;
 }
@@ -44,7 +48,8 @@ export interface KoishiModuleOptionsFactory {
 }
 
 export interface KoishiModuleAsyncOptions
-  extends Pick<ModuleMetadata, 'imports'> {
+  extends Pick<ModuleMetadata, 'imports'>,
+    WhetherGlobalOption {
   useExisting?: Type<KoishiModuleOptionsFactory>;
   useClass?: Type<KoishiModuleOptionsFactory>;
   useFactory?: (

@@ -99,6 +99,7 @@ export class KoishiModule implements NestModule {
     return {
       module: KoishiModule,
       providers: [{ provide: KOISHI_MODULE_OPTIONS, useValue: options }],
+      global: options.isGlobal,
     };
   }
 
@@ -106,7 +107,11 @@ export class KoishiModule implements NestModule {
     return {
       module: KoishiModule,
       imports: options.imports,
-      providers: this.createAsyncProviders(options),
+      providers: [
+        ...this.createAsyncProviders(options),
+        ...(options.extraProviders || []),
+      ],
+      global: options.isGlobal,
     };
   }
 

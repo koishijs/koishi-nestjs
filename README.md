@@ -83,6 +83,8 @@ Koishi-Nest 的配置项和 Koishi 配置项一致，参照 [Koishi 文档](http
   * `options` Koishi 插件配置。等同于 `ctx.plugin(plugin, options)`。
   * `select` 插件选择器，定义插件的作用上下文。定义参照 [Koishi 文档](https://koishi.js.org/v4/guide/plugin/context.html#%E5%9C%A8%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E4%B8%AD%E4%BD%BF%E7%94%A8%E9%80%89%E6%8B%A9%E5%99%A8) 的写法。
 
+* `isGlobal`: `boolean` 默认 `false` 。指示 Koishi-Nest 模块是否应被注册为全局模块。 **异步配置该项应写入异步配置项中。** 关于全局模块请参考 [Nest.js 文档](https://docs.nestjs.cn/8/modules?id=%e5%85%a8%e5%b1%80%e6%a8%a1%e5%9d%97) 。
+
 插件的使用可以参考 [Koishi 文档](https://koishi.js.org/v4/guide/plugin/plugin.html)。
 
 ## 注入 Koishi 实例
