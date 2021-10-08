@@ -23,7 +23,7 @@ import { createServer } from 'http';
 import { AddressInfo } from 'net';
 import { KoishiLoggerService } from './koishi-logger.service';
 import { KoishiMetascanService } from './koishi-metascan.service';
-import { DiscoveryModule, DiscoveryService } from '@nestjs/core';
+import { DiscoveryModule } from '@nestjs/core';
 
 const koishiContextProvider: Provider = {
   provide: KOISHI_CONTEXT,

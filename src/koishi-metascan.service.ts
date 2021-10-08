@@ -4,7 +4,7 @@ import {
   DiscoveryService,
   HttpAdapterHost,
   MetadataScanner,
-  ModulesContainer,
+  ModuleRef,
   Reflector,
 } from '@nestjs/core';
 import { Argv, Command, Context } from 'koishi';
@@ -29,34 +29,16 @@ export class KoishiMetascanService {
     private readonly discoveryService: DiscoveryService,
     private readonly metadataScanner: MetadataScanner,
     private readonly reflector: Reflector,
-    private readonly moduleContainer: ModulesContainer,
+    private readonly moduleRef: ModuleRef,
   ) {}
 
   getHttpAdapter(): AbstractHttpAdapter {
-    const possibleHttpAdapters: AbstractHttpAdapter[] = [];
-    for (const module of this.moduleContainer.values()) {
-      const adapterHost = module.providers.get(HttpAdapterHost);
-      if (adapterHost) {
-        const httpAdapter = (adapterHost as InstanceWrapper<HttpAdapterHost>)
-          .instance.httpAdapter;
-        possibleHttpAdapters.push(httpAdapter);
-      }
-    }
-    if (!possibleHttpAdapters.length) {
+    const apdaterHost = this.moduleRef.get(HttpAdapterHost, { strict: false });
+    if (apdaterHost) {
+      return apdaterHost.httpAdapter;
+    } else {
       return null;
     }
-    // Try those adapters one by one
-    const adapterTypesToTry = ['express', 'fastify', 'koa'];
-    for (const adapterType of adapterTypesToTry) {
-      const foundAdapter = possibleHttpAdapters.find(
-        (adapter) => adapter.getType() === adapterType,
-      );
-      if (foundAdapter) {
-        return foundAdapter;
-      }
-    }
-    // Fallback to first adapter
-    return possibleHttpAdapters[0];
   }
 
   private async handleInstance(
