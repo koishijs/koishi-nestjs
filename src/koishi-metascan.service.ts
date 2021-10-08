@@ -83,9 +83,8 @@ export class KoishiMetascanService {
         );
         break;
       case 'onevent':
-        const {
-          data: eventData,
-        } = regData as DoRegisterConfig<EventNameAndPrepend>;
+        const { data: eventData } =
+          regData as DoRegisterConfig<EventNameAndPrepend>;
         baseContext.on(eventData.name, (...args: any[]) =>
           methodFun.call(instance, ...args),
         );
@@ -106,11 +105,7 @@ export class KoishiMetascanService {
         const { data: commandData } = regData as DoRegisterConfig<
           ContextFunction<Command>
         >;
-        let command = commandData(
-          baseContext,
-        ).action((argv: Argv, ...args: any[]) =>
-          methodFun.call(instance, argv, ...args),
-        );
+        let command = commandData(baseContext);
         const commandDefs: CommandDefinitionFun[] = this.reflector.get(
           KoishiCommandDefinition,
           methodFun,
@@ -120,6 +115,9 @@ export class KoishiMetascanService {
             command = commandDef(command) || command;
           }
         }
+        command.action((argv: Argv, ...args: any[]) =>
+          methodFun.call(instance, argv, ...args),
+        );
         break;
       default:
         throw new Error(`Unknown operaton type ${regData.type}`);
