@@ -9,7 +9,7 @@ export class KoishiLoggerService extends ConsoleLogger {
     super(options.loggerPrefix || 'koishi');
     let colors = options.loggerColor;
     if (colors == null) {
-      colors = 2;
+      colors = 0;
     }
     Logger.targets = [
       {

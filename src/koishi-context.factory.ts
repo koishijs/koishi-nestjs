@@ -14,7 +14,9 @@ function constructProvideToken(
   scopeType: ContextScopeTypes,
   values: string[] = [],
 ) {
-  return `KOISHI_CONTEXT_${scopeType}_${values.join('_')}`;
+  return `KOISHI_CONTEXT_${scopeType}_${values
+    .map((v) => v.replace(/_/g, '__'))
+    .join('_')}`;
 }
 
 function createContextProvider(
