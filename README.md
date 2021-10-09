@@ -157,9 +157,9 @@ export class AppService implements OnModuleInit {
 
 * `@InjectContextGuild(...values[]: string)` 注入群组上下文。等价于 `ctx.guild(...values)`
 
-* `@InjectContextSelf(...values[]: string)` 注入群组上下文。等价于 `ctx.self(...values)`
+* `@InjectContextSelf(...values[]: string)` 注入机器人账户上下文。等价于 `ctx.self(...values)`
 
-* `@InjectContextUser(...values[]: string)` 注入群组上下文。等价于 `ctx.user(...values)`
+* `@InjectContextUser(...values[]: string)` 注入用户上下文。等价于 `ctx.user(...values)`
 
 * `@InjectContextPlatform(...values[]: string)` 注入平台上下文。等价于 `ctx.platform(...values)`
 
