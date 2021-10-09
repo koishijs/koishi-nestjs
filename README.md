@@ -77,6 +77,8 @@ Koishi-Nest 的配置项和 Koishi 配置项一致，参照 [Koishi 文档](http
 
 * `loggerPrefix`: `string` Nest 日志中 Logger 的前缀。默认 `koishi`。
 
+* `loggerColor`: `number` Nest 日志中 Logger 的颜色支持。默认 `2`。
+
 * `usePlugins`: `KoishiModulePlugin[]` 可选。预先安装的 Koishi 插件列表。使用 `PluginDef(plugin, options, select)` 方法生成该项的定义。该配置项的成员参数如下。
 
   * `plugin` Koishi 插件。

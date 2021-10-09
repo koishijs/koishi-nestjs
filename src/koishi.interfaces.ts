@@ -41,6 +41,7 @@ export interface WhetherGlobalOption {
 export interface KoishiModuleOptions extends App.Config, WhetherGlobalOption {
   usePlugins?: KoishiModulePlugin<Plugin>[];
   loggerPrefix?: string;
+  loggerColor?: number;
 }
 
 export interface KoishiModuleOptionsFactory {

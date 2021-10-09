@@ -7,9 +7,13 @@ import { KoishiModuleOptions } from './koishi.interfaces';
 export class KoishiLoggerService extends ConsoleLogger {
   constructor(@Inject(KOISHI_MODULE_OPTIONS) options: KoishiModuleOptions) {
     super(options.loggerPrefix || 'koishi');
+    let colors = options.loggerColor;
+    if (colors == null) {
+      colors = 2;
+    }
     Logger.targets = [
       {
-        colors: 3,
+        colors,
         print: (text: string) => this.printKoishiLog(text),
       },
     ];
