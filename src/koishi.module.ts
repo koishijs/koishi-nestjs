@@ -11,42 +11,20 @@ import {
   KoishiModuleOptionsFactory,
 } from './koishi.interfaces';
 import { KoishiService } from './koishi.service';
-import {
-  KOISHI_CONTEXT,
-  KOISHI_CONTEXT_CHANNEL,
-  KOISHI_CONTEXT_GUILD,
-  KOISHI_CONTEXT_PRIVATE,
-  KOISHI_MODULE_OPTIONS,
-} from './koishi.constants';
+import { KOISHI_CONTEXT, KOISHI_MODULE_OPTIONS } from './koishi.constants';
 import { KoishiMiddleware } from './koishi.middleware';
 import { createServer } from 'http';
 import { AddressInfo } from 'net';
 import { KoishiLoggerService } from './koishi-logger.service';
 import { KoishiMetascanService } from './koishi-metascan.service';
 import { DiscoveryModule } from '@nestjs/core';
+import { Context } from 'koishi';
+import { contextsToProvide } from './koishi-context.factory';
 
-const koishiContextProvider: Provider = {
+const koishiContextProvider: Provider<Context> = {
   provide: KOISHI_CONTEXT,
   inject: [KoishiService],
   useFactory: (koishiApp: KoishiService) => koishiApp.any(),
-};
-
-const koishiContextProviderChannel: Provider = {
-  provide: KOISHI_CONTEXT_CHANNEL,
-  inject: [KoishiService],
-  useFactory: (koishiApp: KoishiService) => koishiApp.channel(),
-};
-
-const koishiContextProviderGuild: Provider = {
-  provide: KOISHI_CONTEXT_GUILD,
-  inject: [KoishiService],
-  useFactory: (koishiApp: KoishiService) => koishiApp.guild(),
-};
-
-const koishiContextProviderPrivate: Provider = {
-  provide: KOISHI_CONTEXT_PRIVATE,
-  inject: [KoishiService],
-  useFactory: (koishiApp: KoishiService) => koishiApp.private(),
 };
 
 @Module({
@@ -77,18 +55,9 @@ const koishiContextProviderPrivate: Provider = {
     KoishiLoggerService,
     KoishiMetascanService,
     koishiContextProvider,
-    koishiContextProviderChannel,
-    koishiContextProviderGuild,
-    koishiContextProviderPrivate,
     KoishiMiddleware,
   ],
-  exports: [
-    KoishiService,
-    koishiContextProvider,
-    koishiContextProviderChannel,
-    koishiContextProviderGuild,
-    koishiContextProviderPrivate,
-  ],
+  exports: [KoishiService, koishiContextProvider],
 })
 export class KoishiModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
@@ -98,7 +67,11 @@ export class KoishiModule implements NestModule {
   static register(options: KoishiModuleOptions): DynamicModule {
     return {
       module: KoishiModule,
-      providers: [{ provide: KOISHI_MODULE_OPTIONS, useValue: options }],
+      providers: [
+        { provide: KOISHI_MODULE_OPTIONS, useValue: options },
+        ...contextsToProvide,
+      ],
+      exports: contextsToProvide,
       global: options.isGlobal,
     };
   }
@@ -109,8 +82,10 @@ export class KoishiModule implements NestModule {
       imports: options.imports,
       providers: [
         ...this.createAsyncProviders(options),
+        ...contextsToProvide,
         ...(options.extraProviders || []),
       ],
+      exports: contextsToProvide,
       global: options.isGlobal,
     };
   }

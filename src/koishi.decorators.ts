@@ -1,9 +1,6 @@
 import { CustomDecorator, Inject, SetMetadata } from '@nestjs/common';
 import {
   KOISHI_CONTEXT,
-  KOISHI_CONTEXT_CHANNEL,
-  KOISHI_CONTEXT_GUILD,
-  KOISHI_CONTEXT_PRIVATE,
   KoishiCommandDefinition,
   KoishiDoRegister,
   KoishiOnContextScope,
@@ -18,12 +15,29 @@ import {
   Selection,
 } from './koishi.interfaces';
 import { Argv, Command } from 'koishi';
+import {
+  ContextScopeTypes,
+  getContextProvideToken,
+} from './koishi-context.factory';
 
 // Injections
 export const InjectContext = () => Inject(KOISHI_CONTEXT);
-export const InjectContextPrivate = () => Inject(KOISHI_CONTEXT_PRIVATE);
-export const InjectContextChannel = () => Inject(KOISHI_CONTEXT_CHANNEL);
-export const InjectContextGuild = () => Inject(KOISHI_CONTEXT_GUILD);
+export const InjectContextSpecific = (
+  scopeType?: ContextScopeTypes,
+  values: string[] = [],
+) => Inject(getContextProvideToken(scopeType, values));
+export const InjectContextPrivate = (...values: string[]) =>
+  InjectContextSpecific('private', values);
+export const InjectContextChannel = (...values: string[]) =>
+  InjectContextSpecific('channel', values);
+export const InjectContextGuild = (...values: string[]) =>
+  InjectContextSpecific('guild', values);
+export const InjectContextSelf = (...values: string[]) =>
+  InjectContextSpecific('self', values);
+export const InjectContextPlatform = (...values: string[]) =>
+  InjectContextSpecific('platform', values);
+export const InjectContextUser = (...values: string[]) =>
+  InjectContextSpecific('user', values);
 
 export const SetExtraMetadata = <K = string, V = any>(
   metadataKey: K,

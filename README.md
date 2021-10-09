@@ -128,25 +128,48 @@ export class AppService implements OnModuleInit {
 }
 ```
 
+### 注入某一特定上下文
+
+```ts
+import { Injectable } from '@nestjs/common';
+import { InjectContextGuild } from 'koishi-nestjs';
+import { Context } from 'koishi';
+
+@Injectable()
+export class AppService implements OnModuleInit {
+  constructor(@InjectContextGuild('1111111111') private ctx: Context) {}
+
+  onModuleInit() {
+    this.ctx.on('message', (session) => {})
+  }
+}
+```
+
 ### 装饰器定义
 
 在 Nest 提供者构造函数参数列表中使用下列装饰器即可进行注入操作。
 
 * `@InjectContext()` 注入全体上下文。等价于 `ctx.any()`
 
-* `@InjectContextPrivate()` 注入私聊上下文。等价于 `ctx.private()`
+* `@InjectContextPrivate(...values[]: string)` 注入私聊上下文。等价于 `ctx.private(...values)`
 
-* `@InjectContextChannel()` 注入频道上下文。等价于 `ctx.channel()`
+* `@InjectContextChannel(...values[]: string)` 注入频道上下文。等价于 `ctx.channel(...values)`
 
-* `@InjectContextGuild()` 注入群组上下文。等价于 `ctx.guild()`
+* `@InjectContextGuild(...values[]: string)` 注入群组上下文。等价于 `ctx.guild(...values)`
+
+* `@InjectContextSelf(...values[]: string)` 注入群组上下文。等价于 `ctx.self(...values)`
+
+* `@InjectContextUser(...values[]: string)` 注入群组上下文。等价于 `ctx.user(...values)`
+
+* `@InjectContextPlatform(...values[]: string)` 注入平台上下文。等价于 `ctx.platform(...values)`
 
 ### 在自定义提供者注入 Koishi 上下文
 
-您将需要使用标识符 `KOISHI_CONTEXT` 进行注入操作，如下例。
+您将需要使用函数 `getContextProvideToken()` 进行注入操作，如下例。
 
 ```ts
 import { Module } from '@nestjs/common';
-import { KoishiModule, KOISHI_CONTEXT } from 'koishi-nestjs';
+import { KoishiModule, getContextProvideToken } from 'koishi-nestjs';
 import { AppService } from './app.service';
 import { Context } from 'koishi';
 
@@ -157,7 +180,7 @@ import { Context } from 'koishi';
   providers: [
     {
       provide: AppService,
-      inject: [KOISHI_CONTEXT],
+      inject: [getContextProvideToken()],
       useFactory: (ctx: Context) => new AppService(ctx)
     }
   ]
@@ -165,7 +188,13 @@ import { Context } from 'koishi';
 export class AppModule {}
 ```
 
-您也可以使用 `KOISHI_CONTEXT_PRIVATE` `KOISHI_CONTEXT_CHANNEL` `KOISHI_CONTEXT_GUILD` 注入不同作用域的上下文。
+#### 函数定义
+
+`getContextProvideToken(scopeType?: ContextScopeTypes, values: string[] = [])`
+
+* `scopeType` 作用域类型，可以是 `private` `channel` `guild` `self` `user` `platform` 之一。留空表示全局上下文。
+
+* `values` 作用域值。例如 `getContextProvideToken('platform', ['onebot'])` 等价于 `ctx.platform('onebot')` .
 
 ## 使用装饰器注册 Koishi 指令
 
