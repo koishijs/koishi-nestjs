@@ -23,6 +23,7 @@ import {
   OnContextFunction,
 } from '../koishi.interfaces';
 import { applySelector } from '../utility/koishi.utility';
+import _ from 'lodash';
 import { KoishiContextService } from './koishi-context.service';
 
 @Injectable()
