@@ -4,7 +4,7 @@ import {
   KoishiCommandDefinition,
   KoishiDoRegister,
   KoishiOnContextScope,
-} from './koishi.constants';
+} from './utility/koishi.constants';
 import {
   CommandDefinitionFun,
   ContextFunction,

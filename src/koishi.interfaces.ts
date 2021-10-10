@@ -20,10 +20,14 @@ export interface Selection extends BaseSelection {
   $not?: Selection;
 }
 
-export interface KoishiModulePlugin<T extends Plugin> {
+export interface ContextSelector {
+  select?: Selection;
+  useSelector?: OnContextFunction;
+}
+
+export interface KoishiModulePlugin<T extends Plugin> extends ContextSelector {
   plugin: T;
   options?: boolean | Plugin.Config<T>;
-  select?: Selection;
 }
 
 export function PluginDef<T extends Plugin>(
@@ -34,6 +38,10 @@ export function PluginDef<T extends Plugin>(
   return { plugin, options, select };
 }
 
+export interface KoishiModuleSelection extends ContextSelector {
+  module: Type<any>;
+}
+
 export interface WhetherGlobalOption {
   isGlobal?: boolean;
 }
@@ -42,6 +50,7 @@ export interface KoishiModuleOptions extends App.Config, WhetherGlobalOption {
   usePlugins?: KoishiModulePlugin<Plugin>[];
   loggerPrefix?: string;
   loggerColor?: number;
+  moduleSelection?: KoishiModuleSelection[];
 }
 
 export interface KoishiModuleOptionsFactory {

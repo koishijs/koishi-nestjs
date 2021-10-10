@@ -4,6 +4,7 @@ import {
   Module,
   NestModule,
   Provider,
+  Scope,
 } from '@nestjs/common';
 import {
   KoishiModuleAsyncOptions,
@@ -11,20 +12,27 @@ import {
   KoishiModuleOptionsFactory,
 } from './koishi.interfaces';
 import { KoishiService } from './koishi.service';
-import { KOISHI_CONTEXT, KOISHI_MODULE_OPTIONS } from './koishi.constants';
-import { KoishiMiddleware } from './koishi.middleware';
+import {
+  KOISHI_CONTEXT,
+  KOISHI_MODULE_OPTIONS,
+} from './utility/koishi.constants';
+import { KoishiMiddleware } from './providers/koishi.middleware';
 import { createServer } from 'http';
 import { AddressInfo } from 'net';
-import { KoishiLoggerService } from './koishi-logger.service';
-import { KoishiMetascanService } from './koishi-metascan.service';
-import { DiscoveryModule } from '@nestjs/core';
+import { KoishiLoggerService } from './providers/koishi-logger.service';
+import { KoishiMetascanService } from './providers/koishi-metascan.service';
+import { DiscoveryModule, INQUIRER } from '@nestjs/core';
 import { Context } from 'koishi';
 import { contextsToProvide } from './koishi-context.factory';
+import { KoishiInjectionService } from './providers/koishi-injection.service';
+import { KoishiContextService } from './providers/koishi-context.service';
 
 const koishiContextProvider: Provider<Context> = {
   provide: KOISHI_CONTEXT,
-  inject: [KoishiService],
-  useFactory: (koishiApp: KoishiService) => koishiApp.any(),
+  inject: [KoishiInjectionService, INQUIRER],
+  scope: Scope.TRANSIENT,
+  useFactory: (injectionService: KoishiInjectionService, inquirer: any) =>
+    injectionService.getInjectContext(inquirer),
 };
 
 @Module({
@@ -55,6 +63,8 @@ const koishiContextProvider: Provider<Context> = {
     KoishiLoggerService,
     KoishiMetascanService,
     koishiContextProvider,
+    KoishiContextService,
+    KoishiInjectionService,
     KoishiMiddleware,
   ],
   exports: [KoishiService, koishiContextProvider],

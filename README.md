@@ -85,7 +85,7 @@ Koishi-Nest 的配置项和 Koishi 配置项一致，参照 [Koishi 文档](http
   * `options` Koishi 插件配置。等同于 `ctx.plugin(plugin, options)`。
   * `select` 插件选择器，定义插件的作用上下文。定义参照 [Koishi 文档](https://koishi.js.org/v4/guide/plugin/context.html#%E5%9C%A8%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E4%B8%AD%E4%BD%BF%E7%94%A8%E9%80%89%E6%8B%A9%E5%99%A8) 的写法。
 
-* `isGlobal`: `boolean` 默认 `false` 。指示 Koishi-Nest 模块是否应被注册为全局模块。 **异步配置该项应写入异步配置项中。** 关于全局模块请参考 [Nest.js 文档](https://docs.nestjs.cn/8/modules?id=%e5%85%a8%e5%b1%80%e6%a8%a1%e5%9d%97) 。
+* `isGlobal`: `boolean` 默认 `false` 。指示 Koishi-Nest 模块是否应被注册为全局模块。当 Koishi-Nest 需要被其他模块引用的情况下，需要使用该选项。 **异步配置该项应写入异步配置项中。** 关于全局模块请参考 [Nest.js 文档](https://docs.nestjs.cn/8/modules?id=%e5%85%a8%e5%b1%80%e6%a8%a1%e5%9d%97) 。
 
 插件的使用可以参考 [Koishi 文档](https://koishi.js.org/v4/guide/plugin/plugin.html)。
 
@@ -301,6 +301,7 @@ Koishi-Nest 使用一组装饰器进行描述指令的行为。这些装饰器�
 
 * `PluginDef(plugin: Plugin, options?: PluginConfig, select?: Selection)` 生成指令注册定义。用于 Koishi-Nest 启动参数和 `@UsePlugin()` 返回值。指令注册定义成员参数如下。
 
-  * `plugin` Koishi 插件。
-  * `options` Koishi 插件配置。等同于 `ctx.plugin(plugin, options)`。
-  * `select` 插件选择器，定义插件的作用上下文。定义参照 [Koishi 文档](https://koishi.js.org/v4/guide/plugin/context.html#%E5%9C%A8%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E4%B8%AD%E4%BD%BF%E7%94%A8%E9%80%89%E6%8B%A9%E5%99%A8) 的写法。
+  * `plugin`: Koishi 插件。
+  * `options`: Koishi 插件配置。等同于 `ctx.plugin(plugin, options)`。
+  * `select`: 插件选择器，定义插件的作用上下文。定义参照 [Koishi 文档](https://koishi.js.org/v4/guide/plugin/context.html#%E5%9C%A8%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E4%B8%AD%E4%BD%BF%E7%94%A8%E9%80%89%E6%8B%A9%E5%99%A8) 的写法。
+  * `useSelector`: `(ctx: Context) => Context` 使用函数进行选择。该函数接受1个 Context 参数，同时也需要返回1个 Context 对象。

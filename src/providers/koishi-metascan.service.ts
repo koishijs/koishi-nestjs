@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import {
   AbstractHttpAdapter,
-  DiscoveryService,
   HttpAdapterHost,
   MetadataScanner,
   ModuleRef,
+  ModulesContainer,
   Reflector,
 } from '@nestjs/core';
 import { Argv, Command, Context } from 'koishi';
@@ -13,7 +13,7 @@ import {
   KoishiCommandDefinition,
   KoishiDoRegister,
   KoishiOnContextScope,
-} from './koishi.constants';
+} from '../utility/koishi.constants';
 import {
   CommandDefinitionFun,
   ContextFunction,
@@ -21,15 +21,19 @@ import {
   EventNameAndPrepend,
   KoishiModulePlugin,
   OnContextFunction,
-} from './koishi.interfaces';
+} from '../koishi.interfaces';
+import { applySelector } from '../utility/koishi.utility';
+import _ from 'lodash';
+import { KoishiContextService } from './koishi-context.service';
 
 @Injectable()
 export class KoishiMetascanService {
   constructor(
-    private readonly discoveryService: DiscoveryService,
     private readonly metadataScanner: MetadataScanner,
     private readonly reflector: Reflector,
     private readonly moduleRef: ModuleRef,
+    private readonly moduleContainer: ModulesContainer,
+    private readonly ctxService: KoishiContextService,
   ) {}
 
   getHttpAdapter(): AbstractHttpAdapter {
@@ -95,9 +99,7 @@ export class KoishiMetascanService {
         if (!pluginDesc || !pluginDesc.plugin) {
           throw new Error(`Invalid plugin from method ${methodKey}.`);
         }
-        const pluginCtx = pluginDesc.select
-          ? baseContext.select(pluginDesc.select)
-          : baseContext.any();
+        const pluginCtx = applySelector(baseContext, pluginDesc);
         pluginCtx.plugin(pluginDesc.plugin, pluginDesc.options);
         break;
       case 'command':
@@ -124,22 +126,29 @@ export class KoishiMetascanService {
   }
 
   async registerContext(ctx: Context) {
-    const providers = this.discoveryService.getProviders();
-    const controllers = this.discoveryService.getControllers();
+    const modules = Array.from(this.moduleContainer.values());
     await Promise.all(
-      [...providers, ...controllers]
-        .filter((wrapper) => wrapper.isDependencyTreeStatic())
-        .filter((wrapper) => wrapper.instance)
-        .map((wrapper: InstanceWrapper) => {
-          const { instance } = wrapper;
-          const prototype = Object.getPrototypeOf(instance);
-          return this.metadataScanner.scanFromPrototype(
-            instance,
-            prototype,
-            (methodKey: string) =>
-              this.handleInstance(ctx, instance, methodKey),
-          );
+      _.flatten(
+        modules.map((module) => {
+          const moduleCtx = this.ctxService.getModuleCtx(ctx, module);
+          return [
+            ...Array.from(module.routes.values()),
+            ...Array.from(module.providers.values()),
+          ]
+            .filter((wrapper) => wrapper.isDependencyTreeStatic())
+            .filter((wrapper) => wrapper.instance)
+            .map((wrapper: InstanceWrapper) => {
+              const { instance } = wrapper;
+              const prototype = Object.getPrototypeOf(instance);
+              return this.metadataScanner.scanFromPrototype(
+                instance,
+                prototype,
+                (methodKey: string) =>
+                  this.handleInstance(moduleCtx, instance, methodKey),
+              );
+            });
         }),
+      ),
     );
   }
 }

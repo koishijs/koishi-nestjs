@@ -1,6 +1,6 @@
 import { Context } from 'koishi';
 import { Provider, Scope } from '@nestjs/common';
-import { KOISHI_CONTEXT } from './koishi.constants';
+import { KOISHI_CONTEXT } from './utility/koishi.constants';
 
 export type ContextScopeTypes =
   | 'guild'
@@ -26,7 +26,7 @@ function createContextProvider(
   return {
     provide: constructProvideToken(scopeType, values),
     inject: [KOISHI_CONTEXT],
-    // scope: Scope.TRANSIENT,
+    scope: Scope.TRANSIENT,
     useFactory: (ctx: Context) => ctx[scopeType](...values),
   };
 }

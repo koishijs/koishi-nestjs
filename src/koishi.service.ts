@@ -10,7 +10,8 @@ import { Server } from 'http';
 import Koa from 'koa';
 import KoaRouter from '@koa/router';
 import KoaBodyParser from 'koa-bodyparser';
-import { KoishiMetascanService } from './koishi-metascan.service';
+import { KoishiMetascanService } from './providers/koishi-metascan.service';
+import { applySelector } from './utility/koishi.utility';
 
 @Injectable()
 export class KoishiService
@@ -51,9 +52,7 @@ export class KoishiService
     await this.setHttpServer();
     if (this.koishiModuleOptions.usePlugins) {
       for (const pluginDesc of this.koishiModuleOptions.usePlugins) {
-        const ctx = pluginDesc.select
-          ? this.select(pluginDesc.select)
-          : this.any();
+        const ctx = applySelector(this, pluginDesc);
         ctx.plugin(pluginDesc.plugin, pluginDesc.options);
       }
     }
