@@ -82,7 +82,7 @@ export class KoishiModule implements NestModule {
         ...contextsToProvide,
       ],
       exports: contextsToProvide,
-      global: options.isGlobal,
+      global: options.isGlobal != null ? options.isGlobal : true,
     };
   }
 
@@ -96,7 +96,7 @@ export class KoishiModule implements NestModule {
         ...(options.extraProviders || []),
       ],
       exports: contextsToProvide,
-      global: options.isGlobal,
+      global: options.isGlobal != null ? options.isGlobal : true,
     };
   }
 

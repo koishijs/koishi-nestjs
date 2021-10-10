@@ -83,11 +83,16 @@ Koishi-Nest 的配置项和 Koishi 配置项一致，参照 [Koishi 文档](http
 
   * `plugin` Koishi 插件。
   * `options` Koishi 插件配置。等同于 `ctx.plugin(plugin, options)`。
-  * `select` 插件选择器，定义插件的作用上下文。定义参照 [Koishi 文档](https://koishi.js.org/v4/guide/plugin/context.html#%E5%9C%A8%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E4%B8%AD%E4%BD%BF%E7%94%A8%E9%80%89%E6%8B%A9%E5%99%A8) 的写法。
+  * 上下文选择器见本文 **上下文选择器** 部分。
 
-* `isGlobal`: `boolean` 默认 `false` 。指示 Koishi-Nest 模块是否应被注册为全局模块。当 Koishi-Nest 需要被其他模块引用的情况下，需要使用该选项。 **异步配置该项应写入异步配置项中。** 关于全局模块请参考 [Nest.js 文档](https://docs.nestjs.cn/8/modules?id=%e5%85%a8%e5%b1%80%e6%a8%a1%e5%9d%97) 。
+* `moduleSelection` `KoishiModuleSelection[]` 可选。选择 Nest 实例加载的其他 Nest 模块注入的 Koishi 上下文作用域，参数如下。
 
-插件的使用可以参考 [Koishi 文档](https://koishi.js.org/v4/guide/plugin/plugin.html)。
+  * `module` Nest 模块名。
+  * 上下文选择器见本文 **上下文选择器** 部分。
+
+插件的使用可以参考 [Koishi 文档](https://koishi.js.org/v4/guide/plugin/plugin.html)。 `moduleSelection` 的使用见本文 **复用性** 部分。
+
+* `isGlobal`: `boolean` 默认 `true` 。指示 Koishi-Nest 模块是否应被注册为全局模块，建议开启。当安装了其他模块的情况下，需要将 Koishi-Nest 注册为全局模块使得其他模块可以正常注入 Koishi-Nest 作为依赖项。 **异步配置该项应写入异步配置项中。** 关于全局模块请参考 [Nest.js 文档](https://docs.nestjs.cn/8/modules?id=%e5%85%a8%e5%b1%80%e6%a8%a1%e5%9d%97) 。
 
 ## 注入 Koishi 实例
 
@@ -297,11 +302,89 @@ Koishi-Nest 使用一组装饰器进行描述指令的行为。这些装饰器�
 
 * `@CommandDef((cmd: Command) => Command)` 手动定义指令信息，用于 Koishi-Nest 不支持的指令类型。
 
-### 其他
+## 复用性
+
+Nest 提供了模块系统，我们可以编写功能模块，并在功能模块进行 Koishi 指令注册操作，从而进行代码的有效复用。
+
+### 编写模块
+
+由于 Koishi-Nest 是全局定义的模块，功能模块 **不需要** 引入 `KoishiModule` 作为依赖。
+
+> 功能模块中，请使用 `@InjectContext()` 注册上下文，避免直接注入 `KoishiService` 导致上下文泄漏。
+
+```ts
+import { Injectable, Module, OnModuleInit } from '@nestjs/common';
+import {
+  InjectContext,
+  OnGuild,
+  OnPlatform,
+  OnUser,
+  UseCommand,
+} from 'koishi-nestjs';
+import { Context } from 'koishi';
+
+@Injectable()
+export class MyService implements OnModuleInit {
+  constructor(@InjectContext() private ctx: Context) {}
+  onModuleInit(): any {
+    this.ctx
+      .command('my-echo2 <content:string>')
+      .action((_, content) => content);
+  }
+
+  @OnPlatform('onebot')
+  @UseCommand('my-echo3 <content:string>')
+  onCommand3(_: any, content: string) {
+    return content;
+  }
+}
+
+@Module({
+  // Koishi-Nestjs 默认定义为全局模块，因此不需要引入依赖
+  imports: [],
+  providers: [MyService],
+})
+export class MyModule {}
+```
+为了保证模块的可配置性，我们应该把模块编写为动态模块。关于动态模块的文档可以参照 [Nest.js 文档](https://docs.nestjs.cn/8/fundamentals?id=%e5%8a%a8%e6%80%81%e6%a8%a1%e5%9d%97) 。
+
+### 使用模块
+
+把要使用的模块填入 `imports` 内即可。
+
+```ts
+import { Module } from '@nestjs/common';
+import { KoishiModule } from 'koishi-nestjs';
+
+@Module({
+  imports: [
+    KoishiModule.register({
+      // 在这里填写 Koishi 配置参数
+      moduleSelection: [
+        // 定义 MyModule 的 Koishi 指令注册只对 OneBot 平台有效
+        { module: MyModule, select: { $platform: 'onebot' } }
+      ]
+    }),
+    MyModule
+  ]
+})
+export class AppModule {}
+```
+
+## 其他
+
+### 上下文选择器
+
+在 Koishi-Nest 中，选择器对象有下列定义，用于上下文的选择。
+
+* `select`: 对象选择器，定义作用上下文。定义参照 [Koishi 文档](https://koishi.js.org/v4/guide/plugin/context.html#%E5%9C%A8%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E4%B8%AD%E4%BD%BF%E7%94%A8%E9%80%89%E6%8B%A9%E5%99%A8) 的写法。
+
+* `useSelector`: `(ctx: Context) => Context` 使用函数进行选择。该函数接受1个 Context 参数，同时也需要返回1个 Context 对象。
+
+### 帮助函数
 
 * `PluginDef(plugin: Plugin, options?: PluginConfig, select?: Selection)` 生成指令注册定义。用于 Koishi-Nest 启动参数和 `@UsePlugin()` 返回值。指令注册定义成员参数如下。
 
   * `plugin`: Koishi 插件。
   * `options`: Koishi 插件配置。等同于 `ctx.plugin(plugin, options)`。
-  * `select`: 插件选择器，定义插件的作用上下文。定义参照 [Koishi 文档](https://koishi.js.org/v4/guide/plugin/context.html#%E5%9C%A8%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E4%B8%AD%E4%BD%BF%E7%94%A8%E9%80%89%E6%8B%A9%E5%99%A8) 的写法。
-  * `useSelector`: `(ctx: Context) => Context` 使用函数进行选择。该函数接受1个 Context 参数，同时也需要返回1个 Context 对象。
+  * 上下文选择器见本文 **上下文选择器** 部分。
