@@ -65,7 +65,6 @@ const koishiContextProvider: Provider<Context> = {
     koishiContextProvider,
     KoishiContextService,
     KoishiInjectionService,
-    KoishiMiddleware,
   ],
   exports: [KoishiService, koishiContextProvider],
 })

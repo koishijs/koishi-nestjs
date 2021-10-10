@@ -16,8 +16,7 @@ export class KoishiInjectionService {
     const token =
       typeof inquerier === 'string' ? inquerier : inquerier.constructor;
     for (const module of this.moduleContainer.values()) {
-      const targetProvider = module.getProviderByKey(token);
-      if (targetProvider) {
+      if (module.hasProvider(token) || module.controllers.has(token)) {
         ctx = this.ctxService.getModuleCtx(ctx, module);
       }
     }
