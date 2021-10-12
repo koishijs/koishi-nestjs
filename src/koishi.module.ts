@@ -57,6 +57,7 @@ const koishiContextProvider: Provider<Context> = {
           koishi._nestKoaTmpServer.listen(0, 'localhost', resolve);
         });
         koishi._nestKoaTmpServerPort = (koishi._nestKoaTmpServer.address() as AddressInfo).port;
+        koishi.options.port = koishi._nestKoaTmpServerPort;
         return koishi;
       },
     },
