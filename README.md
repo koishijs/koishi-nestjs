@@ -181,7 +181,7 @@ import { Context } from 'koishi';
 @Module({
   imports: [
     KoishiModule.register({...})
-  ]
+  ],
   providers: [
     {
       provide: AppService,
