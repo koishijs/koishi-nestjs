@@ -119,7 +119,7 @@ export class AppService implements OnModuleInit {
 ### 注入上下文
 
 ```ts
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectContext } from 'koishi-nestjs';
 import { Context } from 'koishi';
 
@@ -136,7 +136,7 @@ export class AppService implements OnModuleInit {
 ### 注入某一特定上下文
 
 ```ts
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectContextGuild } from 'koishi-nestjs';
 import { Context } from 'koishi';
 
@@ -200,6 +200,45 @@ export class AppModule {}
 * `scopeType` 作用域类型，可以是 `private` `channel` `guild` `self` `user` `platform` 之一。留空表示全局上下文。
 
 * `values` 作用域值。例如 `getContextProvideToken('platform', ['onebot'])` 等价于 `ctx.platform('onebot')` .
+
+### 注入上下文 Service
+
+您可以使用装饰器与 Koishi 的 Service 系统进行交互。
+
+```ts
+import { Injectable, OnApplicationBootstrap } from "@nestjs/common";
+import { WireContextService, UseEvent } from 'koishi-nestjs';
+import { Cache } from 'koishi';
+
+@Injectable()
+export class AppService implements OnApplicationBootstrap {
+  constructor(@InjectContextGuild('1111111111') private ctx: Context) {
+  }
+
+  // 注入 Service
+  @WireContextService('cache')
+  private cache2: Cache;
+
+  // 成员变量名与 Service 名称一致时 name 可省略。
+  @WireContextService()
+  private cache: Cache;
+
+  async onApplicationBootstrap() {
+    // 可以在 onApplicationBootstrap 访问上下文 Service
+    const user = this.cache.get('user', '111111111');
+  }
+
+  @UseEvent('service/cache')
+  async onCacheAvailable() {
+    // 建议监听 Service 事件
+    const user = this.cache.get('user', '111111112');
+  }
+}
+```
+
+#### 定义
+
+* `@WireContextService(name?: string)` 在提供者类某一属性注入特定上下文 Service 。 `name` 默认为类方法名。
 
 ## 使用装饰器注册 Koishi 指令
 

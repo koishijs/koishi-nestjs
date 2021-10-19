@@ -4,6 +4,8 @@ import {
   KoishiCommandDefinition,
   KoishiDoRegister,
   KoishiOnContextScope,
+  KoishiServiceWireKeys,
+  KoishiServiceWireProperty,
 } from './utility/koishi.constants';
 import {
   CommandDefinitionFun,
@@ -150,3 +152,21 @@ export const CommandOption = (
   desc: string,
   config: Argv.OptionConfig = {},
 ) => CommandDef((cmd) => cmd.option(name, desc, config));
+
+// Service
+
+export function WireContextService(name?: string): PropertyDecorator {
+  return (obj, key) => {
+    const objClass = obj.constructor;
+    const properties: string[] =
+      Reflect.getMetadata(KoishiServiceWireKeys, objClass) || [];
+    properties.push(key.toString());
+    Reflect.defineMetadata(KoishiServiceWireKeys, properties, objClass);
+    Reflect.defineMetadata(
+      KoishiServiceWireProperty,
+      name || key,
+      objClass,
+      key,
+    );
+  };
+}

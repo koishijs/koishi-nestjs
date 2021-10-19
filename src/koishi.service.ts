@@ -50,6 +50,7 @@ export class KoishiService
 
   async onModuleInit() {
     await this.setHttpServer();
+    await this.metascan.preRegisterContext(this.any());
     if (this.koishiModuleOptions.usePlugins) {
       for (const pluginDesc of this.koishiModuleOptions.usePlugins) {
         const ctx = applySelector(this, pluginDesc);

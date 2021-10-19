@@ -13,11 +13,14 @@ import {
   KoishiCommandDefinition,
   KoishiDoRegister,
   KoishiOnContextScope,
+  KoishiServiceWireKeys,
+  KoishiServiceWireProperty,
 } from '../utility/koishi.constants';
 import {
   CommandDefinitionFun,
   ContextFunction,
   DoRegisterConfig,
+  EventName,
   EventNameAndPrepend,
   KoishiModulePlugin,
   OnContextFunction,
@@ -25,6 +28,7 @@ import {
 import { applySelector } from '../utility/koishi.utility';
 import _ from 'lodash';
 import { KoishiContextService } from './koishi-context.service';
+import { Module } from '@nestjs/core/injector/module';
 
 @Injectable()
 export class KoishiMetascanService {
@@ -45,7 +49,7 @@ export class KoishiMetascanService {
     }
   }
 
-  private async handleInstance(
+  private async handleInstanceRegistration(
     ctx: Context,
     instance: Record<string, any>,
     methodKey: string,
@@ -88,9 +92,17 @@ export class KoishiMetascanService {
         const {
           data: eventData,
         } = regData as DoRegisterConfig<EventNameAndPrepend>;
+        const eventName = eventData.name;
         baseContext.on(eventData.name, (...args: any[]) =>
           methodFun.call(instance, ...args),
         );
+        // special events
+        if (typeof eventName === 'string' && eventName.startsWith('service/')) {
+          const serviceName = eventName.slice(8);
+          if (baseContext[serviceName] != null) {
+            methodFun.call(instance);
+          }
+        }
         break;
       case 'plugin':
         const pluginDesc: KoishiModulePlugin<any> = await methodFun.call(
@@ -125,28 +137,81 @@ export class KoishiMetascanService {
     }
   }
 
+  private registerOnService(
+    ctx: Context,
+    instance: any,
+    property: string,
+    name: string,
+  ) {
+    const preObject = ctx[name];
+    if (preObject) {
+      instance[property] = preObject;
+    }
+    ctx.on(
+      <EventName>`service/${name}`,
+      () => {
+        instance[property] = ctx[name];
+      },
+      true,
+    );
+  }
+
+  private scanInstanceForService(ctx: Context, instance: any) {
+    const instanceClass = instance.constructor;
+    const properties: string[] = Reflect.getMetadata(
+      KoishiServiceWireKeys,
+      instanceClass,
+    );
+    if (!properties) {
+      return;
+    }
+    for (const property of properties) {
+      const serviceName = Reflect.getMetadata(
+        KoishiServiceWireProperty,
+        instanceClass,
+        property,
+      );
+      this.registerOnService(ctx, instance, property, serviceName);
+    }
+  }
+
+  private getAllActiveProvidersFromModule(module: Module) {
+    return [
+      ...Array.from(module.routes.values()),
+      ...Array.from(module.providers.values()),
+    ]
+      .filter((wrapper) => wrapper.isDependencyTreeStatic())
+      .filter((wrapper) => wrapper.instance);
+  }
+
+  async preRegisterContext(ctx: Context) {
+    for (const module of this.moduleContainer.values()) {
+      const moduleCtx = this.ctxService.getModuleCtx(ctx, module);
+      const allProviders = this.getAllActiveProvidersFromModule(module);
+      for (const provider of allProviders) {
+        return this.scanInstanceForService(moduleCtx, provider.instance);
+      }
+    }
+  }
+
   async registerContext(ctx: Context) {
     const modules = Array.from(this.moduleContainer.values());
     await Promise.all(
       _.flatten(
         modules.map((module) => {
           const moduleCtx = this.ctxService.getModuleCtx(ctx, module);
-          return [
-            ...Array.from(module.routes.values()),
-            ...Array.from(module.providers.values()),
-          ]
-            .filter((wrapper) => wrapper.isDependencyTreeStatic())
-            .filter((wrapper) => wrapper.instance)
-            .map((wrapper: InstanceWrapper) => {
-              const { instance } = wrapper;
-              const prototype = Object.getPrototypeOf(instance);
-              return this.metadataScanner.scanFromPrototype(
-                instance,
-                prototype,
-                (methodKey: string) =>
-                  this.handleInstance(moduleCtx, instance, methodKey),
-              );
-            });
+          const allProviders = this.getAllActiveProvidersFromModule(module);
+          return allProviders.map((wrapper: InstanceWrapper) => {
+            const { instance } = wrapper;
+            this.scanInstanceForService(moduleCtx, instance);
+            const prototype = Object.getPrototypeOf(instance);
+            return this.metadataScanner.scanFromPrototype(
+              instance,
+              prototype,
+              (methodKey: string) =>
+                this.handleInstanceRegistration(moduleCtx, instance, methodKey),
+            );
+          });
         }),
       ),
     );
