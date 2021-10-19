@@ -9,3 +9,4 @@ export const KoishiCommandDefinition = 'KoishiCommandDefinition';
 
 export const KoishiServiceWireProperty = Symbol('KoishiServiceWireProperty');
 export const KoishiServiceWireKeys = Symbol('KoishiServiceWireKeys');
+export const KoishiServiceProvideSym = 'KoishiServiceProvideSym';

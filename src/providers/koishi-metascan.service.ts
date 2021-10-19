@@ -13,6 +13,7 @@ import {
   KoishiCommandDefinition,
   KoishiDoRegister,
   KoishiOnContextScope,
+  KoishiServiceProvideSym,
   KoishiServiceWireKeys,
   KoishiServiceWireProperty,
 } from '../utility/koishi.constants';
@@ -156,7 +157,17 @@ export class KoishiMetascanService {
     );
   }
 
-  private scanInstanceForService(ctx: Context, instance: any) {
+  private scanInstanceForProvidingContextService(ctx: Context, instance: any) {
+    const providingServiceName = this.reflector.get(
+      KoishiServiceProvideSym,
+      instance.constructor,
+    );
+    if (providingServiceName) {
+      ctx[providingServiceName] = instance;
+    }
+  }
+
+  private scanInstanceForWireContextService(ctx: Context, instance: any) {
     const instanceClass = instance.constructor;
     const properties: string[] = Reflect.getMetadata(
       KoishiServiceWireKeys,
@@ -189,7 +200,9 @@ export class KoishiMetascanService {
       const moduleCtx = this.ctxService.getModuleCtx(ctx, module);
       const allProviders = this.getAllActiveProvidersFromModule(module);
       for (const provider of allProviders) {
-        return this.scanInstanceForService(moduleCtx, provider.instance);
+        const instance = provider.instance;
+        this.scanInstanceForWireContextService(moduleCtx, instance);
+        this.scanInstanceForProvidingContextService(moduleCtx, instance);
       }
     }
   }
@@ -203,7 +216,6 @@ export class KoishiMetascanService {
           const allProviders = this.getAllActiveProvidersFromModule(module);
           return allProviders.map((wrapper: InstanceWrapper) => {
             const { instance } = wrapper;
-            this.scanInstanceForService(moduleCtx, instance);
             const prototype = Object.getPrototypeOf(instance);
             return this.metadataScanner.scanFromPrototype(
               instance,

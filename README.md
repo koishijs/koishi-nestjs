@@ -201,45 +201,6 @@ export class AppModule {}
 
 * `values` 作用域值。例如 `getContextProvideToken('platform', ['onebot'])` 等价于 `ctx.platform('onebot')` .
 
-### 注入上下文 Service
-
-您可以使用装饰器与 Koishi 的 Service 系统进行交互。
-
-```ts
-import { Injectable, OnApplicationBootstrap } from "@nestjs/common";
-import { WireContextService, UseEvent } from 'koishi-nestjs';
-import { Cache } from 'koishi';
-
-@Injectable()
-export class AppService implements OnApplicationBootstrap {
-  constructor(@InjectContextGuild('1111111111') private ctx: Context) {
-  }
-
-  // 注入 Service
-  @WireContextService('cache')
-  private cache2: Cache;
-
-  // 成员变量名与 Service 名称一致时 name 可省略。
-  @WireContextService()
-  private cache: Cache;
-
-  async onApplicationBootstrap() {
-    // 可以在 onApplicationBootstrap 访问上下文 Service
-    const user = this.cache.get('user', '111111111');
-  }
-
-  @UseEvent('service/cache')
-  async onCacheAvailable() {
-    // 建议监听 Service 事件
-    const user = this.cache.get('user', '111111112');
-  }
-}
-```
-
-#### 定义
-
-* `@WireContextService(name?: string)` 在提供者类某一属性注入特定上下文 Service 。 `name` 默认为类方法名。
-
 ## 使用装饰器注册 Koishi 指令
 
 您也可以在完全不注入任何 Koishi 上下文的情况下注册 Koishi 指令，只需要在提供者类中使用装饰器即可。下面是一个例子。
@@ -340,6 +301,77 @@ Koishi-Nest 使用一组装饰器进行描述指令的行为。这些装饰器�
 * `@CommandOption(name: string, desc: string, config: Argv.OptionConfig = {})` 指令选项。等价于 `cmd.option(name, desc, config)`。
 
 * `@CommandDef((cmd: Command) => Command)` 手动定义指令信息，用于 Koishi-Nest 不支持的指令类型。
+
+## 上下文 Service 交互
+
+您可以使用装饰器与 Koishi 的 Service 系统进行交互。
+
+### 注入上下文 Service
+
+注入的 Service 通常来自 Koishi 插件，或是自行提供的 Service 。
+
+```ts
+import { Injectable, OnApplicationBootstrap } from "@nestjs/common";
+import { WireContextService, UseEvent } from 'koishi-nestjs';
+import { Cache } from 'koishi';
+
+@Injectable()
+export class AppService implements OnApplicationBootstrap {
+  constructor(@InjectContextGuild('1111111111') private ctx: Context) {
+  }
+
+  // 注入 Service
+  @WireContextService('cache')
+  private cache2: Cache;
+
+  // 成员变量名与 Service 名称一致时 name 可省略。
+  @WireContextService()
+  private cache: Cache;
+
+  async onApplicationBootstrap() {
+    // 可以在 onApplicationBootstrap 访问上下文 Service
+    const user = this.cache.get('user', '111111111');
+  }
+
+  @UseEvent('service/cache')
+  async onCacheAvailable() {
+    // 建议监听 Service 事件
+    const user = this.cache.get('user', '111111112');
+  }
+}
+```
+
+### 提供上下文 Service
+
+您也可以使用 Nest 提供者提供 Koishi 需要的 Service 的实现。
+
+```ts
+import { Injectable } from '@nestjs/common';
+import { ProvideContextService } from 'koishi-nestjs';
+
+declare module 'koishi' {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace Context {
+    interface Services {
+      testProvide: TestProvideService;
+    }
+  }
+}
+
+
+// `@ProvideContextService(name)` 装饰器会自动完成 `Context.service(name)` 的声明操作
+@Injectable()
+@ProvideContextService('testProvide')
+export class TestProvideService {
+  // 该类会作为 Koishi 的 Service 供其他 Koishi 插件进行引用
+}
+```
+
+### 定义
+
+* `@WireContextService(name?: string)` 在 Nest 提供者类某一属性注入特定上下文 Service 。 `name` 默认为类方法名。
+
+* `@ProvideContextService(name: string)` 使用某一 Nest 提供者类提供 Koishi 上下文 Service 。会自动完成 Koishi 的 Service 声明操作。
 
 ## 复用性
 

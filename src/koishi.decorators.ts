@@ -4,6 +4,7 @@ import {
   KoishiCommandDefinition,
   KoishiDoRegister,
   KoishiOnContextScope,
+  KoishiServiceProvideSym,
   KoishiServiceWireKeys,
   KoishiServiceWireProperty,
 } from './utility/koishi.constants';
@@ -16,7 +17,7 @@ import {
   OnContextFunction,
   Selection,
 } from './koishi.interfaces';
-import { Argv, Command } from 'koishi';
+import { Argv, Command, Context } from 'koishi';
 import {
   ContextScopeTypes,
   getContextProvideToken,
@@ -169,4 +170,9 @@ export function WireContextService(name?: string): PropertyDecorator {
       key,
     );
   };
+}
+
+export function ProvideContextService(name: string): ClassDecorator {
+  Context.service(name as keyof Context.Services);
+  return SetMetadata(KoishiServiceProvideSym, name);
 }
