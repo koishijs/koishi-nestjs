@@ -23,7 +23,7 @@ import { KoishiLoggerService } from './providers/koishi-logger.service';
 import { KoishiMetascanService } from './providers/koishi-metascan.service';
 import { DiscoveryModule, INQUIRER } from '@nestjs/core';
 import { Context } from 'koishi';
-import { contextsToProvide } from './koishi-context.factory';
+import { defaultContextContainer } from './koishi-context.factory';
 import { KoishiInjectionService } from './providers/koishi-injection.service';
 import { KoishiContextService } from './providers/koishi-context.service';
 
@@ -79,9 +79,9 @@ export class KoishiModule implements NestModule {
       module: KoishiModule,
       providers: [
         { provide: KOISHI_MODULE_OPTIONS, useValue: options },
-        ...contextsToProvide,
+        ...defaultContextContainer.contextsToProvide,
       ],
-      exports: contextsToProvide,
+      exports: defaultContextContainer.contextsToProvide,
       global: options.isGlobal != null ? options.isGlobal : true,
     };
   }
@@ -92,10 +92,10 @@ export class KoishiModule implements NestModule {
       imports: options.imports,
       providers: [
         ...this.createAsyncProviders(options),
-        ...contextsToProvide,
+        ...defaultContextContainer.contextsToProvide,
         ...(options.extraProviders || []),
       ],
-      exports: contextsToProvide,
+      exports: defaultContextContainer.contextsToProvide,
       global: options.isGlobal != null ? options.isGlobal : true,
     };
   }

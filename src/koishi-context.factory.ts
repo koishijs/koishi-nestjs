@@ -31,21 +31,27 @@ function createContextProvider(
   };
 }
 
-export const contextsToProvide: Provider<Context>[] = [];
-
-const contextTokensSet = new Set<string>();
+export class ProvidingContextContainer {
+  contextsToProvide: Provider<Context>[] = [];
+  private contextTokensSet = new Set<string>();
+  registerContext(scopeType?: ContextScopeTypes, values: string[] = []) {
+    if (!scopeType) {
+      return KOISHI_CONTEXT;
+    }
+    const token = constructProvideToken(scopeType, values);
+    if (!this.contextTokensSet.has(token)) {
+      this.contextTokensSet.add(token);
+      this.contextsToProvide.push(createContextProvider(scopeType, values));
+    }
+    return token;
+  }
+}
+export const defaultContextContainer = new ProvidingContextContainer();
 
 export function getContextProvideToken(
   scopeType?: ContextScopeTypes,
   values: string[] = [],
+  container = defaultContextContainer,
 ) {
-  if (!scopeType) {
-    return KOISHI_CONTEXT;
-  }
-  const token = constructProvideToken(scopeType, values);
-  if (!contextTokensSet.has(token)) {
-    contextTokensSet.add(token);
-    contextsToProvide.push(createContextProvider(scopeType, values));
-  }
-  return token;
+  return container.registerContext(scopeType, values);
 }
