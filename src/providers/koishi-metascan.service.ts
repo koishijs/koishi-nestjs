@@ -158,12 +158,14 @@ export class KoishiMetascanService {
   }
 
   private scanInstanceForProvidingContextService(ctx: Context, instance: any) {
-    const providingServiceName = this.reflector.get(
+    const providingServiceNames: string[] = this.reflector.get(
       KoishiServiceProvideSym,
       instance.constructor,
     );
-    if (providingServiceName) {
-      ctx[providingServiceName] = instance;
+    if (providingServiceNames) {
+      for (const name of providingServiceNames) {
+        ctx[name] = instance;
+      }
     }
   }
 

@@ -174,5 +174,5 @@ export function WireContextService(name?: string): PropertyDecorator {
 
 export function ProvideContextService(name: string): ClassDecorator {
   Context.service(name as keyof Context.Services);
-  return SetMetadata(KoishiServiceProvideSym, name);
+  return SetExtraMetadata(KoishiServiceProvideSym, name);
 }
