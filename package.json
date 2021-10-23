@@ -1,6 +1,6 @@
 {
   "name": "koishi-nestjs",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "Koishi.js as Nest.js Module",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -32,7 +32,7 @@
   "peerDependencies": {
     "@nestjs/common": "^8.0.0",
     "@nestjs/core": "^8.0.0",
-    "koishi": "^4.0.0-alpha.10",
+    "koishi": "^4.0.0-alpha.11",
     "proxy-agent": "^5.0.0",
     "reflect-metadata": "^0.1.13"
   },
@@ -50,7 +50,7 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^3.4.1",
     "express": "^4.17.1",
-    "koishi": "^4.0.0-alpha.10",
+    "koishi": "^4.0.0-alpha.11",
     "prettier": "^2.4.1",
     "proxy-agent": "^5.0.0",
     "reflect-metadata": "^0.1.13",
