@@ -7,7 +7,7 @@ import {
   ModulesContainer,
   Reflector,
 } from '@nestjs/core';
-import { Argv, Command, Context } from 'koishi';
+import { Argv, Command, Context, User } from 'koishi';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import {
   KoishiCommandDefinition,
@@ -19,10 +19,9 @@ import {
 } from '../utility/koishi.constants';
 import {
   CommandDefinitionFun,
-  ContextFunction,
+  CommandPutConfig,
   DoRegisterConfig,
   EventName,
-  EventNameAndPrepend,
   KoishiModulePlugin,
   OnContextFunction,
 } from '../koishi.interfaces';
@@ -47,6 +46,79 @@ export class KoishiMetascanService {
       return apdaterHost.httpAdapter;
     } else {
       return null;
+    }
+  }
+
+  private preRegisterCommandActionArg(config: CommandPutConfig, cmd: Command) {
+    if (!config) {
+      return;
+    }
+    switch (config.type) {
+      case 'option':
+        const { data: optionData } = config as CommandPutConfig<'option'>;
+        cmd.option(optionData.name, optionData.desc, optionData.config);
+        break;
+      case 'user':
+        const { data: userFields } = config as CommandPutConfig<'user'>;
+        if (userFields) {
+          cmd.userFields(userFields);
+        }
+        break;
+      case 'channel':
+        const { data: channelFields } = config as CommandPutConfig<'channel'>;
+        if (channelFields) {
+          cmd.channelFields(channelFields);
+        }
+        break;
+      case 'username':
+        const { data: useDatabase } = config as CommandPutConfig<'username'>;
+        if (useDatabase) {
+          cmd.userFields(['name']);
+        }
+        break;
+      default:
+        break;
+    }
+    return;
+  }
+
+  private getCommandActionArg(
+    config: CommandPutConfig,
+    argv: Argv,
+    args: any[],
+  ) {
+    if (!config) {
+      return;
+    }
+    switch (config.type) {
+      case 'arg':
+        const { data: index } = config as CommandPutConfig<'arg'>;
+        return args[index];
+      case 'argv':
+        return argv;
+      case 'session':
+        return argv.session;
+      case 'option':
+        const { data: optionData } = config as CommandPutConfig<'option'>;
+        return argv.options[optionData.name];
+      case 'user':
+        return argv.session.user;
+      case 'channel':
+        return argv.session.channel;
+      case 'username':
+        const { data: useDatabase } = config as CommandPutConfig<'username'>;
+        if (useDatabase) {
+          const user = argv.session.user as User.Observed<'name'>;
+          if (user?.name) {
+            return user?.name;
+          }
+        }
+        return argv.session.author?.nickname || argv.session.author?.username;
+      case 'sessionField':
+        const { data: field } = config as CommandPutConfig<'sessionField'>;
+        return argv.session[field];
+      default:
+        return;
     }
   }
 
@@ -84,15 +156,14 @@ export class KoishiMetascanService {
     }
     switch (regData.type) {
       case 'middleware':
+        const { data: midPrepend } = regData as DoRegisterConfig<'middleware'>;
         baseContext.middleware(
           (session, next) => methodFun.call(instance, session, next),
-          regData.data,
+          midPrepend,
         );
         break;
       case 'onevent':
-        const {
-          data: eventData,
-        } = regData as DoRegisterConfig<EventNameAndPrepend>;
+        const { data: eventData } = regData as DoRegisterConfig<'onevent'>;
         const eventName = eventData.name;
         baseContext.on(eventData.name, (...args: any[]) =>
           methodFun.call(instance, ...args),
@@ -116,10 +187,12 @@ export class KoishiMetascanService {
         pluginCtx.plugin(pluginDesc.plugin, pluginDesc.options);
         break;
       case 'command':
-        const { data: commandData } = regData as DoRegisterConfig<
-          ContextFunction<Command>
-        >;
-        let command = commandData(baseContext);
+        const { data: commandData } = regData as DoRegisterConfig<'command'>;
+        let command = baseContext.command(
+          commandData.def,
+          commandData.desc,
+          commandData.config,
+        );
         const commandDefs: CommandDefinitionFun[] = this.reflector.get(
           KoishiCommandDefinition,
           methodFun,
@@ -129,9 +202,21 @@ export class KoishiMetascanService {
             command = commandDef(command) || command;
           }
         }
-        command.action((argv: Argv, ...args: any[]) =>
-          methodFun.call(instance, argv, ...args),
-        );
+        if (!commandData.putOptions) {
+          command.action((argv: Argv, ...args: any[]) =>
+            methodFun.call(instance, argv, ...args),
+          );
+        } else {
+          for (const _optionToRegister of commandData.putOptions) {
+            this.preRegisterCommandActionArg(_optionToRegister, command);
+          }
+          command.action((argv: Argv, ...args: any[]) => {
+            const params = commandData.putOptions.map((o) =>
+              this.getCommandActionArg(o, argv, args),
+            );
+            return methodFun.call(instance, ...params);
+          });
+        }
         break;
       default:
         throw new Error(`Unknown operaton type ${regData.type}`);

@@ -238,7 +238,7 @@ export class AppService {
   @CommandDescription('Echo command from decorators!')
   @CommandUsage('Command usage')
   @CommandExample('Command example')
-  testEchoCommand(argv: Argv, content: string) {
+  testEchoCommand(@PutArgv() argv: Argv, @PutArg(0) content: string) {
     return content;
   }
 }
@@ -282,7 +282,7 @@ export class AppService {
 
 * `@UsePlugin()` 使用该方法注册插件。在 Koishi 实例注册时该方法会自动被调用。该方法需要返回插件定义，可以使用 `PluginDef(plugin, options, select)` 方法生成。 [参考](https://koishi.js.org/v4/guide/plugin/plugin.html#%E5%AE%89%E8%A3%85%E6%8F%92%E4%BB%B6)
 
-* `@UseCommand(def: string, config?: Command.Config)` 注册指令。指令系统可以参考 [Koishi 文档](https://koishi.js.org/guide/command.html) 。指令回调参数位置和类型和 Koishi 指令一致。
+* `@UseCommand(def: string, desc?: string, config?: Command.Config)` 注册指令。指令系统可以参考 [Koishi 文档](https://koishi.js.org/guide/command.html) 。指令回调参数位置和类型和 Koishi 指令一致。
 
 #### 指令描述装饰器
 
@@ -298,9 +298,28 @@ Koishi-Nest 使用一组装饰器进行描述指令的行为。这些装饰器�
 
 * `@CommandShortcut(def: string, config?: Command.Shortcut)` 指令快捷方式。等价于 `cmd.shortcut(def, config)`。
 
-* `@CommandOption(name: string, desc: string, config: Argv.OptionConfig = {})` 指令选项。等价于 `cmd.option(name, desc, config)`。
-
 * `@CommandDef((cmd: Command) => Command)` 手动定义指令信息，用于 Koishi-Nest 不支持的指令类型。
+
+#### 指令参数
+
+指令参数也使用一组装饰器对指令参数进行注入。下列装饰器应对提供者方法参数进行操作。
+
+* `@PutArgv()` 注入 `Argv` 对象。
+
+* `@PutSession(field?: keyof Session)` 注入 `Session` 对象，或 `Session` 对象的指定字段。
+
+* `@PutArg(index: number)` 注入指令的第 n 个参数。
+
+* `@PutOption(name: string, desc: string, config: Argv.OptionConfig = {})` 给指令添加选项并注入到该参数。等价于 `cmd.option(name, desc, config)` 。
+
+* `@PutUser(fields: string[])` 添加一部分字段用于观测，并将 User 对象注入到该参数。
+
+* `@PutChannel(fields: string[])` 添加一部分字段用于观测，并将 Channel 对象注入到该参数。
+
+关于 Koishi 的观察者概念详见 [Koishi 文档](https://koishi.js.org/v4/guide/database/observer.html#%E8%A7%82%E5%AF%9F%E8%80%85%E5%AF%B9%E8%B1%A1) 。
+
+* `@PutUserName(useDatabase: boolean = true)` 注入当前用户的用户名。
+  * `useDatabase` 是否尝试从数据库获取用户名。
 
 ## 上下文 Service 交互
 
@@ -459,3 +478,13 @@ export class AppModule {}
   * `plugin`: Koishi 插件。
   * `options`: Koishi 插件配置。等同于 `ctx.plugin(plugin, options)`。
   * 上下文选择器见本文 **上下文选择器** 部分。
+
+## 更新历史
+
+### 1.3
+
+* `@UseCommand` 现在定义和 Koishi 的指令定义，即 `ctx.command(name, desc, config)` 或 `ctx.command(name, config)` 一致了。
+
+* 增加了 `@CommandUserFields` 对应 `cmd.userFields` 以及 `@CommandChannelFields` 对应 `cmd.channelFields` 。
+
+* 增加了用于注入 Koishi 指令调用信息的提供者方法参数装饰器。详见 **指令参数** 部分。
