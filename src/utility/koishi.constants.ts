@@ -6,6 +6,7 @@ export const KOISHI_CONTEXT = 'KOISHI_CONTEXT';
 export const KoishiOnContextScope = 'KoishiOnContextScope';
 export const KoishiDoRegister = 'KoishiDoRegister';
 export const KoishiCommandDefinition = 'KoishiCommandDefinition';
+export const KoishiCommandPutDef = Symbol('KoishiCommandPutDef');
 
 export const KoishiServiceWireProperty = Symbol('KoishiServiceWireProperty');
 export const KoishiServiceWireKeys = Symbol('KoishiServiceWireKeys');

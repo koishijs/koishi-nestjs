@@ -2,6 +2,7 @@ import { CustomDecorator, Inject, SetMetadata } from '@nestjs/common';
 import {
   KOISHI_CONTEXT,
   KoishiCommandDefinition,
+  KoishiCommandPutDef,
   KoishiDoRegister,
   KoishiOnContextScope,
   KoishiServiceProvideSym,
@@ -10,10 +11,14 @@ import {
 } from './utility/koishi.constants';
 import {
   CommandDefinitionFun,
+  CommandPutConfig,
+  CommandPutConfigMap,
   ContextFunction,
   DoRegisterConfig,
+  DoRegisterConfigDataMap,
   EventName,
   EventNameAndPrepend,
+  GenerateMappingStruct,
   OnContextFunction,
   Selection,
 } from './koishi.interfaces';
@@ -66,33 +71,54 @@ export const SetExtraMetadata = <K = string, V = any>(
 
 // Register methods
 export const UseMiddleware = (prepend?: boolean): MethodDecorator =>
-  SetMetadata<string, DoRegisterConfig<boolean>>(KoishiDoRegister, {
-    type: 'middleware',
-    data: prepend,
-  });
+  SetMetadata<string, DoRegisterConfig<'middleware'>>(
+    KoishiDoRegister,
+    GenerateMappingStruct('middleware', prepend),
+  );
 export const UseEvent = (name: EventName, prepend?: boolean): MethodDecorator =>
-  SetMetadata<string, DoRegisterConfig<EventNameAndPrepend>>(KoishiDoRegister, {
-    type: 'onevent',
-    data: { name, prepend },
-  });
+  SetMetadata<string, DoRegisterConfig<'onevent'>>(
+    KoishiDoRegister,
+    GenerateMappingStruct('onevent', { name, prepend }),
+  );
 export const UsePlugin = (): MethodDecorator =>
-  SetMetadata<string, DoRegisterConfig>(KoishiDoRegister, {
-    type: 'plugin',
-  });
+  SetMetadata<string, DoRegisterConfig<'plugin'>>(
+    KoishiDoRegister,
+    GenerateMappingStruct('plugin'),
+  );
 
 export function UseCommand<D extends string>(
   def: D,
   config?: Command.Config,
+): MethodDecorator;
+export function UseCommand<D extends string>(
+  def: D,
+  desc: string,
+  config?: Command.Config,
+): MethodDecorator;
+export function UseCommand(
+  def: string,
+  ...args: [Command.Config?] | [string, Command.Config?]
 ): MethodDecorator {
-  return SetMetadata<
-    string,
-    DoRegisterConfig<
-      ContextFunction<Command<never, never, Argv.ArgumentType<D>>>
-    >
-  >(KoishiDoRegister, {
-    type: 'command',
-    data: (ctx) => ctx.command(def, config),
-  });
+  const desc = typeof args[0] === 'string' ? (args.shift() as string) : '';
+  const config = args[0] as Command.Config;
+  return (obj, key: string, des) => {
+    const putOptions: CommandPutConfig<keyof CommandPutConfigMap>[] =
+      Reflect.getMetadata(KoishiCommandPutDef, obj.constructor, key) ||
+      undefined;
+    const metadataDec = SetMetadata<string, DoRegisterConfig<'command'>>(
+      KoishiDoRegister,
+      {
+        type: 'command',
+        data: {
+          def,
+          desc,
+          config,
+          putOptions,
+        },
+      },
+    );
+    return metadataDec(obj, key, des);
+  };
 }
 
 // Context scopes
@@ -153,6 +179,30 @@ export const CommandOption = (
   desc: string,
   config: Argv.OptionConfig = {},
 ) => CommandDef((cmd) => cmd.option(name, desc, config));
+
+// Command put config
+
+function PutCommandParam<T extends keyof CommandPutConfigMap>(
+  type: T,
+  data?: CommandPutConfigMap[T],
+): ParameterDecorator {
+  return (obj, key: string, index) => {
+    const objClass = obj.constructor;
+    const list: CommandPutConfig<T>[] =
+      Reflect.getMetadata(KoishiCommandPutDef, objClass, key) || [];
+    list[index] = GenerateMappingStruct(type, data);
+    Reflect.defineMetadata(KoishiCommandPutDef, list, objClass, key);
+  };
+}
+
+export const PutArgv = () => PutCommandParam('argv');
+export const PutSession = () => PutCommandParam('session');
+export const PutArg = (i: number) => PutCommandParam('arg', i);
+export const PutOption = (
+  name: string,
+  desc: string,
+  config: Argv.OptionConfig = {},
+) => PutCommandParam('option', { name, desc, config });
 
 // Service
 

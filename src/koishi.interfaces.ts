@@ -1,5 +1,13 @@
 import { ModuleMetadata, Provider, Type } from '@nestjs/common';
-import { App, Command, Context, EventMap, MaybeArray, Plugin } from 'koishi';
+import {
+  App,
+  Argv,
+  Command,
+  Context,
+  EventMap,
+  MaybeArray,
+  Plugin,
+} from 'koishi';
 
 const selectors = [
   'user',
@@ -74,18 +82,62 @@ export interface EventNameAndPrepend {
   name: EventName;
   prepend?: boolean;
 }
-export type Promisify<T> = T extends Promise<unknown> ? T : Promise<T>;
 
 export type ContextFunction<T> = (ctx: Context) => T;
 export type OnContextFunction = ContextFunction<Context>;
-export type DoRegisterType = 'middleware' | 'command' | 'onevent' | 'plugin';
-export interface DoRegisterConfig<T = any> {
-  type: DoRegisterType;
-  data?: T;
+export interface DoRegisterConfigDataMap {
+  middleware: boolean; // prepend
+  onevent: EventNameAndPrepend;
+  plugin: never;
+  command: CommandRegisterConfig;
 }
 
-export interface CommandConfigWIthDescription extends Command.Config {
-  desc?: string;
+export interface MappingStruct<
+  T extends Record<string | number | symbol, any>,
+  K extends keyof T
+> {
+  type: K;
+  data?: T[K];
 }
+
+export function GenerateMappingStruct<
+  T extends Record<string | number | symbol, any>,
+  K extends keyof T
+>(type: K, data?: T[K]): MappingStruct<T, K> {
+  return {
+    type,
+    data,
+  };
+}
+
+export type DoRegisterConfig<
+  K extends keyof DoRegisterConfigDataMap = keyof DoRegisterConfigDataMap
+> = MappingStruct<DoRegisterConfigDataMap, K>;
+
+// Command stuff
+
+export interface CommandRegisterConfig<D extends string = string> {
+  def: D;
+  desc?: string;
+  config?: Command.Config;
+  putOptions?: CommandPutConfig<keyof CommandPutConfigMap>[];
+}
+
+export interface CommandOptionConfig {
+  name: string;
+  desc: string;
+  config?: Argv.OptionConfig;
+}
+
+export interface CommandPutConfigMap {
+  arg: number;
+  argv: never;
+  session: never;
+  option: CommandOptionConfig;
+}
+
+export type CommandPutConfig<
+  K extends keyof CommandPutConfigMap = keyof CommandPutConfigMap
+> = MappingStruct<CommandPutConfigMap, K>;
 
 export type CommandDefinitionFun = (cmd: Command) => Command;
