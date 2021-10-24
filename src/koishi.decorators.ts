@@ -22,7 +22,7 @@ import {
   OnContextFunction,
   Selection,
 } from './koishi.interfaces';
-import { Argv, Command, Context } from 'koishi';
+import { Argv, Command, Context, FieldCollector, Session } from 'koishi';
 import {
   ContextScopeTypes,
   getContextProvideToken,
@@ -180,6 +180,12 @@ export const CommandOption = (
   config: Argv.OptionConfig = {},
 ) => CommandDef((cmd) => cmd.option(name, desc, config));
 
+export const CommandUserFields = (fields: FieldCollector<'user'>) =>
+  CommandDef((cmd) => cmd.userFields(fields));
+
+export const CommandChannelFields = (fields: FieldCollector<'channel'>) =>
+  CommandDef((cmd) => cmd.channelFields(fields));
+
 // Command put config
 
 function PutCommandParam<T extends keyof CommandPutConfigMap>(
@@ -196,13 +202,31 @@ function PutCommandParam<T extends keyof CommandPutConfigMap>(
 }
 
 export const PutArgv = () => PutCommandParam('argv');
-export const PutSession = () => PutCommandParam('session');
+export const PutSession = (field?: keyof Session) =>
+  field ? PutCommandParam('sessionField', field) : PutCommandParam('session');
 export const PutArg = (i: number) => PutCommandParam('arg', i);
 export const PutOption = (
   name: string,
   desc: string,
   config: Argv.OptionConfig = {},
 ) => PutCommandParam('option', { name, desc, config });
+
+export const PutUser = (field: FieldCollector<'user'>) =>
+  PutCommandParam('user', field);
+
+export const PutChannel = (field: FieldCollector<'channel'>) =>
+  PutCommandParam('channel', field);
+
+export const PutUserName = (useDatabase = true) =>
+  PutCommandParam('username', useDatabase);
+
+export const PutUserId = () => PutSession('userId');
+export const PutGuildId = () => PutSession('guildId');
+export const PutGuildName = () => PutSession('guildName');
+export const PutChannelId = () => PutSession('channelId');
+export const PutChannelName = () => PutSession('channelName');
+export const PutSelfId = () => PutSession('selfId');
+export const PutBot = () => PutSession('bot');
 
 // Service
 

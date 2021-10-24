@@ -5,8 +5,10 @@ import {
   Command,
   Context,
   EventMap,
+  FieldCollector,
   MaybeArray,
   Plugin,
+  Session,
 } from 'koishi';
 
 const selectors = [
@@ -134,6 +136,10 @@ export interface CommandPutConfigMap {
   argv: never;
   session: never;
   option: CommandOptionConfig;
+  user: FieldCollector<'user'>;
+  channel: FieldCollector<'channel'>;
+  username: boolean;
+  sessionField: keyof Session;
 }
 
 export type CommandPutConfig<

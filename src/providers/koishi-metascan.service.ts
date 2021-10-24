@@ -7,7 +7,7 @@ import {
   ModulesContainer,
   Reflector,
 } from '@nestjs/core';
-import { Argv, Command, Context } from 'koishi';
+import { Argv, Command, Context, User } from 'koishi';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import {
   KoishiCommandDefinition,
@@ -20,6 +20,7 @@ import {
 import {
   CommandDefinitionFun,
   CommandPutConfig,
+  CommandPutConfigMap,
   ContextFunction,
   DoRegisterConfig,
   EventName,
@@ -51,6 +52,39 @@ export class KoishiMetascanService {
     }
   }
 
+  private preRegisterCommandActionArg(config: CommandPutConfig, cmd: Command) {
+    if (!config) {
+      return;
+    }
+    switch (config.type) {
+      case 'option':
+        const { data: optionData } = config as CommandPutConfig<'option'>;
+        cmd.option(optionData.name, optionData.desc, optionData.config);
+        break;
+      case 'user':
+        const { data: userFields } = config as CommandPutConfig<'user'>;
+        if (userFields) {
+          cmd.userFields(userFields);
+        }
+        break;
+      case 'channel':
+        const { data: channelFields } = config as CommandPutConfig<'channel'>;
+        if (channelFields) {
+          cmd.channelFields(channelFields);
+        }
+        break;
+      case 'username':
+        const { data: useDatabase } = config as CommandPutConfig<'username'>;
+        if (useDatabase) {
+          cmd.userFields(['name']);
+        }
+        break;
+      default:
+        break;
+    }
+    return;
+  }
+
   private getCommandActionArg(
     config: CommandPutConfig,
     argv: Argv,
@@ -70,6 +104,22 @@ export class KoishiMetascanService {
       case 'option':
         const { data: optionData } = config as CommandPutConfig<'option'>;
         return argv.options[optionData.name];
+      case 'user':
+        return argv.session.user;
+      case 'channel':
+        return argv.session.channel;
+      case 'username':
+        const { data: useDatabase } = config as CommandPutConfig<'username'>;
+        if (useDatabase) {
+          const user = argv.session.user as User.Observed<'name'>;
+          if (user?.name) {
+            return user?.name;
+          }
+        }
+        return argv.session.author?.nickname || argv.session.author?.username;
+      case 'sessionField':
+        const { data: field } = config as CommandPutConfig<'sessionField'>;
+        return argv.session[field];
       default:
         return;
     }
@@ -161,15 +211,7 @@ export class KoishiMetascanService {
           );
         } else {
           for (const _optionToRegister of commandData.putOptions) {
-            if (_optionToRegister?.type !== 'option') {
-              continue;
-            }
-            const optionToRegister = _optionToRegister as CommandPutConfig<'option'>;
-            command.option(
-              optionToRegister.data.name,
-              optionToRegister.data.desc,
-              optionToRegister.data.config,
-            );
+            this.preRegisterCommandActionArg(_optionToRegister, command);
           }
           command.action((argv: Argv, ...args: any[]) => {
             const params = commandData.putOptions.map((o) =>
