@@ -56,6 +56,9 @@ export class KoishiMetascanService {
     argv: Argv,
     args: any[],
   ) {
+    if (!config) {
+      return;
+    }
     switch (config.type) {
       case 'arg':
         const { data: index } = config as CommandPutConfig<'arg'>;
@@ -68,7 +71,7 @@ export class KoishiMetascanService {
         const { data: optionData } = config as CommandPutConfig<'option'>;
         return argv.options[optionData.name];
       default:
-        return undefined;
+        return;
     }
   }
 
@@ -158,7 +161,7 @@ export class KoishiMetascanService {
           );
         } else {
           for (const _optionToRegister of commandData.putOptions) {
-            if (_optionToRegister.type !== 'option') {
+            if (_optionToRegister?.type !== 'option') {
               continue;
             }
             const optionToRegister = _optionToRegister as CommandPutConfig<'option'>;
