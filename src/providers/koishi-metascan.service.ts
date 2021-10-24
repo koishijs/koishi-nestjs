@@ -20,11 +20,8 @@ import {
 import {
   CommandDefinitionFun,
   CommandPutConfig,
-  CommandPutConfigMap,
-  ContextFunction,
   DoRegisterConfig,
   EventName,
-  EventNameAndPrepend,
   KoishiModulePlugin,
   OnContextFunction,
 } from '../koishi.interfaces';

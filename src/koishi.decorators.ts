@@ -13,11 +13,8 @@ import {
   CommandDefinitionFun,
   CommandPutConfig,
   CommandPutConfigMap,
-  ContextFunction,
   DoRegisterConfig,
-  DoRegisterConfigDataMap,
   EventName,
-  EventNameAndPrepend,
   GenerateMappingStruct,
   OnContextFunction,
   Selection,
@@ -105,6 +102,7 @@ export function UseCommand(
     const putOptions: CommandPutConfig<keyof CommandPutConfigMap>[] =
       Reflect.getMetadata(KoishiCommandPutDef, obj.constructor, key) ||
       undefined;
+    // console.log(Reflect.getMetadata('design:paramtypes', obj, key));
     const metadataDec = SetMetadata<string, DoRegisterConfig<'command'>>(
       KoishiDoRegister,
       {
