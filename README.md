@@ -481,6 +481,12 @@ export class AppModule {}
 
 ## 更新历史
 
+### 1.3.3
+
+* 移除了 `http-proxy-middleware` 。
+  
+* 优化了 Nest 的 http 服务器与 Koishi 的 Koa 的对接过程。
+
 ### 1.3
 
 * `@UseCommand` 现在定义和 Koishi 的指令定义，即 `ctx.command(name, desc, config)` 或 `ctx.command(name, config)` 一致了。
