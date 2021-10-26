@@ -1,28 +1,27 @@
 import { Injectable, NestMiddleware, OnModuleInit } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
 import { KoishiService } from '../koishi.service';
-import { createProxyMiddleware, RequestHandler } from 'http-proxy-middleware';
+import { IncomingMessage, ServerResponse } from 'http';
+import { Http2ServerRequest, Http2ServerResponse } from 'http2';
 
 @Injectable()
-export class KoishiMiddleware
-  implements NestMiddleware<Request, Response>, OnModuleInit {
-  constructor(private koishi: KoishiService) {}
-
-  private proxyMiddleware: RequestHandler;
-
-  async onModuleInit() {
-    this.proxyMiddleware = createProxyMiddleware({
-      target: `http://localhost:${this.koishi._nestKoaTmpServerPort}`,
-      ws: false,
-      logLevel: 'silent',
-    });
+export class KoishiMiddleware implements NestMiddleware<Request, Response> {
+  private readonly koaCallback: (
+    req: IncomingMessage | Http2ServerRequest,
+    res: ServerResponse | Http2ServerResponse,
+  ) => void;
+  constructor(private koishi: KoishiService) {
+    this.koaCallback = this.koishi._nestKoaTmpInstance.callback();
   }
 
   use(req: Request, res: Response, next: NextFunction) {
-    const match = this.koishi.router.match(req.baseUrl, req.method);
+    const baseUrl = req.baseUrl || req.url;
+    const exactUrl = req.originalUrl || baseUrl;
+    const match = this.koishi.router.match(baseUrl, req.method);
     if (!match.route) {
       return next();
     }
-    return this.proxyMiddleware(req, res, next);
+    req.url = exactUrl;
+    return this.koaCallback(req, res);
   }
 }
