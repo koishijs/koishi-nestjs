@@ -38,29 +38,7 @@ const koishiContextProvider: Provider<Context> = {
 @Module({
   imports: [DiscoveryModule],
   providers: [
-    {
-      provide: KoishiService,
-      inject: [
-        KOISHI_MODULE_OPTIONS,
-        KoishiMetascanService,
-        KoishiLoggerService,
-      ],
-      useFactory: async (
-        options: KoishiModuleOptions,
-        metascan: KoishiMetascanService,
-      ) => {
-        const koishi = new KoishiService(options, metascan);
-        koishi._nestKoaTmpServer = createServer(
-          koishi._nestKoaTmpInstance.callback(),
-        );
-        await new Promise<void>((resolve) => {
-          koishi._nestKoaTmpServer.listen(0, 'localhost', resolve);
-        });
-        koishi._nestKoaTmpServerPort = (koishi._nestKoaTmpServer.address() as AddressInfo).port;
-        koishi.options.port = koishi._nestKoaTmpServerPort;
-        return koishi;
-      },
-    },
+    KoishiService,
     KoishiLoggerService,
     KoishiMetascanService,
     koishiContextProvider,

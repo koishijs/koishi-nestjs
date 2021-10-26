@@ -58,7 +58,6 @@
   },
   "dependencies": {
     "@koa/router": "^10.1.1",
-    "http-proxy-middleware": "^2.0.1",
     "koa": "^2.13.3",
     "koa-bodyparser": "^4.3.0",
     "lodash": "^4.17.21"
