@@ -494,6 +494,14 @@ export class AppModule {}
 
 ## 更新历史
 
+### 1.4.2
+
+* `KoishiWsAdapter`: 支持正则表达式路径。
+
+### 1.4
+
+* 适配最新的 Koishi 版本的 Websocket 变动。 **使用涉及 Websocket 的 Koishi 插件需要使用附带的 `KoishiWsAdapter`。**
+
 ### 1.3.3
 
 * 移除了 `http-proxy-middleware` 。

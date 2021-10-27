@@ -7,7 +7,17 @@ export class KoishiWsAdapter extends WsAdapter {
     super(appOrHttpServer);
   }
 
-  override ensureHttpServerExists(
+  protected override addWsServerToRegistry<
+    T extends Record<'path', string> = any,
+  >(wsServer: T, port: number, path: string) {
+    super.addWsServerToRegistry(wsServer, port, path);
+    const { options } = wsServer as any;
+    if (options && typeof options === 'object') {
+      options.path = undefined;
+    }
+  }
+
+  protected override ensureHttpServerExists(
     port: number,
     httpServer = http.createServer(),
   ) {
@@ -24,7 +34,7 @@ export class KoishiWsAdapter extends WsAdapter {
       let isRequestDelegated = false;
       let fallbackWsServer: any;
       for (const wsServer of wsServersCollection) {
-        if (pathname === wsServer.path) {
+        if (pathname?.match(wsServer.path)) {
           wsServer.handleUpgrade(request, socket, head, (ws: unknown) => {
             wsServer.emit('connection', ws, request);
           });
