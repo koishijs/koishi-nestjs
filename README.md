@@ -92,7 +92,20 @@ Koishi-Nest 的配置项和 Koishi 配置项一致，参照 [Koishi 文档](http
 
 插件的使用可以参考 [Koishi 文档](https://koishi.js.org/v4/guide/plugin/plugin.html)。 `moduleSelection` 的使用见本文 **复用性** 部分。
 
+* `useWs`: `boolean` 默认 `false` 。是否启用 WebSocket 。**异步配置该项应写入异步配置项中。** 详见本文的 **WebSocket** 部分。
+
 * `isGlobal`: `boolean` 默认 `true` 。指示 Koishi-Nest 模块是否应被注册为全局模块，建议开启。当安装了其他模块的情况下，需要将 Koishi-Nest 注册为全局模块使得其他模块可以正常注入 Koishi-Nest 作为依赖项。 **异步配置该项应写入异步配置项中。** 关于全局模块请参考 [Nest.js 文档](https://docs.nestjs.cn/8/modules?id=%e5%85%a8%e5%b1%80%e6%a8%a1%e5%9d%97) 。
+
+## WebSocket
+
+Koishi-Nest 针对 Koishi 的 WebSocket 功能进行了针对 Nest.js 的适配。
+
+若要使用 Koishi 的与 WebSocket 服务器相关的插件或功能，需要在 Koishi-Nest 配置项中，把 `useWs` 设置为 `true` ，并在 `main.ts` 修改下列部分。
+
+```ts
+  const app = await NestFactory.create(AppModule);
+  app.useWebSocketAdapter(new KoishiWsAdapter(app));
+```
 
 ## 注入 Koishi 实例
 

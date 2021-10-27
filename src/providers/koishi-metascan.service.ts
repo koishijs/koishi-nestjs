@@ -40,15 +40,6 @@ export class KoishiMetascanService {
     private readonly ctxService: KoishiContextService,
   ) {}
 
-  getHttpAdapter(): AbstractHttpAdapter {
-    const apdaterHost = this.moduleRef.get(HttpAdapterHost, { strict: false });
-    if (apdaterHost) {
-      return apdaterHost.httpAdapter;
-    } else {
-      return null;
-    }
-  }
-
   private preRegisterCommandActionArg(config: CommandPutConfig, cmd: Command) {
     if (!config) {
       return;

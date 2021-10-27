@@ -1,4 +1,4 @@
-import { App } from 'koishi';
+import { App, Router } from 'koishi';
 import {
   Inject,
   Injectable,
@@ -9,38 +9,40 @@ import {
 import { KoishiModuleOptions } from './koishi.interfaces';
 import { Server } from 'http';
 import Koa from 'koa';
-import KoaRouter from '@koa/router';
 import KoaBodyParser from 'koa-bodyparser';
 import { KoishiMetascanService } from './providers/koishi-metascan.service';
 import { applySelector } from './utility/koishi.utility';
 import { KOISHI_MODULE_OPTIONS } from './utility/koishi.constants';
 import { KoishiLoggerService } from './providers/koishi-logger.service';
+import { KoishiHttpDiscoveryService } from './koishi-http-discovery/koishi-http-discovery.service';
 
 @Injectable()
 export class KoishiService
   extends App
-  implements OnModuleInit, OnApplicationBootstrap, OnModuleDestroy {
+  implements OnModuleInit, OnApplicationBootstrap, OnModuleDestroy
+{
   constructor(
     @Inject(KOISHI_MODULE_OPTIONS)
     private readonly koishiModuleOptions: KoishiModuleOptions,
     private readonly metascan: KoishiMetascanService,
+    private readonly httpDiscovery: KoishiHttpDiscoveryService,
     private readonly koishiLogger: KoishiLoggerService,
   ) {
     super({
       ...koishiModuleOptions,
       port: 0,
     });
-    this.router = new KoaRouter();
+    this.router = new Router();
+    this._nestKoaTmpInstance.use(KoaBodyParser());
     this._nestKoaTmpInstance.use(this.router.routes());
     this._nestKoaTmpInstance.use(this.router.allowedMethods());
-    this._nestKoaTmpInstance.use(KoaBodyParser());
     this.options.port = 1;
   }
 
   readonly _nestKoaTmpInstance = new Koa();
 
   private async setHttpServer() {
-    const httpAdapter = this.metascan.getHttpAdapter();
+    const httpAdapter = this.httpDiscovery.getHttpAdapter();
     if (!httpAdapter) {
       return;
     }

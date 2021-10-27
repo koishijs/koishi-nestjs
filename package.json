@@ -32,15 +32,14 @@
   "peerDependencies": {
     "@nestjs/common": "^8.0.0",
     "@nestjs/core": "^8.0.0",
-    "koishi": "^4.0.0-alpha.11",
-    "proxy-agent": "^5.0.0",
-    "reflect-metadata": "^0.1.13"
+    "koishi": "^4.0.0-alpha.12",
+    "reflect-metadata": "^0.1.13",
+    "rxjs": "^7.4.0"
   },
   "devDependencies": {
     "@nestjs/common": "^8.0.9",
     "@nestjs/core": "^8.0.9",
     "@types/koa": "^2.13.4",
-    "@types/koa__router": "^8.0.8",
     "@types/koa-bodyparser": "^4.3.3",
     "@types/lodash": "^4.14.175",
     "@types/node": "^16.10.2",
@@ -50,16 +49,19 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^3.4.1",
     "express": "^4.17.1",
-    "koishi": "^4.0.0-alpha.11",
+    "koishi": "^4.0.0-alpha.12",
     "prettier": "^2.4.1",
-    "proxy-agent": "^5.0.0",
     "reflect-metadata": "^0.1.13",
+    "rxjs": "^7.4.0",
     "typescript": "^4.4.3"
   },
   "dependencies": {
-    "@koa/router": "^10.1.1",
+    "@nestjs/platform-ws": "^8.1.2",
+    "@nestjs/websockets": "^8.1.2",
+    "@types/ws": "^8.2.0",
     "koa": "^2.13.3",
     "koa-bodyparser": "^4.3.0",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "ws": "^8.2.3"
   }
 }

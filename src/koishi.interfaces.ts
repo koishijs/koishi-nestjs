@@ -52,11 +52,14 @@ export interface KoishiModuleSelection extends ContextSelector {
   module: Type<any>;
 }
 
-export interface WhetherGlobalOption {
+export interface KoishiModuleTopOptions {
   isGlobal?: boolean;
+  useWs?: boolean;
 }
 
-export interface KoishiModuleOptions extends App.Config, WhetherGlobalOption {
+export interface KoishiModuleOptions
+  extends App.Config,
+    KoishiModuleTopOptions {
   usePlugins?: KoishiModulePlugin<Plugin>[];
   loggerPrefix?: string;
   loggerColor?: number;
@@ -69,7 +72,7 @@ export interface KoishiModuleOptionsFactory {
 
 export interface KoishiModuleAsyncOptions
   extends Pick<ModuleMetadata, 'imports'>,
-    WhetherGlobalOption {
+    KoishiModuleTopOptions {
   useExisting?: Type<KoishiModuleOptionsFactory>;
   useClass?: Type<KoishiModuleOptionsFactory>;
   useFactory?: (

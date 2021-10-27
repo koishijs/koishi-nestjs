@@ -26,6 +26,8 @@ import { Context } from 'koishi';
 import { defaultContextContainer } from './koishi-context.factory';
 import { KoishiInjectionService } from './providers/koishi-injection.service';
 import { KoishiContextService } from './providers/koishi-context.service';
+import { KoishiHttpDiscoveryService } from './koishi-http-discovery/koishi-http-discovery.service';
+import { KoishiWebsocketGateway } from './providers/koishi-websocket.gateway';
 
 const koishiContextProvider: Provider<Context> = {
   provide: KOISHI_CONTEXT,
@@ -44,6 +46,7 @@ const koishiContextProvider: Provider<Context> = {
     koishiContextProvider,
     KoishiContextService,
     KoishiInjectionService,
+    KoishiHttpDiscoveryService,
   ],
   exports: [KoishiService, koishiContextProvider],
 })
@@ -58,6 +61,7 @@ export class KoishiModule implements NestModule {
       providers: [
         { provide: KOISHI_MODULE_OPTIONS, useValue: options },
         ...defaultContextContainer.contextsToProvide,
+        ...(options.useWs ? [KoishiWebsocketGateway] : []),
       ],
       exports: defaultContextContainer.contextsToProvide,
       global: options.isGlobal != null ? options.isGlobal : true,
@@ -72,6 +76,7 @@ export class KoishiModule implements NestModule {
         ...this.createAsyncProviders(options),
         ...defaultContextContainer.contextsToProvide,
         ...(options.extraProviders || []),
+        ...(options.useWs ? [KoishiWebsocketGateway] : []),
       ],
       exports: defaultContextContainer.contextsToProvide,
       global: options.isGlobal != null ? options.isGlobal : true,
