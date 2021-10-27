@@ -10,12 +10,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://code.mycard.moe/nanahira/koishi-nestjs.git"
+    "url": "https://github.com/koishijs/koishi-nestjs.git"
   },
   "bugs": {
-    "url": "https://code.mycard.moe/nanahira/koishi-nestjs/issues"
+    "url": "https://github.com/koishijs/koishi-nestjs/issues"
   },
-  "homepage": "https://code.mycard.moe/nanahira/koishi-nestjs",
+  "homepage": "https://github.com/koishijs/koishi-nestjs",
   "keywords": [
     "Koishi.js",
     "Nest.js",
