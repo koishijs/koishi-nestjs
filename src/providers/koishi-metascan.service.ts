@@ -1,12 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import {
-  AbstractHttpAdapter,
-  HttpAdapterHost,
-  MetadataScanner,
-  ModuleRef,
-  ModulesContainer,
-  Reflector,
-} from '@nestjs/core';
+import { MetadataScanner, ModuleRef, ModulesContainer } from '@nestjs/core';
 import { Argv, Command, Context, User } from 'koishi';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import {
@@ -18,26 +11,25 @@ import {
   KoishiServiceWireProperty,
 } from '../utility/koishi.constants';
 import {
-  CommandDefinitionFun,
   CommandPutConfig,
   DoRegisterConfig,
   EventName,
   KoishiModulePlugin,
-  OnContextFunction,
 } from '../koishi.interfaces';
 import { applySelector } from '../utility/koishi.utility';
 import _ from 'lodash';
 import { KoishiContextService } from './koishi-context.service';
 import { Module } from '@nestjs/core/injector/module';
+import { KoishiMetadataFetcherService } from '../koishi-metadata-fetcher/koishi-metadata-fetcher.service';
 
 @Injectable()
 export class KoishiMetascanService {
   constructor(
     private readonly metadataScanner: MetadataScanner,
-    private readonly reflector: Reflector,
     private readonly moduleRef: ModuleRef,
     private readonly moduleContainer: ModulesContainer,
     private readonly ctxService: KoishiContextService,
+    private readonly metaFetcher: KoishiMetadataFetcherService,
   ) {}
 
   private preRegisterCommandActionArg(config: CommandPutConfig, cmd: Command) {
@@ -119,31 +111,18 @@ export class KoishiMetascanService {
     methodKey: string,
   ) {
     const methodFun: (...args: any[]) => any = instance[methodKey];
-    const regData: DoRegisterConfig = this.reflector.get(
-      KoishiDoRegister,
-      methodFun,
-    );
+    const regData = this.metaFetcher.getMetadata(KoishiDoRegister, methodFun);
     if (!regData) {
       return;
     }
     let baseContext = ctx;
-    const instanceContextFilters: OnContextFunction[] = this.reflector.get(
+    const contextFilters = this.metaFetcher.getPropertyMetadataArray(
       KoishiOnContextScope,
-      instance.constructor,
+      instance,
+      methodKey,
     );
-    if (instanceContextFilters) {
-      for (const filter of instanceContextFilters) {
-        baseContext = filter(baseContext) || baseContext;
-      }
-    }
-    const methodContextFilters: OnContextFunction[] = this.reflector.get(
-      KoishiOnContextScope,
-      methodFun,
-    );
-    if (methodContextFilters) {
-      for (const filter of methodContextFilters) {
-        baseContext = filter(baseContext) || baseContext;
-      }
+    for (const filter of contextFilters) {
+      baseContext = filter(baseContext) || baseContext;
     }
     switch (regData.type) {
       case 'middleware':
@@ -184,9 +163,9 @@ export class KoishiMetascanService {
           commandData.desc,
           commandData.config,
         );
-        const commandDefs: CommandDefinitionFun[] = this.reflector.get(
+        const commandDefs = this.metaFetcher.getMetadataArray(
           KoishiCommandDefinition,
-          methodFun,
+          methodFun(),
         );
         if (commandDefs) {
           for (const commandDef of commandDefs) {
@@ -234,14 +213,12 @@ export class KoishiMetascanService {
   }
 
   private scanInstanceForProvidingContextService(ctx: Context, instance: any) {
-    const providingServiceNames: string[] = this.reflector.get(
+    const providingServiceNames = this.metaFetcher.getMetadataArray(
       KoishiServiceProvideSym,
       instance.constructor,
     );
-    if (providingServiceNames) {
-      for (const name of providingServiceNames) {
-        ctx[name] = instance;
-      }
+    for (const name of providingServiceNames) {
+      ctx[name] = instance;
     }
   }
 

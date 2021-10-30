@@ -8,6 +8,7 @@ import {
   KoishiServiceProvideSym,
   KoishiServiceWireKeys,
   KoishiServiceWireProperty,
+  MetadataArrayMap,
 } from './utility/koishi.constants';
 import {
   CommandDefinitionFun,
@@ -44,9 +45,9 @@ export const InjectContextPlatform = (...values: string[]) =>
 export const InjectContextUser = (...values: string[]) =>
   InjectContextSpecific('user', values);
 
-export const SetExtraMetadata = <K = string, V = any>(
+export const SetExtraMetadata = <K extends keyof MetadataArrayMap>(
   metadataKey: K,
-  metadataValue: V,
+  metadataValue: MetadataArrayMap[K],
 ): CustomDecorator<K> => {
   const decoratorFactory = (target: any, key?: any, descriptor?: any) => {
     const currentMetadata: any[] =
@@ -124,7 +125,7 @@ export function UseCommand(
 export const OnContext = (
   ctxFun: OnContextFunction,
 ): MethodDecorator & ClassDecorator =>
-  SetExtraMetadata<string, OnContextFunction>(KoishiOnContextScope, ctxFun);
+  SetExtraMetadata(KoishiOnContextScope, ctxFun);
 
 export const OnUser = (...values: string[]) =>
   OnContext((ctx) => ctx.user(...values));
@@ -150,7 +151,7 @@ export const OnSelection = (selection: Selection) =>
 // Command definition
 
 export const CommandDef = (def: CommandDefinitionFun): MethodDecorator =>
-  SetExtraMetadata<string, CommandDefinitionFun>(KoishiCommandDefinition, def);
+  SetExtraMetadata(KoishiCommandDefinition, def);
 
 export const CommandDescription = (desc: string) =>
   CommandDef((cmd) => {
@@ -244,7 +245,9 @@ export function WireContextService(name?: string): PropertyDecorator {
   };
 }
 
-export function ProvideContextService(name: string): ClassDecorator {
-  Context.service(name as keyof Context.Services);
+export function ProvideContextService(
+  name: keyof Context.Services,
+): ClassDecorator {
+  Context.service(name);
   return SetExtraMetadata(KoishiServiceProvideSym, name);
 }

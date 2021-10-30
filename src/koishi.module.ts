@@ -17,8 +17,6 @@ import {
   KOISHI_MODULE_OPTIONS,
 } from './utility/koishi.constants';
 import { KoishiMiddleware } from './providers/koishi.middleware';
-import { createServer } from 'http';
-import { AddressInfo } from 'net';
 import { KoishiLoggerService } from './providers/koishi-logger.service';
 import { KoishiMetascanService } from './providers/koishi-metascan.service';
 import { DiscoveryModule, INQUIRER } from '@nestjs/core';
@@ -28,6 +26,7 @@ import { KoishiInjectionService } from './providers/koishi-injection.service';
 import { KoishiContextService } from './providers/koishi-context.service';
 import { KoishiHttpDiscoveryService } from './koishi-http-discovery/koishi-http-discovery.service';
 import { KoishiWebsocketGateway } from './providers/koishi-websocket.gateway';
+import { KoishiMetadataFetcherService } from './koishi-metadata-fetcher/koishi-metadata-fetcher.service';
 
 const koishiContextProvider: Provider<Context> = {
   provide: KOISHI_CONTEXT,
@@ -47,6 +46,7 @@ const koishiContextProvider: Provider<Context> = {
     KoishiContextService,
     KoishiInjectionService,
     KoishiHttpDiscoveryService,
+    KoishiMetadataFetcherService,
   ],
   exports: [KoishiService, koishiContextProvider],
 })
