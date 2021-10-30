@@ -1,4 +1,5 @@
 import { ModuleMetadata, Provider, Type } from '@nestjs/common';
+import { Channel, User } from 'koishi';
 import {
   App,
   Argv,
@@ -10,6 +11,7 @@ import {
   Plugin,
   Session,
 } from 'koishi';
+import { MetadataArrayMap, MetadataMap } from './koishi.constants';
 
 const selectors = [
   'user',
@@ -150,3 +152,46 @@ export type CommandPutConfig<
 > = MappingStruct<CommandPutConfigMap, K>;
 
 export type CommandDefinitionFun = (cmd: Command) => Command;
+
+// metadata map
+export type MetadataArrayValueMap = {
+  [K in keyof MetadataArrayMap]: MetadataArrayMap[K][];
+};
+
+export type MetadataGenericMap = MetadataArrayValueMap & MetadataMap;
+
+export type MetadataArrayValue<
+  K extends keyof MetadataArrayValueMap
+> = MetadataArrayValueMap[K];
+
+export type MetadataKey = keyof MetadataArrayMap | keyof MetadataMap;
+
+export type MetadataMapValue<
+  K extends MetadataKey
+> = K extends keyof MetadataArrayValueMap
+  ? MetadataArrayValue<K>
+  : K extends keyof MetadataMap
+  ? MetadataMap[K]
+  : never;
+
+// command interceptor
+
+export interface KoishiCommandInterceptor<
+  U extends User.Field = never,
+  G extends Channel.Field = never,
+  A extends any[] = any[],
+  O extends {} = {}
+> {
+  intercept: Command.Action<U, G, A, O>;
+}
+
+export type KoishiCommandInterceptorRegistration<
+  U extends User.Field = never,
+  G extends Channel.Field = never,
+  A extends any[] = any[],
+  O extends {} = {}
+> =
+  | KoishiCommandInterceptor<U, G, A, O>
+  | Type<KoishiCommandInterceptor<U, G, A, O>>
+  | string
+  | symbol;

@@ -3,7 +3,7 @@ import { KOISHI_MODULE_OPTIONS } from '../utility/koishi.constants';
 import {
   KoishiModuleOptions,
   KoishiModuleSelection,
-} from '../koishi.interfaces';
+} from '../utility/koishi.interfaces';
 import { applySelector } from '../utility/koishi.utility';
 import { Context } from 'koishi';
 import { Module } from '@nestjs/core/injector/module';

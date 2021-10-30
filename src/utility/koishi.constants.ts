@@ -2,9 +2,12 @@
 import {
   CommandDefinitionFun,
   DoRegisterConfig,
+  KoishiCommandInterceptor,
+  KoishiCommandInterceptorRegistration,
   OnContextFunction,
-} from '../koishi.interfaces';
+} from './koishi.interfaces';
 import { Context } from 'koishi';
+import { Type } from '@nestjs/common';
 
 export const KOISHI_MODULE_OPTIONS = 'KOISHI_MODULE_OPTIONS';
 export const KOISHI_CONTEXT = 'KOISHI_CONTEXT';
@@ -14,6 +17,7 @@ export const KoishiOnContextScope = 'KoishiOnContextScope';
 export const KoishiDoRegister = 'KoishiDoRegister';
 export const KoishiCommandDefinition = 'KoishiCommandDefinition';
 export const KoishiCommandPutDef = 'KoishiCommandPutDef';
+export const KoishiCommandInterceptorDef = 'KoishiCommandInterceptorDef';
 
 export const KoishiServiceWireProperty = 'KoishiServiceWireProperty';
 export const KoishiServiceWireKeys = 'KoishiServiceWireKeys';
@@ -25,13 +29,9 @@ export interface MetadataArrayMap {
   KoishiOnContextScope: OnContextFunction;
   KoishiCommandDefinition: CommandDefinitionFun;
   KoishiServiceProvideSym: keyof Context.Services;
+  KoishiCommandInterceptorDef: KoishiCommandInterceptorRegistration;
 }
 
 export interface MetadataMap {
   KoishiDoRegister: DoRegisterConfig;
 }
-
-export type MetadataGenericMap = {
-  [K in keyof MetadataArrayMap]: MetadataArrayMap[K][];
-} &
-  MetadataMap;

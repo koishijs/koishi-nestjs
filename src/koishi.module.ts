@@ -10,7 +10,7 @@ import {
   KoishiModuleAsyncOptions,
   KoishiModuleOptions,
   KoishiModuleOptionsFactory,
-} from './koishi.interfaces';
+} from './utility/koishi.interfaces';
 import { KoishiService } from './koishi.service';
 import {
   KOISHI_CONTEXT,
@@ -21,7 +21,7 @@ import { KoishiLoggerService } from './providers/koishi-logger.service';
 import { KoishiMetascanService } from './providers/koishi-metascan.service';
 import { DiscoveryModule, INQUIRER } from '@nestjs/core';
 import { Context } from 'koishi';
-import { defaultContextContainer } from './koishi-context.factory';
+import { defaultContextContainer } from './utility/koishi-context.factory';
 import { KoishiInjectionService } from './providers/koishi-injection.service';
 import { KoishiContextService } from './providers/koishi-context.service';
 import { KoishiHttpDiscoveryService } from './koishi-http-discovery/koishi-http-discovery.service';

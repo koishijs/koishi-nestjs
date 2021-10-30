@@ -1,5 +1,5 @@
 import { Context } from 'koishi';
-import { ContextSelector } from '../koishi.interfaces';
+import { ContextSelector } from './koishi.interfaces';
 
 export function applySelector(
   ctx: Context,

@@ -1,7 +1,8 @@
-import { CustomDecorator, Inject, SetMetadata } from '@nestjs/common';
+import { CustomDecorator, Inject, Type } from '@nestjs/common';
 import {
   KOISHI_CONTEXT,
   KoishiCommandDefinition,
+  KoishiCommandInterceptorDef,
   KoishiCommandPutDef,
   KoishiDoRegister,
   KoishiOnContextScope,
@@ -9,7 +10,8 @@ import {
   KoishiServiceWireKeys,
   KoishiServiceWireProperty,
   MetadataArrayMap,
-} from './utility/koishi.constants';
+  MetadataMap,
+} from './koishi.constants';
 import {
   CommandDefinitionFun,
   CommandPutConfig,
@@ -17,6 +19,13 @@ import {
   DoRegisterConfig,
   EventName,
   GenerateMappingStruct,
+  KoishiCommandInterceptor,
+  KoishiCommandInterceptorDeclaration,
+  MetadataArrayValue,
+  MetadataArrayValueMap,
+  MetadataGenericMap,
+  MetadataKey,
+  MetadataMapValue,
   OnContextFunction,
   Selection,
 } from './koishi.interfaces';
@@ -45,44 +54,66 @@ export const InjectContextPlatform = (...values: string[]) =>
 export const InjectContextUser = (...values: string[]) =>
   InjectContextSpecific('user', values);
 
-export const SetExtraMetadata = <K extends keyof MetadataArrayMap>(
+// metadata extended
+
+export function TransformMetadata<
+  K extends MetadataKey,
+  VM extends Partial<MetadataGenericMap> = MetadataGenericMap
+>(
   metadataKey: K,
-  metadataValue: MetadataArrayMap[K],
-): CustomDecorator<K> => {
+  metadataValueFun: (oldValue: VM[K]) => VM[K],
+): CustomDecorator<K> {
   const decoratorFactory = (target: any, key?: any, descriptor?: any) => {
-    const currentMetadata: any[] =
+    const oldValue: VM[K] =
       Reflect.getMetadata(
         metadataKey,
         descriptor ? descriptor.value : target,
       ) || [];
-    currentMetadata.push(metadataValue);
+    const newValue = metadataValueFun(oldValue);
     if (descriptor) {
-      Reflect.defineMetadata(metadataKey, currentMetadata, descriptor.value);
+      Reflect.defineMetadata(metadataKey, newValue, descriptor.value);
       return descriptor;
     }
-    Reflect.defineMetadata(metadataKey, currentMetadata, target);
+    Reflect.defineMetadata(metadataKey, newValue, target);
     return target;
   };
   decoratorFactory.KEY = metadataKey;
   return decoratorFactory;
-};
+}
+
+export const SetMetadata = <K extends keyof MetadataGenericMap>(
+  metadataKey: K,
+  metadataValue: MetadataGenericMap[K],
+): CustomDecorator<K> => TransformMetadata<K>(metadataKey, () => metadataValue);
+
+export const AppendMetadata = <K extends keyof MetadataArrayMap>(
+  metadataKey: K,
+  metadataValue: MetadataArrayMap[K],
+): CustomDecorator<K> =>
+  TransformMetadata<K, MetadataArrayValueMap>(metadataKey, (arr) => {
+    const newArr = arr || [];
+    newArr.push(metadataValue);
+    return newArr;
+  });
+
+export const ConcatMetadata = <K extends keyof MetadataArrayValueMap>(
+  metadataKey: K,
+  metadataValue: MetadataArrayValue<K>,
+): CustomDecorator<K> =>
+  TransformMetadata<K, MetadataArrayValueMap>(metadataKey, (arr) =>
+    ((arr || []) as any[]).concat(metadataValue),
+  );
 
 // Register methods
 export const UseMiddleware = (prepend?: boolean): MethodDecorator =>
-  SetMetadata<string, DoRegisterConfig<'middleware'>>(
-    KoishiDoRegister,
-    GenerateMappingStruct('middleware', prepend),
-  );
+  SetMetadata(KoishiDoRegister, GenerateMappingStruct('middleware', prepend));
 export const UseEvent = (name: EventName, prepend?: boolean): MethodDecorator =>
-  SetMetadata<string, DoRegisterConfig<'onevent'>>(
+  SetMetadata(
     KoishiDoRegister,
     GenerateMappingStruct('onevent', { name, prepend }),
   );
 export const UsePlugin = (): MethodDecorator =>
-  SetMetadata<string, DoRegisterConfig<'plugin'>>(
-    KoishiDoRegister,
-    GenerateMappingStruct('plugin'),
-  );
+  SetMetadata(KoishiDoRegister, GenerateMappingStruct('plugin'));
 
 export function UseCommand<D extends string>(
   def: D,
@@ -104,18 +135,15 @@ export function UseCommand(
       Reflect.getMetadata(KoishiCommandPutDef, obj.constructor, key) ||
       undefined;
     // console.log(Reflect.getMetadata('design:paramtypes', obj, key));
-    const metadataDec = SetMetadata<string, DoRegisterConfig<'command'>>(
-      KoishiDoRegister,
-      {
-        type: 'command',
-        data: {
-          def,
-          desc,
-          config,
-          putOptions,
-        },
+    const metadataDec = SetMetadata(KoishiDoRegister, {
+      type: 'command',
+      data: {
+        def,
+        desc,
+        config,
+        putOptions,
       },
-    );
+    });
     return metadataDec(obj, key, des);
   };
 }
@@ -125,7 +153,7 @@ export function UseCommand(
 export const OnContext = (
   ctxFun: OnContextFunction,
 ): MethodDecorator & ClassDecorator =>
-  SetExtraMetadata(KoishiOnContextScope, ctxFun);
+  AppendMetadata(KoishiOnContextScope, ctxFun);
 
 export const OnUser = (...values: string[]) =>
   OnContext((ctx) => ctx.user(...values));
@@ -151,7 +179,7 @@ export const OnSelection = (selection: Selection) =>
 // Command definition
 
 export const CommandDef = (def: CommandDefinitionFun): MethodDecorator =>
-  SetExtraMetadata(KoishiCommandDefinition, def);
+  AppendMetadata(KoishiCommandDefinition, def);
 
 export const CommandDescription = (desc: string) =>
   CommandDef((cmd) => {
@@ -249,5 +277,12 @@ export function ProvideContextService(
   name: keyof Context.Services,
 ): ClassDecorator {
   Context.service(name);
-  return SetExtraMetadata(KoishiServiceProvideSym, name);
+  return AppendMetadata(KoishiServiceProvideSym, name);
 }
+
+// Command interceptor
+
+export const CommandInterceptors = (
+  ...interceptors: KoishiCommandInterceptorDeclaration[]
+): MethodDecorator & ClassDecorator =>
+  ConcatMetadata(KoishiCommandInterceptorDef, interceptors);

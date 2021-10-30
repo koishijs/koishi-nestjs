@@ -1,7 +1,7 @@
 import { ConsoleLogger, Inject, Injectable } from '@nestjs/common';
 import { Logger } from 'koishi';
 import { KOISHI_MODULE_OPTIONS } from '../utility/koishi.constants';
-import { KoishiModuleOptions } from '../koishi.interfaces';
+import { KoishiModuleOptions } from '../utility/koishi.interfaces';
 
 @Injectable()
 export class KoishiLoggerService extends ConsoleLogger {

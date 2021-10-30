@@ -6,7 +6,7 @@ import {
   OnModuleDestroy,
   OnModuleInit,
 } from '@nestjs/common';
-import { KoishiModuleOptions } from './koishi.interfaces';
+import { KoishiModuleOptions } from './utility/koishi.interfaces';
 import { Server } from 'http';
 import Koa from 'koa';
 import KoaBodyParser from 'koa-bodyparser';
@@ -19,8 +19,7 @@ import { KoishiHttpDiscoveryService } from './koishi-http-discovery/koishi-http-
 @Injectable()
 export class KoishiService
   extends App
-  implements OnModuleInit, OnApplicationBootstrap, OnModuleDestroy
-{
+  implements OnModuleInit, OnApplicationBootstrap, OnModuleDestroy {
   constructor(
     @Inject(KOISHI_MODULE_OPTIONS)
     private readonly koishiModuleOptions: KoishiModuleOptions,

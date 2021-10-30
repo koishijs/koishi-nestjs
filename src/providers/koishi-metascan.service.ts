@@ -4,6 +4,7 @@ import { Argv, Command, Context, User } from 'koishi';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import {
   KoishiCommandDefinition,
+  KoishiCommandInterceptorDef,
   KoishiDoRegister,
   KoishiOnContextScope,
   KoishiServiceProvideSym,
@@ -14,8 +15,10 @@ import {
   CommandPutConfig,
   DoRegisterConfig,
   EventName,
+  KoishiCommandInterceptor,
+  KoishiCommandInterceptorRegistration,
   KoishiModulePlugin,
-} from '../koishi.interfaces';
+} from '../utility/koishi.interfaces';
 import { applySelector } from '../utility/koishi.utility';
 import _ from 'lodash';
 import { KoishiContextService } from './koishi-context.service';
@@ -105,6 +108,21 @@ export class KoishiMetascanService {
     }
   }
 
+  private getInterceptor(interceptorDef: KoishiCommandInterceptorRegistration) {
+    if (typeof interceptorDef !== 'object') {
+      return this.moduleRef.get(interceptorDef, { strict: false });
+    }
+    return interceptorDef;
+  }
+
+  private addInterceptor(
+    command: Command,
+    interceptorDef: KoishiCommandInterceptorRegistration,
+  ) {
+    const interceptor = this.getInterceptor(interceptorDef);
+    command.before((...params) => interceptor.intercept(...params));
+  }
+
   private async handleInstanceRegistration(
     ctx: Context,
     instance: Record<string, any>,
@@ -165,12 +183,18 @@ export class KoishiMetascanService {
         );
         const commandDefs = this.metaFetcher.getMetadataArray(
           KoishiCommandDefinition,
-          methodFun(),
+          methodFun,
         );
-        if (commandDefs) {
-          for (const commandDef of commandDefs) {
-            command = commandDef(command) || command;
-          }
+        for (const commandDef of commandDefs) {
+          command = commandDef(command) || command;
+        }
+        const interceptorDefs = this.metaFetcher.getPropertyMetadataArray(
+          KoishiCommandInterceptorDef,
+          instance,
+          methodKey,
+        );
+        for (const interceptorDef of interceptorDefs) {
+          this.addInterceptor(command, interceptorDef);
         }
         if (!commandData.putOptions) {
           command.action((argv: Argv, ...args: any[]) =>

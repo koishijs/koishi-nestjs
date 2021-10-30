@@ -1,6 +1,6 @@
 import { Context } from 'koishi';
 import { Provider, Scope } from '@nestjs/common';
-import { KOISHI_CONTEXT } from './utility/koishi.constants';
+import { KOISHI_CONTEXT } from './koishi.constants';
 
 export type ContextScopeTypes =
   | 'guild'

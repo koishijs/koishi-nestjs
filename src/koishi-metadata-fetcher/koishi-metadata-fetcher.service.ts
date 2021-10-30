@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { MetadataArrayMap } from '../utility/koishi.constants';
 import {
-  MetadataArrayMap,
+  MetadataArrayValue,
   MetadataGenericMap,
-} from '../utility/koishi.constants';
+  MetadataMapValue,
+} from '../utility/koishi.interfaces';
 
 @Injectable()
 export class KoishiMetadataFetcherService {
@@ -25,7 +27,7 @@ export class KoishiMetadataFetcherService {
     instance: any,
   ) {
     return (
-      this.reflector.get<MetadataArrayMap[K][]>(metadataKey, instance) || []
+      this.reflector.get<MetadataArrayValue<K>>(metadataKey, instance) || []
     );
   }
 
@@ -33,6 +35,6 @@ export class KoishiMetadataFetcherService {
     metadataKey: K,
     instance: any,
   ) {
-    return this.reflector.get<MetadataGenericMap[K]>(metadataKey, instance);
+    return this.reflector.get<MetadataMapValue<K>>(metadataKey, instance);
   }
 }
