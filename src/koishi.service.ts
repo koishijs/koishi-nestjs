@@ -24,7 +24,7 @@ import { Filter, ReplacedContext } from './utility/replaced-context';
 export class KoishiService
   extends App
   implements OnModuleInit, OnApplicationBootstrap, OnModuleDestroy {
-  private globalInterceptors: KoishiCommandInterceptorRegistration[];
+  private readonly globalInterceptors: KoishiCommandInterceptorRegistration[];
   constructor(
     @Inject(KOISHI_MODULE_OPTIONS)
     private readonly koishiModuleOptions: KoishiModuleOptions,
