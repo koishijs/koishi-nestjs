@@ -1,4 +1,4 @@
-import { App, Command, Context, Router } from 'koishi';
+import { App, Argv, Command, Context, Router } from 'koishi';
 import {
   Inject,
   Injectable,
@@ -24,6 +24,7 @@ import { Filter, ReplacedContext } from './utility/replaced-context';
 export class KoishiService
   extends App
   implements OnModuleInit, OnApplicationBootstrap, OnModuleDestroy {
+  private globalInterceptors: KoishiCommandInterceptorRegistration[];
   constructor(
     @Inject(KOISHI_MODULE_OPTIONS)
     private readonly koishiModuleOptions: KoishiModuleOptions,
@@ -35,6 +36,7 @@ export class KoishiService
       ...koishiModuleOptions,
       port: 0,
     });
+    this.globalInterceptors = this.globalInterceptors;
     this.router = new Router();
     this._nestKoaTmpInstance.use(KoaBodyParser());
     this._nestKoaTmpInstance.use(this.router.routes());
@@ -88,7 +90,7 @@ export class KoishiService
     interceptors: KoishiCommandInterceptorRegistration[] = [],
   ): Context {
     return new ReplacedContext(filter, this, null, [
-      ...(this.koishiModuleOptions.globalInterceptors || []),
+      ...this.globalInterceptors,
       ...interceptors,
     ]);
   }
@@ -118,5 +120,22 @@ export class KoishiService
   except(arg: Filter | Context) {
     const filter = typeof arg === 'function' ? arg : arg.filter;
     return this.cloneContext((s) => this.filter(s) && !filter(s));
+  }
+
+  command<D extends string>(
+    def: D,
+    config?: Command.Config,
+  ): Command<never, never, Argv.ArgumentType<D>>;
+  command<D extends string>(
+    def: D,
+    desc: string,
+    config?: Command.Config,
+  ): Command<never, never, Argv.ArgumentType<D>>;
+  command(def: string, ...args: [Command.Config?] | [string, Command.Config?]) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const cmd = super.command(def, ...args);
+    this.addInterceptors(cmd, this.globalInterceptors);
+    return cmd;
   }
 }

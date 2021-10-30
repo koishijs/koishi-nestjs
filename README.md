@@ -549,6 +549,10 @@ export class AppModule {}
 
 ## 更新历史
 
+### 1.5
+
+* 增加了指令拦截器。
+
 ### 1.4.2
 
 * `KoishiWsAdapter`: 支持正则表达式路径。
