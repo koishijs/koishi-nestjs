@@ -1,4 +1,4 @@
-import { App, Router } from 'koishi';
+import { App, Command, Context, Router } from 'koishi';
 import {
   Inject,
   Injectable,
@@ -6,7 +6,10 @@ import {
   OnModuleDestroy,
   OnModuleInit,
 } from '@nestjs/common';
-import { KoishiModuleOptions } from './utility/koishi.interfaces';
+import {
+  KoishiCommandInterceptorRegistration,
+  KoishiModuleOptions,
+} from './utility/koishi.interfaces';
 import { Server } from 'http';
 import Koa from 'koa';
 import KoaBodyParser from 'koa-bodyparser';
@@ -15,6 +18,7 @@ import { applySelector } from './utility/koishi.utility';
 import { KOISHI_MODULE_OPTIONS } from './utility/koishi.constants';
 import { KoishiLoggerService } from './providers/koishi-logger.service';
 import { KoishiHttpDiscoveryService } from './koishi-http-discovery/koishi-http-discovery.service';
+import { Filter, ReplacedContext } from './utility/replaced-context';
 
 @Injectable()
 export class KoishiService
@@ -70,5 +74,49 @@ export class KoishiService
 
   async onModuleDestroy() {
     await this.stop();
+  }
+
+  addInterceptors(
+    command: Command,
+    interceptorDefs: KoishiCommandInterceptorRegistration[],
+  ) {
+    return this.metascan.addInterceptors(command, interceptorDefs);
+  }
+
+  private cloneContext(
+    filter: Filter,
+    interceptors: KoishiCommandInterceptorRegistration[] = [],
+  ): Context {
+    return new ReplacedContext(filter, this, null, [
+      ...(this.koishiModuleOptions.globalInterceptors || []),
+      ...interceptors,
+    ]);
+  }
+
+  withInterceptors(interceptors: KoishiCommandInterceptorRegistration[]) {
+    return this.cloneContext(() => true, interceptors);
+  }
+
+  any() {
+    return this.cloneContext(() => true);
+  }
+
+  never() {
+    return this.cloneContext(() => false);
+  }
+
+  union(arg: Filter | Context) {
+    const filter = typeof arg === 'function' ? arg : arg.filter;
+    return this.cloneContext((s) => this.filter(s) || filter(s));
+  }
+
+  intersect(arg: Filter | Context) {
+    const filter = typeof arg === 'function' ? arg : arg.filter;
+    return this.cloneContext((s) => this.filter(s) && filter(s));
+  }
+
+  except(arg: Filter | Context) {
+    const filter = typeof arg === 'function' ? arg : arg.filter;
+    return this.cloneContext((s) => this.filter(s) && !filter(s));
   }
 }

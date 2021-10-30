@@ -89,6 +89,8 @@ Koishi-Nest 的配置项和 Koishi 配置项一致，参照 [Koishi 文档](http
 
   * `module` Nest 模块名。
   * 上下文选择器见本文 **上下文选择器** 部分。
+  
+* `globalInterceptors` 全局命令拦截器，详见 **命令拦截器** 部分。
 
 插件的使用可以参考 [Koishi 文档](https://koishi.js.org/v4/guide/plugin/plugin.html)。 `moduleSelection` 的使用见本文 **复用性** 部分。
 
@@ -333,6 +335,59 @@ Koishi-Nest 使用一组装饰器进行描述指令的行为。这些装饰器�
 
 * `@PutUserName(useDatabase: boolean = true)` 注入当前用户的用户名。
   * `useDatabase` 是否尝试从数据库获取用户名。
+  
+### 指令拦截器
+
+和 Koishi 中的 [`command.before`](https://koishi.js.org/v4/guide/message/command.html#%E4%BD%BF%E7%94%A8%E6%A3%80%E6%9F%A5%E5%99%A8) 对应，Koishi-Nest 提供了**指令拦截器**，便于在指令运行之前进行一些操作，如参数检查，记录日志等。
+
+#### 定义
+
+指令拦截器需要实现 `KoishiCommandInterceptor` 接口，提供 `intercept` 方法。该方法的参数与 `command.before` 的回调函数一致。
+
+> 不要将指令拦截器与 Nest.js 的拦截器混淆。
+
+下面是一个指令拦截器的例子。
+
+```ts
+import { KoishiCommandInterceptor } from "koishi-nestjs";
+
+export class MyCommandInterceptor implements KoishiCommandInterceptor {
+  intercept(argv: Argv, arg1: string) {
+    if(arg1.startsWith('foo')) {
+      return 'Intercepted!';
+    }
+  }
+}
+```
+
+#### 注册
+
+要注册拦截器，只需要在指令对应的提供者方法或提供者本人使用 `@CommandInterceptors` 装饰器即可。也可以指定多个拦截器。
+
+其中，在注册过拦截器的提供者类中，使用 `@InjectContext()` 或类似方法注入的上下文对象，也会应用拦截器。
+
+> 这些上下文内安装的 Koishi 插件不会应用拦截器。 
+
+```ts
+import { InjectContext } from 'koishi-nestjs';
+import { Context } from 'koishi';
+
+@Injectable()
+// 可以在提供者类中指定上下文选择器，等价于 `ctx.guild('111111111')`
+@CommandInterceptors(MyGlobalInterceptor)
+export class AppService {
+  // 这里的 Koishi 上下文注册的任何指令也会应用拦截器
+  constructor(@InjectContext() private ctx: Context) {}
+
+  @UseCommand('my-echo <content:string>')
+  @CommandInterceptors(MyInterceptor1, MyInterceptor2) // 可以指定多个拦截器。
+  testEchoCommand(@PutArgv() argv: Argv, @PutArg(0) content: string) {
+    return content;
+  }
+}
+```
+
+也可以在 Koishi-Nest 启动配置中，使用 `globalInterceptors` 方法注册拦截器。
 
 ## 上下文 Service 交互
 

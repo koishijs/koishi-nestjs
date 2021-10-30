@@ -27,6 +27,7 @@ import { KoishiContextService } from './providers/koishi-context.service';
 import { KoishiHttpDiscoveryService } from './koishi-http-discovery/koishi-http-discovery.service';
 import { KoishiWebsocketGateway } from './providers/koishi-websocket.gateway';
 import { KoishiMetadataFetcherService } from './koishi-metadata-fetcher/koishi-metadata-fetcher.service';
+import { KoishiInterceptorManagerService } from './koishi-interceptor-manager/koishi-interceptor-manager.service';
 
 const koishiContextProvider: Provider<Context> = {
   provide: KOISHI_CONTEXT,
@@ -47,6 +48,7 @@ const koishiContextProvider: Provider<Context> = {
     KoishiInjectionService,
     KoishiHttpDiscoveryService,
     KoishiMetadataFetcherService,
+    KoishiInterceptorManagerService,
   ],
   exports: [KoishiService, koishiContextProvider],
 })

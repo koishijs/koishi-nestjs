@@ -67,6 +67,7 @@ export interface KoishiModuleOptions
   loggerPrefix?: string;
   loggerColor?: number;
   moduleSelection?: KoishiModuleSelection[];
+  globalInterceptors?: KoishiCommandInterceptorRegistration[];
 }
 
 export interface KoishiModuleOptionsFactory {

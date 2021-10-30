@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { MetadataScanner, ModuleRef, ModulesContainer } from '@nestjs/core';
 import { Argv, Command, Context, User } from 'koishi';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import {
+  KOISHI_MODULE_OPTIONS,
   KoishiCommandDefinition,
   KoishiCommandInterceptorDef,
   KoishiDoRegister,
@@ -16,6 +17,7 @@ import {
   DoRegisterConfig,
   EventName,
   KoishiCommandInterceptorRegistration,
+  KoishiModuleOptions,
   KoishiModulePlugin,
 } from '../utility/koishi.interfaces';
 import { applySelector } from '../utility/koishi.utility';
@@ -23,6 +25,7 @@ import _ from 'lodash';
 import { KoishiContextService } from './koishi-context.service';
 import { Module } from '@nestjs/core/injector/module';
 import { KoishiMetadataFetcherService } from '../koishi-metadata-fetcher/koishi-metadata-fetcher.service';
+import { KoishiInterceptorManagerService } from '../koishi-interceptor-manager/koishi-interceptor-manager.service';
 
 @Injectable()
 export class KoishiMetascanService {
@@ -32,6 +35,9 @@ export class KoishiMetascanService {
     private readonly moduleContainer: ModulesContainer,
     private readonly ctxService: KoishiContextService,
     private readonly metaFetcher: KoishiMetadataFetcherService,
+    @Inject(KOISHI_MODULE_OPTIONS)
+    private readonly koishiModuleOptions: KoishiModuleOptions,
+    private readonly intercepterManager: KoishiInterceptorManagerService,
   ) {}
 
   private preRegisterCommandActionArg(config: CommandPutConfig, cmd: Command) {
@@ -107,19 +113,11 @@ export class KoishiMetascanService {
     }
   }
 
-  private getInterceptor(interceptorDef: KoishiCommandInterceptorRegistration) {
-    if (typeof interceptorDef !== 'object') {
-      return this.moduleRef.get(interceptorDef, { strict: false });
-    }
-    return interceptorDef;
-  }
-
-  private addInterceptor(
+  addInterceptors(
     command: Command,
-    interceptorDef: KoishiCommandInterceptorRegistration,
+    interceptorDefs: KoishiCommandInterceptorRegistration[],
   ) {
-    const interceptor = this.getInterceptor(interceptorDef);
-    command.before((...params) => interceptor.intercept(...params));
+    return this.intercepterManager.addInterceptors(command, interceptorDefs);
   }
 
   private async handleInstanceRegistration(
@@ -187,14 +185,14 @@ export class KoishiMetascanService {
         for (const commandDef of commandDefs) {
           command = commandDef(command) || command;
         }
-        const interceptorDefs = this.metaFetcher.getPropertyMetadataArray(
-          KoishiCommandInterceptorDef,
-          instance,
-          methodKey,
+        const interceptorDefs = _.uniq(
+          this.metaFetcher.getPropertyMetadataArray(
+            KoishiCommandInterceptorDef,
+            instance,
+            methodKey,
+          ),
         );
-        for (const interceptorDef of interceptorDefs) {
-          this.addInterceptor(command, interceptorDef);
-        }
+        this.addInterceptors(command, interceptorDefs);
         if (!commandData.putOptions) {
           command.action((argv: Argv, ...args: any[]) =>
             methodFun.call(instance, argv, ...args),
