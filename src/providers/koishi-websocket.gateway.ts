@@ -5,7 +5,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { KoishiService } from '../koishi.service';
-import type WebSocket, { Server } from 'ws';
+import WebSocket, { Server } from 'ws';
 import { IncomingMessage } from 'http';
 
 @WebSocketGateway()
