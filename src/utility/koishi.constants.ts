@@ -2,12 +2,10 @@
 import {
   CommandDefinitionFun,
   DoRegisterConfig,
-  KoishiCommandInterceptor,
   KoishiCommandInterceptorRegistration,
   OnContextFunction,
 } from './koishi.interfaces';
 import { Context } from 'koishi';
-import { Type } from '@nestjs/common';
 
 export const KOISHI_MODULE_OPTIONS = 'KOISHI_MODULE_OPTIONS';
 export const KOISHI_CONTEXT = 'KOISHI_CONTEXT';

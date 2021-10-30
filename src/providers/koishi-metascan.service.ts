@@ -15,7 +15,6 @@ import {
   CommandPutConfig,
   DoRegisterConfig,
   EventName,
-  KoishiCommandInterceptor,
   KoishiCommandInterceptorRegistration,
   KoishiModulePlugin,
 } from '../utility/koishi.interfaces';

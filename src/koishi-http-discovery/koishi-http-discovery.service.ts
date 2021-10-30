@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { AbstractHttpAdapter, HttpAdapterHost, ModuleRef } from '@nestjs/core';
-import { AbstractWsAdapter } from '@nestjs/websockets';
 
 @Injectable()
 export class KoishiHttpDiscoveryService {

@@ -1,4 +1,4 @@
-import { Injectable, NestMiddleware, OnModuleInit } from '@nestjs/common';
+import { Injectable, NestMiddleware } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
 import { KoishiService } from '../koishi.service';
 import { IncomingMessage, ServerResponse } from 'http';

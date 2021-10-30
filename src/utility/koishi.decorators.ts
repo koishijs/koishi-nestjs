@@ -1,4 +1,4 @@
-import { CustomDecorator, Inject, Type } from '@nestjs/common';
+import { CustomDecorator, Inject } from '@nestjs/common';
 import {
   KOISHI_CONTEXT,
   KoishiCommandDefinition,
@@ -10,22 +10,18 @@ import {
   KoishiServiceWireKeys,
   KoishiServiceWireProperty,
   MetadataArrayMap,
-  MetadataMap,
 } from './koishi.constants';
 import {
   CommandDefinitionFun,
   CommandPutConfig,
   CommandPutConfigMap,
-  DoRegisterConfig,
   EventName,
   GenerateMappingStruct,
-  KoishiCommandInterceptor,
-  KoishiCommandInterceptorDeclaration,
+  KoishiCommandInterceptorRegistration,
   MetadataArrayValue,
   MetadataArrayValueMap,
   MetadataGenericMap,
   MetadataKey,
-  MetadataMapValue,
   OnContextFunction,
   Selection,
 } from './koishi.interfaces';
@@ -283,6 +279,6 @@ export function ProvideContextService(
 // Command interceptor
 
 export const CommandInterceptors = (
-  ...interceptors: KoishiCommandInterceptorDeclaration[]
+  ...interceptors: KoishiCommandInterceptorRegistration[]
 ): MethodDecorator & ClassDecorator =>
   ConcatMetadata(KoishiCommandInterceptorDef, interceptors);

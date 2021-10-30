@@ -1,8 +1,8 @@
 import { ModuleMetadata, Provider, Type } from '@nestjs/common';
-import { Channel, User } from 'koishi';
 import {
   App,
   Argv,
+  Channel,
   Command,
   Context,
   EventMap,
@@ -10,6 +10,7 @@ import {
   MaybeArray,
   Plugin,
   Session,
+  User,
 } from 'koishi';
 import { MetadataArrayMap, MetadataMap } from './koishi.constants';
 
