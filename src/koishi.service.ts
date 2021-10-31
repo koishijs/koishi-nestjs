@@ -36,7 +36,7 @@ export class KoishiService
       ...koishiModuleOptions,
       port: 0,
     });
-    this.globalInterceptors = this.globalInterceptors;
+    this.globalInterceptors = this.koishiModuleOptions.globalInterceptors || [];
     this.router = new Router();
     this._nestKoaTmpInstance.use(KoaBodyParser());
     this._nestKoaTmpInstance.use(this.router.routes());
