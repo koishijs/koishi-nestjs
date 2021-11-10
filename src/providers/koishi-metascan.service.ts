@@ -131,10 +131,9 @@ export class KoishiMetascanService {
       return;
     }
     let baseContext = ctx;
-    const contextFilters = this.metaFetcher.getPropertyMetadataArray(
+    const contextFilters = this.metaFetcher.getMetadataArray(
       KoishiOnContextScope,
-      instance,
-      methodKey,
+      instance[methodKey],
     );
     for (const filter of contextFilters) {
       baseContext = filter(baseContext) || baseContext;
@@ -293,11 +292,19 @@ export class KoishiMetascanService {
           return allProviders.map((wrapper: InstanceWrapper) => {
             const { instance } = wrapper;
             const prototype = Object.getPrototypeOf(instance);
+            const providerCtx = this.ctxService.getProviderCtx(
+              moduleCtx,
+              instance.constructor,
+            );
             return this.metadataScanner.scanFromPrototype(
               instance,
               prototype,
               (methodKey: string) =>
-                this.handleInstanceRegistration(moduleCtx, instance, methodKey),
+                this.handleInstanceRegistration(
+                  providerCtx,
+                  instance,
+                  methodKey,
+                ),
             );
           });
         }),

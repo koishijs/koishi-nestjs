@@ -34,6 +34,7 @@ export class KoishiInjectionService {
         ctx = this.ctxService.getModuleCtx(ctx, module);
       }
     }
+    ctx = this.ctxService.getProviderCtx(ctx, token);
     return ctx;
   }
 }
