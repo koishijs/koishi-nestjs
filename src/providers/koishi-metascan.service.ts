@@ -276,8 +276,12 @@ export class KoishiMetascanService {
       const allProviders = this.getAllActiveProvidersFromModule(module);
       for (const provider of allProviders) {
         const instance = provider.instance;
-        this.scanInstanceForWireContextService(moduleCtx, instance);
-        this.scanInstanceForProvidingContextService(moduleCtx, instance);
+        const providerCtx = this.ctxService.getProviderCtx(
+          moduleCtx,
+          instance.constructor,
+        );
+        this.scanInstanceForWireContextService(providerCtx, instance);
+        this.scanInstanceForProvidingContextService(providerCtx, instance);
       }
     }
   }
