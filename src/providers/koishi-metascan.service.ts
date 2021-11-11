@@ -209,7 +209,7 @@ export class KoishiMetascanService {
         }
         break;
       default:
-        throw new Error(`Unknown operaton type ${regData.type}`);
+        throw new Error(`Unknown operation type ${regData.type}`);
     }
   }
 

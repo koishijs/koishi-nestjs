@@ -8,6 +8,7 @@ import {
   EventMap,
   FieldCollector,
   MaybeArray,
+  Modules,
   Plugin,
   Session,
   User,
@@ -38,14 +39,21 @@ export interface ContextSelector {
   useSelector?: OnContextFunction;
 }
 
-export interface KoishiModulePlugin<T extends Plugin> extends ContextSelector {
+export type KoishiPluginOptions<T extends Plugin | keyof Modules> =
+  | boolean
+  | (T extends keyof Modules
+      ? Plugin.ModuleConfig<Modules[T]>
+      : Plugin.Config<T>);
+
+export interface KoishiModulePlugin<T extends Plugin | keyof Modules>
+  extends ContextSelector {
   plugin: T;
-  options?: boolean | Plugin.Config<T>;
+  options?: boolean | KoishiPluginOptions<T>;
 }
 
-export function PluginDef<T extends Plugin>(
+export function PluginDef<T extends Plugin | keyof Modules>(
   plugin: T,
-  options?: boolean | Plugin.Config<T>,
+  options?: KoishiPluginOptions<T>,
   select?: Selection,
 ): KoishiModulePlugin<T> {
   return { plugin, options, select };
@@ -103,7 +111,7 @@ export interface DoRegisterConfigDataMap {
 
 export interface MappingStruct<
   T extends Record<string | number | symbol, any>,
-  K extends keyof T
+  K extends keyof T,
 > {
   type: K;
   data?: T[K];
@@ -111,7 +119,7 @@ export interface MappingStruct<
 
 export function GenerateMappingStruct<
   T extends Record<string | number | symbol, any>,
-  K extends keyof T
+  K extends keyof T,
 >(type: K, data?: T[K]): MappingStruct<T, K> {
   return {
     type,
@@ -120,7 +128,7 @@ export function GenerateMappingStruct<
 }
 
 export type DoRegisterConfig<
-  K extends keyof DoRegisterConfigDataMap = keyof DoRegisterConfigDataMap
+  K extends keyof DoRegisterConfigDataMap = keyof DoRegisterConfigDataMap,
 > = MappingStruct<DoRegisterConfigDataMap, K>;
 
 // Command stuff
@@ -150,7 +158,7 @@ export interface CommandPutConfigMap {
 }
 
 export type CommandPutConfig<
-  K extends keyof CommandPutConfigMap = keyof CommandPutConfigMap
+  K extends keyof CommandPutConfigMap = keyof CommandPutConfigMap,
 > = MappingStruct<CommandPutConfigMap, K>;
 
 export type CommandDefinitionFun = (cmd: Command) => Command;
@@ -162,19 +170,17 @@ export type MetadataArrayValueMap = {
 
 export type MetadataGenericMap = MetadataArrayValueMap & MetadataMap;
 
-export type MetadataArrayValue<
-  K extends keyof MetadataArrayValueMap
-> = MetadataArrayValueMap[K];
+export type MetadataArrayValue<K extends keyof MetadataArrayValueMap> =
+  MetadataArrayValueMap[K];
 
 export type MetadataKey = keyof MetadataArrayMap | keyof MetadataMap;
 
-export type MetadataMapValue<
-  K extends MetadataKey
-> = K extends keyof MetadataArrayValueMap
-  ? MetadataArrayValue<K>
-  : K extends keyof MetadataMap
-  ? MetadataMap[K]
-  : never;
+export type MetadataMapValue<K extends MetadataKey> =
+  K extends keyof MetadataArrayValueMap
+    ? MetadataArrayValue<K>
+    : K extends keyof MetadataMap
+    ? MetadataMap[K]
+    : never;
 
 // command interceptor
 
@@ -182,7 +188,7 @@ export interface KoishiCommandInterceptor<
   U extends User.Field = never,
   G extends Channel.Field = never,
   A extends any[] = any[],
-  O extends {} = {}
+  O extends {} = {},
 > {
   intercept: Command.Action<U, G, A, O>;
 }
@@ -191,7 +197,7 @@ export type KoishiCommandInterceptorRegistration<
   U extends User.Field = never,
   G extends Channel.Field = never,
   A extends any[] = any[],
-  O extends {} = {}
+  O extends {} = {},
 > =
   | KoishiCommandInterceptor<U, G, A, O>
   | Type<KoishiCommandInterceptor<U, G, A, O>>

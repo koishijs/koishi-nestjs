@@ -54,7 +54,7 @@ export const InjectContextUser = (...values: string[]) =>
 
 export function TransformMetadata<
   K extends MetadataKey,
-  VM extends Partial<MetadataGenericMap> = MetadataGenericMap
+  VM extends Partial<MetadataGenericMap> = MetadataGenericMap,
 >(
   metadataKey: K,
   metadataValueFun: (oldValue: VM[K]) => VM[K],

@@ -23,7 +23,8 @@ import { Filter, ReplacedContext } from './utility/replaced-context';
 @Injectable()
 export class KoishiService
   extends App
-  implements OnModuleInit, OnApplicationBootstrap, OnModuleDestroy {
+  implements OnModuleInit, OnApplicationBootstrap, OnModuleDestroy
+{
   private readonly globalInterceptors: KoishiCommandInterceptorRegistration[];
   constructor(
     @Inject(KOISHI_MODULE_OPTIONS)
