@@ -549,6 +549,10 @@ export class AppModule {}
 
 ## 更新历史
 
+### 2.0.1
+
+* 优化了 Service 注入的一些逻辑。
+
 ### 2.0.0
 
 * 适配 Koishi v4 beta 。
