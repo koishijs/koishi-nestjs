@@ -549,6 +549,10 @@ export class AppModule {}
 
 ## 更新历史
 
+### 2.0.2
+
+* `@ProvideContextService` 现在可以传入 Options 了。
+
 ### 2.0.1
 
 * 优化了 Service 注入的一些逻辑。

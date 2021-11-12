@@ -273,8 +273,9 @@ export function WireContextService(
 
 export function ProvideContextService(
   name: keyof Context.Services,
+  options?: Context.Options,
 ): ClassDecorator {
-  Context.service(name);
+  Context.service(name, options);
   return AppendMetadata(KoishiServiceProvideSym, name);
 }
 
