@@ -217,19 +217,18 @@ export class KoishiMetascanService {
     ctx: Context,
     instance: any,
     property: string,
-    name: string,
+    name: keyof Context.Services,
   ) {
-    const preObject = ctx[name];
-    if (preObject) {
-      instance[property] = preObject;
-    }
-    ctx.on(
-      <EventName>`service/${name}`,
-      () => {
-        instance[property] = ctx[name];
+    Object.defineProperty(instance, property, {
+      enumerable: true,
+      configurable: true,
+      get() {
+        return ctx[name];
       },
-      true,
-    );
+      set(val: any) {
+        ctx[name] = val;
+      },
+    });
   }
 
   private scanInstanceForProvidingContextService(ctx: Context, instance: any) {
@@ -252,7 +251,7 @@ export class KoishiMetascanService {
       return;
     }
     for (const property of properties) {
-      const serviceName = Reflect.getMetadata(
+      const serviceName: keyof Context.Services = Reflect.getMetadata(
         KoishiServiceWireProperty,
         instanceClass,
         property,
@@ -281,7 +280,6 @@ export class KoishiMetascanService {
           instance.constructor,
         );
         this.scanInstanceForWireContextService(providerCtx, instance);
-        this.scanInstanceForProvidingContextService(providerCtx, instance);
       }
     }
   }
@@ -300,6 +298,7 @@ export class KoishiMetascanService {
               moduleCtx,
               instance.constructor,
             );
+            this.scanInstanceForProvidingContextService(providerCtx, instance);
             return this.metadataScanner.scanFromPrototype(
               instance,
               prototype,

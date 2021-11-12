@@ -54,7 +54,7 @@ export const InjectContextUser = (...values: string[]) =>
 
 export function TransformMetadata<
   K extends MetadataKey,
-  VM extends Partial<MetadataGenericMap> = MetadataGenericMap,
+  VM extends Partial<MetadataGenericMap> = MetadataGenericMap
 >(
   metadataKey: K,
   metadataValueFun: (oldValue: VM[K]) => VM[K],
@@ -253,7 +253,9 @@ export const PutBot = () => PutSession('bot');
 
 // Service
 
-export function WireContextService(name?: string): PropertyDecorator {
+export function WireContextService(
+  name?: keyof Context.Services,
+): PropertyDecorator {
   return (obj, key) => {
     const objClass = obj.constructor;
     const properties: string[] =
