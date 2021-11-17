@@ -8,7 +8,8 @@
 		"experimentalDecorators": true,
 		"declaration": true,
 		"sourceMap": true,
-		"skipLibCheck": true
+		"skipLibCheck": true,
+		"noImplicitOverride": true
 	},
 	"compileOnSave": true,
 	"allowJs": true,

@@ -28,39 +28,42 @@ export class ReplacedContext extends Context {
     return this.cloneContext(this.filter, interceptors);
   }
 
-  any() {
+  override any() {
     return this.cloneContext(() => true);
   }
 
-  never() {
+  override never() {
     return this.cloneContext(() => false);
   }
 
-  union(arg: Filter | Context) {
+  override union(arg: Filter | Context) {
     const filter = typeof arg === 'function' ? arg : arg.filter;
     return this.cloneContext((s) => this.filter(s) || filter(s));
   }
 
-  intersect(arg: Filter | Context) {
+  override intersect(arg: Filter | Context) {
     const filter = typeof arg === 'function' ? arg : arg.filter;
     return this.cloneContext((s) => this.filter(s) && filter(s));
   }
 
-  except(arg: Filter | Context) {
+  override except(arg: Filter | Context) {
     const filter = typeof arg === 'function' ? arg : arg.filter;
     return this.cloneContext((s) => this.filter(s) && !filter(s));
   }
 
-  command<D extends string>(
+  override command<D extends string>(
     def: D,
     config?: Command.Config,
   ): Command<never, never, Argv.ArgumentType<D>>;
-  command<D extends string>(
+  override command<D extends string>(
     def: D,
     desc: string,
     config?: Command.Config,
   ): Command<never, never, Argv.ArgumentType<D>>;
-  command(def: string, ...args: [Command.Config?] | [string, Command.Config?]) {
+  override command(
+    def: string,
+    ...args: [Command.Config?] | [string, Command.Config?]
+  ) {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const cmd = super.command(def, ...args);
