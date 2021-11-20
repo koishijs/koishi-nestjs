@@ -267,6 +267,10 @@ export class AppService {
 
 选择器的使用请参照 [Koishi 文档](https://koishi.js.org/v4/guide/plugin/context.html#%E4%BD%BF%E7%94%A8%E9%80%89%E6%8B%A9%E5%99%A8) 。
 
+* `@OnAnywhere()` 等价于 `ctx.any()`。
+* 
+* `@OnNowhere()` 等价于 `ctx.never()`。
+* 
 * `@OnUser(value)` 等价于 `ctx.user(value)`。
 
 * `@OnSelf(value)` 等价于 `ctx.self(value)`。
