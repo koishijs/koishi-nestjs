@@ -151,6 +151,10 @@ export const OnContext = (
 ): MethodDecorator & ClassDecorator =>
   AppendMetadata(KoishiOnContextScope, ctxFun);
 
+export const OnAnywhere = () => OnContext((ctx) => ctx.any());
+
+export const OnNowhere = () => OnContext((ctx) => ctx.never());
+
 export const OnUser = (...values: string[]) =>
   OnContext((ctx) => ctx.user(...values));
 
