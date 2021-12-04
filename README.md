@@ -553,6 +553,10 @@ export class AppModule {}
 
 ## 更新历史
 
+### 2.2.1
+
+* 和新版 Service API 兼容。
+
 ### 2.0.2
 
 * `@ProvideContextService` 现在可以传入 Options 了。
