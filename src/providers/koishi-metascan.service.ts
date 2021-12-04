@@ -153,12 +153,12 @@ export class KoishiMetascanService {
           methodFun.call(instance, ...args),
         );
         // special events
-        if (typeof eventName === 'string' && eventName.startsWith('service/')) {
+        /*if (typeof eventName === 'string' && eventName.startsWith('service/')) {
           const serviceName = eventName.slice(8);
           if (baseContext[serviceName] != null) {
             methodFun.call(instance);
           }
-        }
+        }*/
         break;
       case 'plugin':
         const pluginDesc: KoishiModulePlugin<any> = await methodFun.call(
