@@ -11,3 +11,5 @@ Dockerfile
 .prettierrc
 webpack.config.js
 tsconfig.json
+/tests
+/dist/tests

@@ -57,7 +57,7 @@ export class KoishiModule implements NestModule {
     consumer.apply(KoishiMiddleware).forRoutes('*');
   }
 
-  static register(options: KoishiModuleOptions): DynamicModule {
+  static register(options: KoishiModuleOptions = {}): DynamicModule {
     return {
       module: KoishiModule,
       providers: [

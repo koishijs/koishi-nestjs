@@ -20,6 +20,9 @@ import { KoishiLoggerService } from './providers/koishi-logger.service';
 import { KoishiHttpDiscoveryService } from './koishi-http-discovery/koishi-http-discovery.service';
 import { Filter, ReplacedContext } from './utility/replaced-context';
 
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+Router.prepare = () => {};
+
 @Injectable()
 export class KoishiService
   extends App
@@ -37,6 +40,7 @@ export class KoishiService
       ...koishiModuleOptions,
       port: 0,
     });
+    this.options.baseDir ||= process.cwd();
     this.globalInterceptors = this.koishiModuleOptions.globalInterceptors || [];
     this.router = new Router();
     this._nestKoaTmpInstance.use(KoaBodyParser());
