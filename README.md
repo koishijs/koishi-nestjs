@@ -553,6 +553,11 @@ export class AppModule {}
 
 ## 更新历史
 
+### 2.3.0
+
+* 适配新版 Koishi 的 http server 启动机制。
+* 添加了单元测试。
+
 ### 2.2.1
 
 * 和新版 Service API 兼容。
