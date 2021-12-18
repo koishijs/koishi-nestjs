@@ -2,6 +2,7 @@ import { ModuleMetadata, Provider, Type } from '@nestjs/common';
 import {
   App,
   Argv,
+  BeforeEventMap,
   Channel,
   Command,
   Context,
@@ -106,17 +107,23 @@ export interface KoishiModuleAsyncOptions
   extraProviders?: Provider[];
 }
 
-export type EventName = keyof EventMap;
-export interface EventNameAndPrepend {
-  name: EventName;
+export interface CommonEventNameAndPrepend<T extends keyof any> {
+  name: T;
   prepend?: boolean;
 }
+
+export type EventName = keyof EventMap;
+export type EventNameAndPrepend = CommonEventNameAndPrepend<EventName>;
+
+export type BeforeEventName = keyof BeforeEventMap;
+export type BeforeEventNameAndPrepend = CommonEventNameAndPrepend<BeforeEventName>;
 
 export type ContextFunction<T> = (ctx: Context) => T;
 export type OnContextFunction = ContextFunction<Context>;
 export interface DoRegisterConfigDataMap {
   middleware: boolean; // prepend
   onevent: EventNameAndPrepend;
+  beforeEvent: BeforeEventNameAndPrepend;
   plugin: never;
   command: CommandRegisterConfig;
 }
@@ -148,8 +155,12 @@ export type DoRegisterConfig<
 export interface CommandRegisterConfig<D extends string = string> {
   def: D;
   desc?: string;
-  config?: Command.Config;
+  config?: CommandConfigExtended;
   putOptions?: CommandPutConfig<keyof CommandPutConfigMap>[];
+}
+
+export interface CommandConfigExtended extends Command.Config {
+  empty?: boolean;
 }
 
 export interface CommandOptionConfig {

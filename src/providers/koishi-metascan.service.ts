@@ -149,17 +149,22 @@ export class KoishiMetascanService {
       case 'onevent':
         const { data: eventData } = regData as DoRegisterConfig<'onevent'>;
         const eventName = eventData.name;
-        baseContext.on(eventData.name, (...args: any[]) =>
-          methodFun.call(instance, ...args),
+        baseContext.on(
+          eventName,
+          (...args: any[]) => methodFun.call(instance, ...args),
+          eventData.prepend,
         );
-        // special events
-        /*if (typeof eventName === 'string' && eventName.startsWith('service/')) {
-          const serviceName = eventName.slice(8);
-          if (baseContext[serviceName] != null) {
-            methodFun.call(instance);
-          }
-        }*/
         break;
+      case 'beforeEvent':
+        const {
+          data: beforeEventData,
+        } = regData as DoRegisterConfig<'beforeEvent'>;
+        const beforeEventName = beforeEventData.name;
+        baseContext.before(
+          beforeEventName,
+          (...args: any[]) => this[methodKey](...args),
+          beforeEventData.prepend,
+        );
       case 'plugin':
         const pluginDesc: KoishiModulePlugin<any> = await methodFun.call(
           instance,
@@ -183,6 +188,9 @@ export class KoishiMetascanService {
         );
         for (const commandDef of commandDefs) {
           command = commandDef(command) || command;
+        }
+        if (commandData.config?.empty) {
+          break;
         }
         const interceptorDefs = _.uniq(
           this.metaFetcher.getPropertyMetadataArray(

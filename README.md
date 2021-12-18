@@ -553,6 +553,12 @@ export class AppModule {}
 
 ## 更新历史
 
+### 2.4.0
+
+* 适配新版 Koishi 。
+* 增加了从 koishi-thirdeye 移植而来的 empty 和 `@UseBeforeEvent`。
+* 修复了一个问题，这个问题曾导致 `@UseEvent` 的 prepend 不生效。
+
 ### 2.3.0
 
 * 适配新版 Koishi 的 http server 启动机制。
