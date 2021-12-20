@@ -115,7 +115,11 @@ export interface CommonEventNameAndPrepend<T extends keyof any> {
 export type EventName = keyof EventMap;
 export type EventNameAndPrepend = CommonEventNameAndPrepend<EventName>;
 
-export type BeforeEventName = keyof BeforeEventMap;
+type OmitSubstring<
+  S extends string,
+  T extends string,
+> = S extends `${infer L}${T}${infer R}` ? `${L}${R}` : never;
+export type BeforeEventName = OmitSubstring<EventName & string, 'before-'>;
 export type BeforeEventNameAndPrepend = CommonEventNameAndPrepend<BeforeEventName>;
 
 export type ContextFunction<T> = (ctx: Context) => T;
