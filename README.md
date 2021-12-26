@@ -553,6 +553,10 @@ export class AppModule {}
 
 ## 更新历史
 
+### 3.0.0
+
+* 适配新版 Koishi 。
+
 ### 2.4.0
 
 * 适配新版 Koishi 。
