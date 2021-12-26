@@ -10,8 +10,7 @@ import { IncomingMessage } from 'http';
 
 @WebSocketGateway()
 export class KoishiWebsocketGateway
-  implements OnGatewayInit, OnGatewayConnection
-{
+  implements OnGatewayInit, OnGatewayConnection {
   constructor(private readonly koishi: KoishiService) {}
 
   @WebSocketServer()

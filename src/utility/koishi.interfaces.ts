@@ -2,38 +2,18 @@ import { ModuleMetadata, Provider, Type } from '@nestjs/common';
 import {
   App,
   Argv,
-  BeforeEventMap,
   Channel,
   Command,
   Context,
   EventMap,
   FieldCollector,
-  MaybeArray,
   Modules,
   Plugin,
+  Selection,
   Session,
   User,
 } from 'koishi';
 import { MetadataArrayMap, MetadataMap } from './koishi.constants';
-
-const selectors = [
-  'user',
-  'guild',
-  'channel',
-  'self',
-  'private',
-  'platform',
-] as const;
-
-type SelectorType = typeof selectors[number];
-type SelectorValue = boolean | MaybeArray<string | number>;
-type BaseSelection = { [K in SelectorType as `$${K}`]?: SelectorValue };
-
-export interface Selection extends BaseSelection {
-  $and?: Selection[];
-  $or?: Selection[];
-  $not?: Selection;
-}
 
 export interface ContextSelector {
   select?: Selection;
@@ -117,7 +97,7 @@ export type EventNameAndPrepend = CommonEventNameAndPrepend<EventName>;
 
 type OmitSubstring<
   S extends string,
-  T extends string,
+  T extends string
 > = S extends `${infer L}${T}${infer R}` ? `${L}${R}` : never;
 export type BeforeEventName = OmitSubstring<EventName & string, 'before-'>;
 export type BeforeEventNameAndPrepend = CommonEventNameAndPrepend<BeforeEventName>;

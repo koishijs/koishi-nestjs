@@ -25,9 +25,15 @@ import {
   MetadataGenericMap,
   MetadataKey,
   OnContextFunction,
-  Selection,
 } from './koishi.interfaces';
-import { Argv, Command, Context, FieldCollector, Session } from 'koishi';
+import {
+  Argv,
+  Command,
+  Context,
+  FieldCollector,
+  Selection,
+  Session,
+} from 'koishi';
 import {
   ContextScopeTypes,
   getContextProvideToken,
