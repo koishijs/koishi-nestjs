@@ -38,7 +38,7 @@ export class KoishiService
   ) {
     super({
       ...koishiModuleOptions,
-      port: 0,
+      port: 1,
     });
     this.options.baseDir ||= process.cwd();
     this.globalInterceptors = this.koishiModuleOptions.globalInterceptors || [];
@@ -46,10 +46,15 @@ export class KoishiService
     this._nestKoaTmpInstance.use(KoaBodyParser());
     this._nestKoaTmpInstance.use(this.router.routes());
     this._nestKoaTmpInstance.use(this.router.allowedMethods());
-    this.options.port = 1;
   }
 
   readonly _nestKoaTmpInstance = new Koa();
+
+  override async start() {
+    this.isActive = true;
+    await this.parallel('ready');
+    this.logger('app').debug('started');
+  }
 
   private async setHttpServer() {
     const httpAdapter = this.httpDiscovery.getHttpAdapter();
