@@ -7,7 +7,7 @@
 ## 安装
 
 ```bash
-npm install koishi-nestjs koishi@next proxy-agent
+npm install koishi-nestjs koishi
 ```
 
 ## 配置
