@@ -73,7 +73,7 @@ export class AppModule {}
 
 ### 配置项
 
-Koishi-Nest 的配置项和 Koishi 配置项一致，参照 [Koishi 文档](https://koishi.js.org/v4/api/core/app.html#%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0%E9%80%89%E9%A1%B9) 。下列配置项为 Koishi-Nest 特有的配置项。
+Koishi-Nest 的配置项和 Koishi 配置项一致，参照 [Koishi 文档](https://koishi.js.org/api/core/app.html#%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0%E9%80%89%E9%A1%B9) 。下列配置项为 Koishi-Nest 特有的配置项。
 
 * `loggerPrefix`: `string` Nest 日志中 Logger 的前缀。默认 `koishi` 。
 
@@ -92,7 +92,7 @@ Koishi-Nest 的配置项和 Koishi 配置项一致，参照 [Koishi 文档](http
   
 * `globalInterceptors` 全局命令拦截器，详见 **命令拦截器** 部分。
 
-插件的使用可以参考 [Koishi 文档](https://koishi.js.org/v4/guide/plugin/plugin.html)。 `moduleSelection` 的使用见本文 **复用性** 部分。
+插件的使用可以参考 [Koishi 文档](https://koishi.js.org/guide/plugin/plugin.html)。 `moduleSelection` 的使用见本文 **复用性** 部分。
 
 * `useWs`: `boolean` 默认 `false` 。是否启用 WebSocket 。**异步配置该项应写入异步配置项中。** 详见本文的 **WebSocket** 部分。
 
@@ -265,7 +265,7 @@ export class AppService {
 
 选择器装饰器可以注册在提供者类，也可以注册在提供者方法函数。
 
-选择器的使用请参照 [Koishi 文档](https://koishi.js.org/v4/guide/plugin/context.html#%E4%BD%BF%E7%94%A8%E9%80%89%E6%8B%A9%E5%99%A8) 。
+选择器的使用请参照 [Koishi 文档](https://koishi.js.org/guide/plugin/context.html#%E4%BD%BF%E7%94%A8%E9%80%89%E6%8B%A9%E5%99%A8) 。
 
 * `@OnAnywhere()` 等价于 `ctx.any()`。
 * 
@@ -295,11 +295,11 @@ export class AppService {
 
 注册装饰器只能注册于提供者类方法中，如下。
 
-* `@UseMiddleware(prepend?: boolean)` 注册中间件，等价于 `ctx.middleware((session, next) => { }, prepend)`。[参考](https://koishi.js.org/v4/guide/message/message.html#%E6%B3%A8%E5%86%8C%E5%92%8C%E5%8F%96%E6%B6%88%E4%B8%AD%E9%97%B4%E4%BB%B6)
+* `@UseMiddleware(prepend?: boolean)` 注册中间件，等价于 `ctx.middleware((session, next) => { }, prepend)`。[参考](https://koishi.js.org/guide/message/message.html#%E6%B3%A8%E5%86%8C%E5%92%8C%E5%8F%96%E6%B6%88%E4%B8%AD%E9%97%B4%E4%BB%B6)
 
-* `@UseEvent(name: EventName, prepend?: boolean)` 注册事件监听器。等价于 `ctx.on(name, (session) => { }, prepend)`。[参考](https://koishi.js.org/v4/guide/plugin/lifecycle.html#%E4%BA%8B%E4%BB%B6%E7%B3%BB%E7%BB%9F)
+* `@UseEvent(name: EventName, prepend?: boolean)` 注册事件监听器。等价于 `ctx.on(name, (session) => { }, prepend)`。[参考](https://koishi.js.org/guide/plugin/lifecycle.html#%E4%BA%8B%E4%BB%B6%E7%B3%BB%E7%BB%9F)
 
-* `@UsePlugin()` 使用该方法注册插件。在 Koishi 实例注册时该方法会自动被调用。该方法需要返回插件定义，可以使用 `PluginDef(plugin, options, select)` 方法生成。 [参考](https://koishi.js.org/v4/guide/plugin/plugin.html#%E5%AE%89%E8%A3%85%E6%8F%92%E4%BB%B6)
+* `@UsePlugin()` 使用该方法注册插件。在 Koishi 实例注册时该方法会自动被调用。该方法需要返回插件定义，可以使用 `PluginDef(plugin, options, select)` 方法生成。 [参考](https://koishi.js.org/guide/plugin/plugin.html#%E5%AE%89%E8%A3%85%E6%8F%92%E4%BB%B6)
 
 * `@UseCommand(def: string, desc?: string, config?: Command.Config)` 注册指令。指令系统可以参考 [Koishi 文档](https://koishi.js.org/guide/command.html) 。指令回调参数位置和类型和 Koishi 指令一致。
 
@@ -335,14 +335,14 @@ Koishi-Nest 使用一组装饰器进行描述指令的行为。这些装饰器�
 
 * `@PutChannel(fields: string[])` 添加一部分字段用于观测，并将 Channel 对象注入到该参数。
 
-关于 Koishi 的观察者概念详见 [Koishi 文档](https://koishi.js.org/v4/guide/database/observer.html#%E8%A7%82%E5%AF%9F%E8%80%85%E5%AF%B9%E8%B1%A1) 。
+关于 Koishi 的观察者概念详见 [Koishi 文档](https://koishi.js.org/guide/database/observer.html#%E8%A7%82%E5%AF%9F%E8%80%85%E5%AF%B9%E8%B1%A1) 。
 
 * `@PutUserName(useDatabase: boolean = true)` 注入当前用户的用户名。
   * `useDatabase` 是否尝试从数据库获取用户名。
   
 ### 指令拦截器
 
-和 Koishi 中的 [`command.before`](https://koishi.js.org/v4/guide/message/command.html#%E4%BD%BF%E7%94%A8%E6%A3%80%E6%9F%A5%E5%99%A8) 对应，Koishi-Nest 提供了**指令拦截器**，便于在指令运行之前进行一些操作，如参数检查，记录日志等。
+和 Koishi 中的 [`command.before`](https://koishi.js.org/guide/message/command.html#%E4%BD%BF%E7%94%A8%E6%A3%80%E6%9F%A5%E5%99%A8) 对应，Koishi-Nest 提供了**指令拦截器**，便于在指令运行之前进行一些操作，如参数检查，记录日志等。
 
 #### 定义
 
@@ -539,7 +539,7 @@ export class AppModule {}
 
 在 Koishi-Nest 中，选择器对象有下列定义，用于上下文的选择。
 
-* `select`: 对象选择器，定义作用上下文。定义参照 [Koishi 文档](https://koishi.js.org/v4/guide/plugin/context.html#%E5%9C%A8%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E4%B8%AD%E4%BD%BF%E7%94%A8%E9%80%89%E6%8B%A9%E5%99%A8) 的写法。
+* `select`: 对象选择器，定义作用上下文。定义参照 [Koishi 文档](https://koishi.js.org/guide/plugin/context.html#%E5%9C%A8%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E4%B8%AD%E4%BD%BF%E7%94%A8%E9%80%89%E6%8B%A9%E5%99%A8) 的写法。
 
 * `useSelector`: `(ctx: Context) => Context` 使用函数进行选择。该函数接受1个 Context 参数，同时也需要返回1个 Context 对象。
 
