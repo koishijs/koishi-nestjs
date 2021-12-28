@@ -22,22 +22,28 @@ export interface ContextSelector {
 
 export type KoishiPluginOptions<T extends Plugin> = boolean | Plugin.Config<T>;
 
-export interface KoishiModulePlugin<T extends Plugin> extends ContextSelector {
-  plugin: T | string;
-  options?: boolean | KoishiPluginOptions<T> | any;
+export interface KoishiModulePluginExact<T extends Plugin>
+  extends ContextSelector {
+  plugin: T;
+  options?: boolean | KoishiPluginOptions<T>;
 }
 
-export function PluginDef<T extends keyof Plugin>(
-  name: string,
-  options?: any,
+export interface KoishiModulePluginName extends ContextSelector {
+  plugin: string;
+  options?: any;
+}
+
+export type KoishiModulePlugin<T extends Plugin = any> =
+  | KoishiModulePluginExact<T>
+  | KoishiModulePluginName;
+
+export function PluginDef(name: string, options?: any, select?: Selection);
+export function PluginDef<T extends Plugin>(
+  plugin: T,
+  options?: KoishiPluginOptions<T>,
   select?: Selection,
 );
 export function PluginDef<T extends Plugin>(
-  plugin: T,
-  options?: KoishiModulePlugin<T>,
-  select?: Selection,
-);
-export function PluginDef<T extends keyof Plugin>(
   plugin: T,
   options?: KoishiPluginOptions<T>,
   select?: Selection,
@@ -57,7 +63,7 @@ export interface KoishiModuleTopOptions {
 export interface KoishiModuleOptions
   extends App.Config,
     KoishiModuleTopOptions {
-  usePlugins?: KoishiModulePlugin<Plugin>[];
+  usePlugins?: KoishiModulePlugin<any>[];
   loggerPrefix?: string;
   loggerColor?: number;
   moduleSelection?: KoishiModuleSelection[];
