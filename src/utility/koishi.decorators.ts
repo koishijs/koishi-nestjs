@@ -62,7 +62,7 @@ export const InjectContextUser = (...values: string[]) =>
 
 export function TransformMetadata<
   K extends MetadataKey,
-  VM extends Partial<MetadataGenericMap> = MetadataGenericMap
+  VM extends Partial<MetadataGenericMap> = MetadataGenericMap,
 >(
   metadataKey: K,
   metadataValueFun: (oldValue: VM[K]) => VM[K],
@@ -196,7 +196,9 @@ export const OnSelection = (selection: Selection) =>
 
 // Command definition
 
-export const CommandDef = (def: CommandDefinitionFun): MethodDecorator =>
+export const CommandDef = (
+  def: CommandDefinitionFun,
+): MethodDecorator & ClassDecorator =>
   AppendMetadata(KoishiCommandDefinition, def);
 
 export const CommandDescription = (desc: string) =>
@@ -231,6 +233,12 @@ export const CommandUserFields = (fields: FieldCollector<'user'>) =>
 export const CommandChannelFields = (fields: FieldCollector<'channel'>) =>
   CommandDef((cmd) => cmd.channelFields(fields));
 
+export const CommandBefore = (callback: Command.Action, append = false) =>
+  CommandDef((cmd) => cmd.before(callback, append));
+
+export const CommandAction = (callback: Command.Action, prepend = false) =>
+  CommandDef((cmd) => cmd.action(callback, prepend));
+
 // Command put config
 
 function PutCommandParam<T extends keyof CommandPutConfigMap>(
@@ -248,8 +256,11 @@ function PutCommandParam<T extends keyof CommandPutConfigMap>(
 
 export const PutArgv = () => PutCommandParam('argv');
 export const PutSession = (field?: keyof Session) =>
-  field ? PutCommandParam('sessionField', field) : PutCommandParam('session');
+  field
+    ? PutCommandParam('sessionField', field)
+    : PutCommandParam('argvField', 'session');
 export const PutArg = (i: number) => PutCommandParam('arg', i);
+export const PutArgs = () => PutCommandParam('args');
 export const PutOption = (
   name: string,
   desc: string,
@@ -272,6 +283,7 @@ export const PutChannelId = () => PutSession('channelId');
 export const PutChannelName = () => PutSession('channelName');
 export const PutSelfId = () => PutSession('selfId');
 export const PutBot = () => PutSession('bot');
+export const PutNext = () => PutCommandParam('argvField', 'next');
 
 // Service
 

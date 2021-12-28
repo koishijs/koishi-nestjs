@@ -13,6 +13,7 @@ import {
   KoishiServiceWireProperty,
 } from '../utility/koishi.constants';
 import {
+  CommandDefinitionFun,
   CommandPutConfig,
   DoRegisterConfig,
   KoishiCommandInterceptorRegistration,
@@ -81,13 +82,16 @@ export class KoishiMetascanService {
       return;
     }
     switch (config.type) {
+      case 'args':
+        return args;
       case 'arg':
-        const { data: index } = config as CommandPutConfig<'arg'>;
-        return args[index];
+        const { data: argIndex } = config as CommandPutConfig<'arg'>;
+        return args[argIndex];
       case 'argv':
         return argv;
-      case 'session':
-        return argv.session;
+      case 'argvField':
+        const { data: argvField } = config as CommandPutConfig<'argvField'>;
+        return argv[argvField];
       case 'option':
         const { data: optionData } = config as CommandPutConfig<'option'>;
         return argv.options[optionData.name];
@@ -105,8 +109,9 @@ export class KoishiMetascanService {
         }
         return argv.session.author?.nickname || argv.session.author?.username;
       case 'sessionField':
-        const { data: field } = config as CommandPutConfig<'sessionField'>;
-        return argv.session[field];
+        const { data: sessionField } =
+          config as CommandPutConfig<'sessionField'>;
+        return argv.session[sessionField];
       default:
         return;
     }
@@ -155,9 +160,8 @@ export class KoishiMetascanService {
         );
         break;
       case 'beforeEvent':
-        const {
-          data: beforeEventData,
-        } = regData as DoRegisterConfig<'beforeEvent'>;
+        const { data: beforeEventData } =
+          regData as DoRegisterConfig<'beforeEvent'>;
         const beforeEventName = beforeEventData.name;
         baseContext.before(
           beforeEventName,
@@ -181,17 +185,19 @@ export class KoishiMetascanService {
           commandData.desc,
           commandData.config,
         );
-        const commandDefs = this.metaFetcher.getMetadataArray(
-          KoishiCommandDefinition,
-          methodFun,
-        );
+        const commandDefs: CommandDefinitionFun[] =
+          this.metaFetcher.getPropertyMetadataArray(
+            KoishiCommandDefinition,
+            instance,
+            methodKey,
+          );
         for (const commandDef of commandDefs) {
           command = commandDef(command) || command;
         }
         if (commandData.config?.empty) {
           break;
         }
-        const interceptorDefs = _.uniq(
+        const interceptorDefs: KoishiCommandInterceptorRegistration[] = _.uniq(
           this.metaFetcher.getPropertyMetadataArray(
             KoishiCommandInterceptorDef,
             instance,

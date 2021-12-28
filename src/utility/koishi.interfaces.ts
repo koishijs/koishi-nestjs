@@ -96,10 +96,11 @@ export type EventNameAndPrepend = CommonEventNameAndPrepend<EventName>;
 
 type OmitSubstring<
   S extends string,
-  T extends string
+  T extends string,
 > = S extends `${infer L}${T}${infer R}` ? `${L}${R}` : never;
 export type BeforeEventName = OmitSubstring<EventName & string, 'before-'>;
-export type BeforeEventNameAndPrepend = CommonEventNameAndPrepend<BeforeEventName>;
+export type BeforeEventNameAndPrepend =
+  CommonEventNameAndPrepend<BeforeEventName>;
 
 export type ContextFunction<T> = (ctx: Context) => T;
 export type OnContextFunction = ContextFunction<Context>;
@@ -113,7 +114,7 @@ export interface DoRegisterConfigDataMap {
 
 export interface MappingStruct<
   T extends Record<string | number | symbol, any>,
-  K extends keyof T
+  K extends keyof T,
 > {
   type: K;
   data?: T[K];
@@ -121,7 +122,7 @@ export interface MappingStruct<
 
 export function GenerateMappingStruct<
   T extends Record<string | number | symbol, any>,
-  K extends keyof T
+  K extends keyof T,
 >(type: K, data?: T[K]): MappingStruct<T, K> {
   return {
     type,
@@ -130,7 +131,7 @@ export function GenerateMappingStruct<
 }
 
 export type DoRegisterConfig<
-  K extends keyof DoRegisterConfigDataMap = keyof DoRegisterConfigDataMap
+  K extends keyof DoRegisterConfigDataMap = keyof DoRegisterConfigDataMap,
 > = MappingStruct<DoRegisterConfigDataMap, K>;
 
 // Command stuff
@@ -153,9 +154,10 @@ export interface CommandOptionConfig {
 }
 
 export interface CommandPutConfigMap {
+  args: never;
   arg: number;
   argv: never;
-  session: never;
+  argvField: keyof Argv;
   option: CommandOptionConfig;
   user: FieldCollector<'user'>;
   channel: FieldCollector<'channel'>;
@@ -164,7 +166,7 @@ export interface CommandPutConfigMap {
 }
 
 export type CommandPutConfig<
-  K extends keyof CommandPutConfigMap = keyof CommandPutConfigMap
+  K extends keyof CommandPutConfigMap = keyof CommandPutConfigMap,
 > = MappingStruct<CommandPutConfigMap, K>;
 
 export type CommandDefinitionFun = (cmd: Command) => Command;
@@ -176,19 +178,17 @@ export type MetadataArrayValueMap = {
 
 export type MetadataGenericMap = MetadataArrayValueMap & MetadataMap;
 
-export type MetadataArrayValue<
-  K extends keyof MetadataArrayValueMap
-> = MetadataArrayValueMap[K];
+export type MetadataArrayValue<K extends keyof MetadataArrayValueMap> =
+  MetadataArrayValueMap[K];
 
 export type MetadataKey = keyof MetadataArrayMap | keyof MetadataMap;
 
-export type MetadataMapValue<
-  K extends MetadataKey
-> = K extends keyof MetadataArrayValueMap
-  ? MetadataArrayValue<K>
-  : K extends keyof MetadataMap
-  ? MetadataMap[K]
-  : never;
+export type MetadataMapValue<K extends MetadataKey> =
+  K extends keyof MetadataArrayValueMap
+    ? MetadataArrayValue<K>
+    : K extends keyof MetadataMap
+    ? MetadataMap[K]
+    : never;
 
 // command interceptor
 
@@ -196,7 +196,8 @@ export interface KoishiCommandInterceptor<
   U extends User.Field = never,
   G extends Channel.Field = never,
   A extends any[] = any[],
-  O extends {} = {}
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  O extends {} = {},
 > {
   intercept: Command.Action<U, G, A, O>;
 }
@@ -205,7 +206,8 @@ export type KoishiCommandInterceptorRegistration<
   U extends User.Field = never,
   G extends Channel.Field = never,
   A extends any[] = any[],
-  O extends {} = {}
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  O extends {} = {},
 > =
   | KoishiCommandInterceptor<U, G, A, O>
   | Type<KoishiCommandInterceptor<U, G, A, O>>
