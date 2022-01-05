@@ -107,7 +107,11 @@ export class KoishiMetascanService {
             return user?.name;
           }
         }
-        return argv.session.author?.nickname || argv.session.author?.username;
+        return (
+          argv.session.author?.nickname ||
+          argv.session.author?.username ||
+          argv.session.userId
+        );
       case 'sessionField':
         const { data: sessionField } =
           config as CommandPutConfig<'sessionField'>;
