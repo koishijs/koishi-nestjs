@@ -220,7 +220,7 @@ export const CommandShortcut = (
   config: Command.Shortcut = {},
 ) => CommandDef((cmd) => cmd.shortcut(name, config));
 
-export const CommandUsage = (text: string) =>
+export const CommandUsage = (text: Command.Usage) =>
   CommandDef((cmd) => cmd.usage(text));
 
 export const CommandExample = (text: string) =>

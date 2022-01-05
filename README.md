@@ -311,7 +311,7 @@ Koishi-Nest 使用一组装饰器进行描述指令的行为。这些装饰器�
 
 * `@CommandDescription(text: string)` 指令描述。等价于 `ctx.command(def, desc)` 中的描述。
 
-* `@CommandUsage(text: string)` 指令介绍。等价于 `cmd.usage(text)`。
+* `@CommandUsage(text: Command.Usage)` 指令介绍。等价于 `cmd.usage(text)`。
 
 * `@CommandExample(text: string)` 指令示例。等价于 `cmd.example(text)`。
 
@@ -554,6 +554,10 @@ export class AppModule {}
   * 上下文选择器见本文 **上下文选择器** 部分。
 
 ## 更新历史
+
+### 4.2.1
+
+* 调整了 `@CommandUsage` 的类型。
 
 ### 4.2.0
 
