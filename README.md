@@ -307,6 +307,8 @@ export class AppService {
 
 Koishi-Nest 使用一组装饰器进行描述指令的行为。这些装饰器需要和 `@UseCommand(def)` 一起使用。
 
+* `@CommandUse(callback, ...args)` 指令功能配置。等价于 `cmd.use(callback, ...args)` 。
+
 * `@CommandDescription(text: string)` 指令描述。等价于 `ctx.command(def, desc)` 中的描述。
 
 * `@CommandUsage(text: string)` 指令介绍。等价于 `cmd.usage(text)`。
@@ -317,13 +319,11 @@ Koishi-Nest 使用一组装饰器进行描述指令的行为。这些装饰器�
 
 * `@CommandShortcut(def: string, config?: Command.Shortcut)` 指令快捷方式。等价于 `cmd.shortcut(def, config)`。
 
-* `@CommandDef((cmd: Command) => Command)` 手动定义指令信息，用于 Koishi-Nest 不支持的指令类型。
-
 #### 指令参数
 
 指令参数也使用一组装饰器对指令参数进行注入。下列装饰器应对提供者方法参数进行操作。
 
-* `@PutArgv()` 注入 `Argv` 对象。
+* `@PutArgv(field?: keyof Argv)` 注入 `Argv` 对象，或 `Argv` 对象的指定字段。
 
 * `@PutSession(field?: keyof Session)` 注入 `Session` 对象，或 `Session` 对象的指定字段。
 
@@ -334,6 +334,8 @@ Koishi-Nest 使用一组装饰器进行描述指令的行为。这些装饰器�
 * `@PutUser(fields: string[])` 添加一部分字段用于观测，并将 User 对象注入到该参数。
 
 * `@PutChannel(fields: string[])` 添加一部分字段用于观测，并将 Channel 对象注入到该参数。
+
+* `@PutNext()` 注入指令的 Next 方法。
 
 关于 Koishi 的观察者概念详见 [Koishi 文档](https://koishi.js.org/guide/database/observer.html#%E8%A7%82%E5%AF%9F%E8%80%85%E5%AF%B9%E8%B1%A1) 。
 
@@ -552,6 +554,14 @@ export class AppModule {}
   * 上下文选择器见本文 **上下文选择器** 部分。
 
 ## 更新历史
+
+### 4.2.0
+
+* 适配新版 Koishi 。
+
+* 增加了对应 `cmd.use` 的 `@CommandUse`。
+
+* `@PutArgv` 现在支持参数，用于注入 Argv 对象的指定字段。
 
 ### 4.1.0
 
