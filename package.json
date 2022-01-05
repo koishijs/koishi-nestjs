@@ -33,7 +33,7 @@
   "peerDependencies": {
     "@nestjs/common": "^8.0.0",
     "@nestjs/core": "^8.0.0",
-    "koishi": "^4.0.0-rc.1",
+    "koishi": "^4.0.0-rc.2",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.4.0"
   },
@@ -55,7 +55,7 @@
     "eslint-plugin-prettier": "^3.4.1",
     "express": "^4.17.1",
     "jest": "^27.4.4",
-    "koishi": "^4.0.0-rc.1",
+    "koishi": "^4.0.0-rc.2",
     "prettier": "^2.4.1",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
