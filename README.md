@@ -559,6 +559,10 @@ export class AppModule {}
 
 * 调整了 `@CommandUsage` 的类型。
 
+### 4.3.0
+
+* 适配 Kosihi v4 正式版。
+
 ### 4.2.0
 
 * 适配新版 Koishi 。
