@@ -40,7 +40,7 @@ export class KoishiService
       ...koishiModuleOptions,
       port: 1,
     });
-    this.options.baseDir ||= process.cwd();
+    this.baseDir ??= process.cwd();
     this.globalInterceptors = this.koishiModuleOptions.globalInterceptors || [];
     this.router = new Router();
     this._nestKoaTmpInstance.use(KoaBodyParser());
