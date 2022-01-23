@@ -1,39 +1,20 @@
 import { CustomDecorator, Inject } from '@nestjs/common';
 import {
   KOISHI_CONTEXT,
-  KoishiCommandDefinition,
   KoishiCommandInterceptorDef,
-  KoishiCommandPutDef,
-  KoishiDoRegister,
-  KoishiOnContextScope,
   KoishiServiceProvideSym,
   KoishiServiceWireKeys,
   KoishiServiceWireProperty,
   MetadataArrayMap,
 } from './koishi.constants';
 import {
-  BeforeEventName,
-  CommandConfigExtended,
-  CommandDefinitionFun,
-  CommandPutConfig,
-  CommandPutConfigMap,
-  EventName,
-  GenerateMappingStruct,
   KoishiCommandInterceptorRegistration,
   MetadataArrayValue,
   MetadataArrayValueMap,
   MetadataGenericMap,
   MetadataKey,
-  OnContextFunction,
 } from './koishi.interfaces';
-import {
-  Argv,
-  Command,
-  Context,
-  FieldCollector,
-  Selection,
-  Session,
-} from 'koishi';
+import { Context } from 'koishi';
 import {
   ContextScopeTypes,
   getContextProvideToken,
@@ -96,6 +77,8 @@ export const AppendMetadata = <K extends keyof MetadataArrayMap>(
 ): CustomDecorator<K> =>
   TransformMetadata<K, MetadataArrayValueMap>(metadataKey, (arr) => {
     const newArr = arr || [];
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     newArr.push(metadataValue);
     return newArr;
   });
@@ -108,186 +91,10 @@ export const ConcatMetadata = <K extends keyof MetadataArrayValueMap>(
     ((arr || []) as any[]).concat(metadataValue),
   );
 
-// Register methods
-export const UseMiddleware = (prepend?: boolean): MethodDecorator =>
-  SetMetadata(KoishiDoRegister, GenerateMappingStruct('middleware', prepend));
-export const UseEvent = (name: EventName, prepend?: boolean): MethodDecorator =>
-  SetMetadata(
-    KoishiDoRegister,
-    GenerateMappingStruct('onevent', { name, prepend }),
-  );
+// Export all koishi-decorator decorators
 
-export const BeforeEvent = (
-  name: BeforeEventName,
-  prepend?: boolean,
-): MethodDecorator =>
-  SetMetadata(
-    KoishiDoRegister,
-    GenerateMappingStruct('beforeEvent', { name, prepend }),
-  );
-
-export const UsePlugin = (): MethodDecorator =>
-  SetMetadata(KoishiDoRegister, GenerateMappingStruct('plugin'));
-
-export function UseCommand<D extends string>(
-  def: D,
-  config?: CommandConfigExtended,
-): MethodDecorator;
-export function UseCommand<D extends string>(
-  def: D,
-  desc: string,
-  config?: CommandConfigExtended,
-): MethodDecorator;
-export function UseCommand(
-  def: string,
-  ...args: [CommandConfigExtended?] | [string, CommandConfigExtended?]
-): MethodDecorator {
-  const desc = typeof args[0] === 'string' ? (args.shift() as string) : '';
-  const config = args[0] as CommandConfigExtended;
-  return (obj, key: string, des) => {
-    const putOptions: CommandPutConfig<keyof CommandPutConfigMap>[] =
-      Reflect.getMetadata(KoishiCommandPutDef, obj.constructor, key) ||
-      undefined;
-    // console.log(Reflect.getMetadata('design:paramtypes', obj, key));
-    const metadataDec = SetMetadata(KoishiDoRegister, {
-      type: 'command',
-      data: {
-        def,
-        desc,
-        config,
-        putOptions,
-      },
-    });
-    return metadataDec(obj, key, des);
-  };
-}
-
-// Context scopes
-
-export const OnContext = (
-  ctxFun: OnContextFunction,
-): MethodDecorator & ClassDecorator =>
-  AppendMetadata(KoishiOnContextScope, ctxFun);
-
-export const OnAnywhere = () => OnContext((ctx) => ctx.any());
-
-export const OnNowhere = () => OnContext((ctx) => ctx.never());
-
-export const OnUser = (...values: string[]) =>
-  OnContext((ctx) => ctx.user(...values));
-
-export const OnSelf = (...values: string[]) =>
-  OnContext((ctx) => ctx.self(...values));
-
-export const OnGuild = (...values: string[]) =>
-  OnContext((ctx) => ctx.guild(...values));
-
-export const OnChannel = (...values: string[]) =>
-  OnContext((ctx) => ctx.channel(...values));
-
-export const OnPlatform = (...values: string[]) =>
-  OnContext((ctx) => ctx.platform(...values));
-
-export const OnPrivate = (...values: string[]) =>
-  OnContext((ctx) => ctx.private(...values));
-
-export const OnSelection = (selection: Selection) =>
-  OnContext((ctx) => ctx.select(selection));
-
-// Command definition
-
-export const CommandDef = (
-  def: CommandDefinitionFun,
-): MethodDecorator & ClassDecorator =>
-  AppendMetadata(KoishiCommandDefinition, def);
-
-export const CommandUse = <T extends Command, R extends any[]>(
-  callback: (command: Command, ...args: R) => T,
-  ...args: R
-) => CommandDef((cmd) => callback(cmd, ...args));
-
-export const CommandDescription = (desc: string) =>
-  CommandDef((cmd) => {
-    cmd.description = desc;
-    return cmd;
-  });
-
-export const CommandAlias = (...names: string[]) =>
-  CommandDef((cmd) => cmd.alias(...names));
-
-export const CommandShortcut = (
-  name: string | RegExp,
-  config: Command.Shortcut = {},
-) => CommandDef((cmd) => cmd.shortcut(name, config));
-
-export const CommandUsage = (text: Command.Usage) =>
-  CommandDef((cmd) => cmd.usage(text));
-
-export const CommandExample = (text: string) =>
-  CommandDef((cmd) => cmd.example(text));
-
-export const CommandOption = (
-  name: string,
-  desc: string,
-  config: Argv.OptionConfig = {},
-) => CommandDef((cmd) => cmd.option(name, desc, config));
-
-export const CommandUserFields = (fields: FieldCollector<'user'>) =>
-  CommandDef((cmd) => cmd.userFields(fields));
-
-export const CommandChannelFields = (fields: FieldCollector<'channel'>) =>
-  CommandDef((cmd) => cmd.channelFields(fields));
-
-export const CommandBefore = (callback: Command.Action, append = false) =>
-  CommandDef((cmd) => cmd.before(callback, append));
-
-export const CommandAction = (callback: Command.Action, prepend = false) =>
-  CommandDef((cmd) => cmd.action(callback, prepend));
-
-// Command put config
-
-function PutCommandParam<T extends keyof CommandPutConfigMap>(
-  type: T,
-  data?: CommandPutConfigMap[T],
-): ParameterDecorator {
-  return (obj, key: string, index) => {
-    const objClass = obj.constructor;
-    const list: CommandPutConfig<T>[] =
-      Reflect.getMetadata(KoishiCommandPutDef, objClass, key) || [];
-    list[index] = GenerateMappingStruct(type, data);
-    Reflect.defineMetadata(KoishiCommandPutDef, list, objClass, key);
-  };
-}
-
-export const PutArgv = (field?: keyof Argv) =>
-  field ? PutCommandParam('argvField', field) : PutCommandParam('argv');
-export const PutSession = (field?: keyof Session) =>
-  field ? PutCommandParam('sessionField', field) : PutArgv('session');
-export const PutArg = (i: number) => PutCommandParam('arg', i);
-export const PutArgs = () => PutCommandParam('args');
-export const PutOption = (
-  name: string,
-  desc: string,
-  config: Argv.OptionConfig = {},
-) => PutCommandParam('option', { name, desc, config });
-
-export const PutUser = (field: FieldCollector<'user'>) =>
-  PutCommandParam('user', field);
-
-export const PutChannel = (field: FieldCollector<'channel'>) =>
-  PutCommandParam('channel', field);
-
-export const PutUserName = (useDatabase = true) =>
-  PutCommandParam('username', useDatabase);
-
-export const PutUserId = () => PutSession('userId');
-export const PutGuildId = () => PutSession('guildId');
-export const PutGuildName = () => PutSession('guildName');
-export const PutChannelId = () => PutSession('channelId');
-export const PutChannelName = () => PutSession('channelName');
-export const PutSelfId = () => PutSession('selfId');
-export const PutBot = () => PutSession('bot');
-export const PutNext = () => PutArgv('next');
+export * from 'koishi-decorators/dist/src/decorators';
+export { PluginDef } from 'koishi-decorators';
 
 // Service
 

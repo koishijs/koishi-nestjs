@@ -14,11 +14,11 @@ import { Server } from 'http';
 import Koa from 'koa';
 import KoaBodyParser from 'koa-bodyparser';
 import { KoishiMetascanService } from './providers/koishi-metascan.service';
-import { applySelector } from './utility/koishi.utility';
 import { KOISHI_MODULE_OPTIONS } from './utility/koishi.constants';
 import { KoishiLoggerService } from './providers/koishi-logger.service';
 import { KoishiHttpDiscoveryService } from './koishi-http-discovery/koishi-http-discovery.service';
 import { Filter, ReplacedContext } from './utility/replaced-context';
+import { applySelector } from 'koishi-decorators';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 Router.prepare = () => {};
@@ -70,17 +70,17 @@ export class KoishiService
 
   async onModuleInit() {
     await this.setHttpServer();
-    await this.metascan.preRegisterContext(this.any());
+    this.metascan.preRegisterContext(this.any());
     if (this.koishiModuleOptions.usePlugins) {
-      for (const pluginDesc of this.koishiModuleOptions.usePlugins) {
-        const ctx = applySelector(this, pluginDesc);
-        ctx.plugin(pluginDesc.plugin, pluginDesc.options);
+      for (const pluginDef of this.koishiModuleOptions.usePlugins) {
+        const ctx = applySelector(this, pluginDef);
+        ctx.plugin(pluginDef.plugin, pluginDef.options);
       }
     }
   }
 
   async onApplicationBootstrap() {
-    await this.metascan.registerContext(this.any());
+    this.metascan.registerContext(this.any());
     return this.start();
   }
 
