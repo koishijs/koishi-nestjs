@@ -555,13 +555,18 @@ export class AppModule {}
 
 ## 更新历史
 
+### 4.4.0
+
+* 适配 Koishi v4.1。
+* 使用 koishi-decorators 重构。
+
 ### 4.2.1
 
 * 调整了 `@CommandUsage` 的类型。
 
 ### 4.3.0
 
-* 适配 Kosihi v4 正式版。
+* 适配 Koishi v4 正式版。
 
 ### 4.2.0
 
