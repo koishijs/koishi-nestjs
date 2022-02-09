@@ -96,6 +96,8 @@ koishi-nestjs 的配置项和 [Koishi 配置项](https://koishi.js.org/api/core/
 
 - `useWs`: `boolean` 默认 `false` 。是否启用 WebSocket 网关。**异步配置该项应写入异步配置项中。**
 
+- `actionErrorMessage`: `string` 指令中发生未知错误时，机器人返回的信息。默认 `Internal Server Error`。
+
 #### 不支持的配置项
 
 由于 koishi-nestjs 复用了 Nest.js 实例的 HttpServer 对象，因此下列关于 HttpServer 监听的选项将不受支持：
@@ -264,6 +266,12 @@ function getContextProvideToken(scopeType?: ContextScopeTypes, values: string[] 
 您也可以在提供者类中，使用装饰器进行 Koishi 的中间件，事件，指令等方法注册，也可以加载插件。
 
 装饰器定义与 koishi-thirdeye 中一致，请参阅 [相关文档](https://koishi.js.org/guide/misc/decorators.html#注册事件) 。
+
+### 错误处理
+
+在 koishi-nestjs 的指令处理中，若抛出 Nest.js 中的 `HttpException` 或 `WsException` 的异常时，系统将会以其中的返回信息作为机器人发送给用户的错误信息。
+
+若遇到未知的错误，机器人则会返回给用户预设的错误信息。这一错误信息可以使用 `actionErrorMessage` 设置。
 
 ## 使用服务
 
