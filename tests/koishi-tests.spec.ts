@@ -1,7 +1,11 @@
 import { Test } from '@nestjs/testing';
 import { KoishiModule } from '../src/koishi.module';
 import { KoishiService } from '../src/koishi.service';
-import { INestApplication, Injectable } from '@nestjs/common';
+import {
+  INestApplication,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { KoishiWsAdapter } from '../src/koishi.ws-adapter';
 import http from 'http';
 import request from 'supertest';
@@ -22,6 +26,16 @@ class KoishiTestService {
   @CommandUsage('foo')
   async onEcho(@PutOption('content', '-c <content:string>') content: string) {
     return `bot: ${content}`;
+  }
+
+  @UseCommand('boo')
+  async onBoo(@PutOption('content', '-c <content:string>') content: string) {
+    throw new NotFoundException(`boo: ${content}`);
+  }
+
+  @UseCommand('bow')
+  async onBow() {
+    throw new Error('bow!');
   }
 }
 
@@ -93,5 +107,19 @@ describe('HttpServer', () => {
     expect(methodCtx.filter(correctSession)).toBe(true);
     expect(methodCtx.filter(wrongSession1)).toBe(false);
     expect(methodCtx.filter(wrongSession2)).toBe(false);
+  });
+
+  it('should handle command error', () => {
+    const command = koishiApp.command('boo');
+    expect(command.execute({ options: { content: 'bow!' } })).resolves.toBe(
+      'boo: bow!',
+    );
+  });
+
+  it('should handle unknown error', () => {
+    const command = koishiApp.command('bow');
+    expect(command.execute({ options: { content: 'bow!' } })).resolves.toBe(
+      'Internal Server Error',
+    );
   });
 });

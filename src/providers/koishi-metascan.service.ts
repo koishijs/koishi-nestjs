@@ -18,6 +18,8 @@ import { Module } from '@nestjs/core/injector/module';
 import { KoishiMetadataFetcherService } from '../koishi-metadata-fetcher/koishi-metadata-fetcher.service';
 import { KoishiInterceptorManagerService } from '../koishi-interceptor-manager/koishi-interceptor-manager.service';
 import { Registrar } from 'koishi-decorators';
+import { handleActionException } from '../utility/wrap-action';
+import { KoishiExceptionHandlerService } from '../koishi-exception-handler/koishi-exception-handler.service';
 
 @Injectable()
 export class KoishiMetascanService {
@@ -30,6 +32,7 @@ export class KoishiMetascanService {
     @Inject(KOISHI_MODULE_OPTIONS)
     private readonly koishiModuleOptions: KoishiModuleOptions,
     private readonly intercepterManager: KoishiInterceptorManagerService,
+    private readonly exceptionHandler: KoishiExceptionHandlerService,
   ) {}
 
   addInterceptors(
@@ -57,6 +60,13 @@ export class KoishiMetascanService {
         ),
       );
       this.addInterceptors(command, interceptorDefs);
+      command.action(async (argv) => {
+        try {
+          return await argv.next();
+        } catch (e) {
+          return this.exceptionHandler.handleActionException(e);
+        }
+      }, true);
     }
   }
 

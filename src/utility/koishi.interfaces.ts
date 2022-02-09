@@ -20,6 +20,7 @@ export interface KoishiModuleOptions
   loggerColor?: number;
   moduleSelection?: KoishiModuleSelection[];
   globalInterceptors?: KoishiCommandInterceptorRegistration[];
+  actionErrorMessage?: string;
 }
 
 export interface KoishiModuleOptionsFactory {
