@@ -31,15 +31,13 @@
   "author": "Nanahira <nanahira@momobako.com>",
   "license": "MIT",
   "peerDependencies": {
-    "@nestjs/common": "^8.0.0",
-    "@nestjs/core": "^8.0.0",
+    "@nestjs/common": "^8.2.6",
+    "@nestjs/core": "^8.2.6",
     "koishi": "^4.2.0",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.4.0"
+    "rxjs": "^7.5.4"
   },
   "devDependencies": {
-    "@nestjs/common": "^8.0.9",
-    "@nestjs/core": "^8.0.9",
     "@nestjs/platform-express": "^8.2.3",
     "@nestjs/testing": "^8.2.3",
     "@types/jest": "^27.0.3",
@@ -57,9 +55,7 @@
     "jest": "^27.4.4",
     "koishi": "^4.2.0",
     "prettier": "^2.4.1",
-    "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
-    "rxjs": "^7.4.0",
     "supertest": "^6.1.6",
     "ts-jest": "^27.1.1",
     "typescript": "^4.4.3"
@@ -70,7 +66,7 @@
     "@types/ws": "^8.2.0",
     "koa": "^2.13.3",
     "koa-bodyparser": "^4.3.0",
-    "koishi-decorators": "^1.0.6",
+    "koishi-decorators": "^1.0.7",
     "lodash": "^4.17.21",
     "ws": "^8.2.3"
   },
