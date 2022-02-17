@@ -39,7 +39,7 @@ class KoishiTestService {
   }
 }
 
-describe('HttpServer', () => {
+describe('Koishi in Nest.js', () => {
   let app: INestApplication;
   let koishiApp: KoishiService;
 

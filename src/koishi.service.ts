@@ -10,7 +10,7 @@ import {
   KoishiCommandInterceptorRegistration,
   KoishiModuleOptions,
 } from './utility/koishi.interfaces';
-import { Server } from 'http';
+import { createServer, Server } from 'http';
 import Koa from 'koa';
 import KoaBodyParser from 'koa-bodyparser';
 import { KoishiMetascanService } from './providers/koishi-metascan.service';
@@ -19,6 +19,7 @@ import { KoishiLoggerService } from './providers/koishi-logger.service';
 import { KoishiHttpDiscoveryService } from './koishi-http-discovery/koishi-http-discovery.service';
 import { Filter, ReplacedContext } from './utility/replaced-context';
 import { applySelector } from 'koishi-decorators';
+import WebSocket from 'ws';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 Router.prepare = () => {};
@@ -59,6 +60,18 @@ export class KoishiService
   private async setHttpServer() {
     const httpAdapter = this.httpDiscovery.getHttpAdapter();
     if (!httpAdapter) {
+      this.logger('app').info('No http adapters found from Nest application.');
+      this._httpServer = createServer(this._nestKoaTmpInstance.callback());
+      this._wsServer = new WebSocket.Server({
+        server: this._httpServer,
+      });
+
+      this._wsServer.on('connection', (socket, request) => {
+        for (const manager of this.router.wsStack) {
+          if (manager.accept(socket, request)) return;
+        }
+        socket.close();
+      });
       return;
     }
     const httpServer: Server = httpAdapter.getHttpServer();
