@@ -59,7 +59,11 @@ export class KoishiService
 
   private async setHttpServer() {
     const httpAdapter = this.httpDiscovery.getHttpAdapter();
-    if (!httpAdapter) {
+    const httpServer: Server = httpAdapter?.getHttpServer();
+    if (httpServer && httpServer instanceof Server) {
+      this.logger('app').info('App using Nest HTTP Server.');
+      this._httpServer = httpServer;
+    } else {
       this.logger('app').info('No http adapters found from Nest application.');
       this._httpServer = createServer(this._nestKoaTmpInstance.callback());
       this._wsServer = new WebSocket.Server({
@@ -72,12 +76,6 @@ export class KoishiService
         }
         socket.close();
       });
-      return;
-    }
-    const httpServer: Server = httpAdapter.getHttpServer();
-    if (httpServer instanceof Server) {
-      this.logger('app').info('App using Nest HTTP Server.');
-      this._httpServer = httpServer;
     }
   }
 
