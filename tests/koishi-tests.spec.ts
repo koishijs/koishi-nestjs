@@ -17,9 +17,42 @@ import {
   UseCommand,
 } from 'koishi-decorators';
 import { Session } from 'koishi';
+import { KoishiCommandInterceptor } from '../src/utility/koishi.interfaces';
+import { Argv } from 'koishi';
+import { CommandInterceptors } from '../src/utility/koishi.decorators';
+
+@Injectable()
+class MooInterceptor implements KoishiCommandInterceptor {
+  intercept(argv: Argv) {
+    return 'moo!';
+  }
+}
+
+@Injectable()
+class PooInterceptor implements KoishiCommandInterceptor {
+  intercept(argv: Argv) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    if (argv.options?.content === 'poo') {
+      return 'poo!';
+    }
+  }
+}
+
+@Injectable()
+class PeeInterceptor implements KoishiCommandInterceptor {
+  intercept(argv: Argv) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    if (argv.options?.content === 'pee') {
+      return 'pee!';
+    }
+  }
+}
 
 @OnPlatform('discord')
 @Injectable()
+@CommandInterceptors(PooInterceptor)
 class KoishiTestService {
   @OnGuild('1111111111')
   @UseCommand('echo', 'hi')
@@ -37,6 +70,12 @@ class KoishiTestService {
   async onBow() {
     throw new Error('bow!');
   }
+
+  @UseCommand('moo')
+  @CommandInterceptors(MooInterceptor)
+  async onMoo() {
+    return 'zzzz';
+  }
 }
 
 describe('Koishi in Nest.js', () => {
@@ -48,9 +87,15 @@ describe('Koishi in Nest.js', () => {
       imports: [
         KoishiModule.register({
           useWs: true,
+          globalInterceptors: [PeeInterceptor],
         }),
       ],
-      providers: [KoishiTestService],
+      providers: [
+        KoishiTestService,
+        MooInterceptor,
+        PooInterceptor,
+        PeeInterceptor,
+      ],
     }).compile();
     app = moduleFixture.createNestApplication();
     app.useWebSocketAdapter(new KoishiWsAdapter(app));
@@ -111,6 +156,7 @@ describe('Koishi in Nest.js', () => {
 
   it('should handle command error', () => {
     const command = koishiApp.command('boo');
+    expect(command).toBeDefined();
     expect(command.execute({ options: { content: 'bow!' } })).resolves.toBe(
       'boo: bow!',
     );
@@ -118,8 +164,31 @@ describe('Koishi in Nest.js', () => {
 
   it('should handle unknown error', () => {
     const command = koishiApp.command('bow');
+    expect(command).toBeDefined();
     expect(command.execute({ options: { content: 'bow!' } })).resolves.toBe(
       'Internal Server Error',
+    );
+  });
+
+  it('should intercept on specific method', () => {
+    const command = koishiApp.command('moo');
+    expect(command).toBeDefined();
+    expect(command.execute({ options: {} })).resolves.toBe('moo!');
+  });
+
+  it('should intercept on service', async () => {
+    const command = koishiApp.command('echo');
+    expect(command).toBeDefined();
+    expect(command.execute({ options: { content: 'poo' } })).resolves.toBe(
+      'poo!',
+    );
+  });
+
+  it('should intercept on global', () => {
+    const command = koishiApp.command('echo');
+    expect(command).toBeDefined();
+    expect(command.execute({ options: { content: 'pee' } })).resolves.toBe(
+      'pee!',
     );
   });
 });
