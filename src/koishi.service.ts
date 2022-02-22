@@ -39,7 +39,7 @@ export class KoishiService
   ) {
     super({
       ...koishiModuleOptions,
-      port: 1,
+      port: 0,
     });
     this.baseDir ??= process.cwd();
     this.globalInterceptors = this.koishiModuleOptions.globalInterceptors || [];
@@ -50,12 +50,6 @@ export class KoishiService
   }
 
   readonly _nestKoaTmpInstance = new Koa();
-
-  override async start() {
-    this.isActive = true;
-    await this.parallel('ready');
-    this.logger('app').debug('started');
-  }
 
   private async setHttpServer() {
     const httpAdapter = this.httpDiscovery.getHttpAdapter();
