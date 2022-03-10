@@ -2,6 +2,7 @@ import { ModuleMetadata, Provider, Type } from '@nestjs/common';
 import { App, Channel, Command, User } from 'koishi';
 import { MetadataArrayMap, MetadataMap } from './koishi.constants';
 import { ContextSelector, PluginDefinition } from 'koishi-decorators';
+export * from 'koishi-decorators/dist/src/def/interfaces';
 
 export interface KoishiModuleSelection extends ContextSelector {
   module: Type<any>;
