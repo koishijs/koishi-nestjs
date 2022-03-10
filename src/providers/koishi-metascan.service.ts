@@ -158,7 +158,9 @@ export class KoishiMetascanService {
   registerContext(ctx: Context) {
     return this.runForEachProvider(ctx, (providerCtx, instance) => {
       this.scanInstanceForProvidingContextService(providerCtx, instance);
-      new Registrar(instance)
+      const registrar = new Registrar(instance);
+      registrar.performTopActions(providerCtx);
+      registrar
         .getAllFieldsToRegister()
         .forEach((methodKey: string) =>
           this.handleInstanceRegistration(providerCtx, instance, methodKey),
