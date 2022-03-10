@@ -67,7 +67,7 @@
     "@types/ws": "^8.2.0",
     "koa": "^2.13.3",
     "koa-bodyparser": "^4.3.0",
-    "koishi-decorators": "^1.2.6",
+    "koishi-decorators": "^1.2.7",
     "lodash": "^4.17.21",
     "ws": "^8.2.3"
   },
