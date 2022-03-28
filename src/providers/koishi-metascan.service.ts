@@ -42,7 +42,7 @@ export class KoishiMetascanService {
     return this.intercepterManager.addInterceptors(command, interceptorDefs);
   }
 
-  private handleInstanceRegistration(
+  private async handleInstanceRegistration(
     ctx: Context,
     instance: Record<string, any>,
     methodKey: string,
@@ -68,6 +68,11 @@ export class KoishiMetascanService {
             return this.exceptionHandler.handleActionException(e);
           }
         }, true);
+      }
+    } else if (result.type === 'plugin') {
+      const mayBePromise = result.result as Promise<any>;
+      if (mayBePromise instanceof Promise) {
+        await mayBePromise;
       }
     }
   }
@@ -156,15 +161,19 @@ export class KoishiMetascanService {
   }
 
   registerContext(ctx: Context) {
-    return this.runForEachProvider(ctx, (providerCtx, instance) => {
-      this.scanInstanceForProvidingContextService(providerCtx, instance);
-      const registrar = new Registrar(instance);
-      registrar.performTopActions(providerCtx);
-      registrar
-        .getAllFieldsToRegister()
-        .forEach((methodKey: string) =>
-          this.handleInstanceRegistration(providerCtx, instance, methodKey),
+    return Promise.all(
+      this.runForEachProvider(ctx, (providerCtx, instance) => {
+        this.scanInstanceForProvidingContextService(providerCtx, instance);
+        const registrar = new Registrar(instance);
+        registrar.performTopActions(providerCtx);
+        return Promise.all(
+          registrar
+            .getAllFieldsToRegister()
+            .map((methodKey: string) =>
+              this.handleInstanceRegistration(providerCtx, instance, methodKey),
+            ),
         );
-    });
+      }),
+    );
   }
 }

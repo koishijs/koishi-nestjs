@@ -85,7 +85,7 @@ export class KoishiService
   }
 
   async onApplicationBootstrap() {
-    this.metascan.registerContext(this.any());
+    await this.metascan.registerContext(this.any());
     return this.start();
   }
 
