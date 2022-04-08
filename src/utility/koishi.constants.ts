@@ -20,3 +20,5 @@ export interface MetadataArrayMap {
 }
 
 export interface MetadataMap {}
+
+export const KoishiIpSym = Symbol('KoishiIpSym');

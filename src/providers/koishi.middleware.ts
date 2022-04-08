@@ -4,12 +4,17 @@ import { KoishiService } from '../koishi.service';
 import { IncomingMessage, ServerResponse } from 'http';
 import { Http2ServerRequest, Http2ServerResponse } from 'http2';
 import { parse } from 'url';
+import { KoishiIpSym } from '../utility/koishi.constants';
 
-export type RequestWithOriginalUrl = IncomingMessage & { originalUrl?: string };
+export type RequestExtended = IncomingMessage & {
+  originalUrl?: string;
+  ip?: string;
+  ips?: string[];
+};
 
 @Injectable()
 export class KoishiMiddleware
-  implements NestMiddleware<RequestWithOriginalUrl, ServerResponse>
+  implements NestMiddleware<RequestExtended, ServerResponse>
 {
   private readonly koaCallback: (
     req: IncomingMessage | Http2ServerRequest,
@@ -19,7 +24,7 @@ export class KoishiMiddleware
     this.koaCallback = this.koishi._nestKoaTmpInstance.callback();
   }
 
-  use(req: RequestWithOriginalUrl, res: ServerResponse, next: NextFunction) {
+  use(req: RequestExtended, res: ServerResponse, next: NextFunction) {
     const exactUrl = req.originalUrl || req.url;
     const matchingUrl = parse(exactUrl).pathname || '';
     const match = this.koishi.router.match(matchingUrl, req.method);
@@ -27,6 +32,7 @@ export class KoishiMiddleware
       return next();
     }
     req.url = exactUrl;
+    req[KoishiIpSym] = req.ip;
     return this.koaCallback(req, res);
   }
 }

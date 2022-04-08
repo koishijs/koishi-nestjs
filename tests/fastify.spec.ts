@@ -15,7 +15,9 @@ describe('Koishi module in Fastify adapter', () => {
   beforeEach(async () => {
     const moduleFixture = await testingModule();
     app = moduleFixture.createNestApplication<NestFastifyApplication>(
-      new FastifyAdapter(),
+      new FastifyAdapter({
+        trustProxy: true,
+      }),
     );
     app.useWebSocketAdapter(new KoishiWsAdapter(app));
     await app.init();
@@ -45,5 +47,22 @@ describe('Koishi module in Fastify adapter', () => {
       expect(res.statusCode).toBe(233);
       expect(res.body).toBe('pong');
     });
+  });
+
+  it('should response to koishi routes', () => {
+    koishiApp.router.get('/ip', (ctx) => {
+      ctx.status = 233;
+      ctx.body = ctx.ip;
+    });
+    return app
+      .inject({
+        method: 'GET',
+        url: '/ip',
+        headers: { 'x-forwarded-for': '1.1.1.1' },
+      })
+      .then((res) => {
+        expect(res.statusCode).toBe(233);
+        expect(res.body).toBe('1.1.1.1');
+      });
   });
 });

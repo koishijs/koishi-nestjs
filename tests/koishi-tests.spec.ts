@@ -1,19 +1,20 @@
 import { KoishiService } from '../src/koishi.service';
-import { INestApplication } from '@nestjs/common';
 import { KoishiWsAdapter } from '../src/koishi.ws-adapter';
 import http from 'http';
 import request from 'supertest';
 import { Session } from 'koishi';
 import { testingModule } from './utility/testing-module';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 describe('Koishi in Nest.js', () => {
-  let app: INestApplication;
+  let app: NestExpressApplication;
   let koishiApp: KoishiService;
 
   beforeEach(async () => {
     const moduleFixture = await testingModule();
-    app = moduleFixture.createNestApplication();
+    app = moduleFixture.createNestApplication<NestExpressApplication>();
     app.useWebSocketAdapter(new KoishiWsAdapter(app));
+    app.set('trust proxy', ['loopback']);
     await app.init();
     koishiApp = app.get(KoishiService);
   });
@@ -41,6 +42,18 @@ describe('Koishi in Nest.js', () => {
       .get('/ping/?test=1')
       .expect(233)
       .expect('pong');
+  });
+
+  it('should be correct client ip', () => {
+    koishiApp.router.get('/ip', (ctx) => {
+      ctx.status = 233;
+      ctx.body = ctx.ip;
+    });
+    return request(app.getHttpServer())
+      .get('/ip')
+      .set('X-Forwarded-For', '1.1.1.1')
+      .expect(233)
+      .expect('1.1.1.1');
   });
 
   it('should register command', () => {

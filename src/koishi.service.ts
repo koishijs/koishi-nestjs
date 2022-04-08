@@ -14,7 +14,7 @@ import { createServer, Server } from 'http';
 import Koa from 'koa';
 import KoaBodyParser from 'koa-bodyparser';
 import { KoishiMetascanService } from './providers/koishi-metascan.service';
-import { KOISHI_MODULE_OPTIONS } from './utility/koishi.constants';
+import { KOISHI_MODULE_OPTIONS, KoishiIpSym } from './utility/koishi.constants';
 import { KoishiLoggerService } from './providers/koishi-logger.service';
 import { KoishiHttpDiscoveryService } from './koishi-http-discovery/koishi-http-discovery.service';
 import { Filter, ReplacedContext } from './utility/replaced-context';
@@ -44,6 +44,10 @@ export class KoishiService
     this.baseDir ??= process.cwd();
     this.globalInterceptors = this.koishiModuleOptions.globalInterceptors || [];
     this.router = new Router();
+    this._nestKoaTmpInstance.use((ctx, next) => {
+      ctx.request.ip = ctx.req[KoishiIpSym];
+      return next();
+    });
     this._nestKoaTmpInstance.use(KoaBodyParser());
     this._nestKoaTmpInstance.use(this.router.routes());
     this._nestKoaTmpInstance.use(this.router.allowedMethods());
