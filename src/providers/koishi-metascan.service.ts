@@ -18,7 +18,6 @@ import { Module } from '@nestjs/core/injector/module';
 import { KoishiMetadataFetcherService } from '../koishi-metadata-fetcher/koishi-metadata-fetcher.service';
 import { KoishiInterceptorManagerService } from '../koishi-interceptor-manager/koishi-interceptor-manager.service';
 import { CommandRegisterConfig, Registrar } from 'koishi-decorators';
-import { handleActionException } from '../utility/wrap-action';
 import { KoishiExceptionHandlerService } from '../koishi-exception-handler/koishi-exception-handler.service';
 
 @Injectable()

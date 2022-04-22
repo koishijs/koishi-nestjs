@@ -22,8 +22,11 @@ export class KoishiExceptionHandlerService extends ConsoleLogger {
       return e.message;
     } else {
       this.error(e.message, e.stack);
+      if (this.koishiModuleOptions.actionErrorMessage === '') {
+        return;
+      }
       return (
-        this.koishiModuleOptions.actionErrorMessage || 'Internal Server Error'
+        this.koishiModuleOptions.actionErrorMessage ?? 'Internal Server Error'
       );
     }
   }
