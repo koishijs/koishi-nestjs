@@ -27,7 +27,7 @@ Router.prepare = () => {};
 @Injectable()
 export class KoishiService
   extends App
-  implements OnModuleInit, OnApplicationBootstrap, OnModuleDestroy
+  implements OnModuleInit, OnModuleDestroy
 {
   private readonly globalInterceptors: KoishiCommandInterceptorRegistration[];
   constructor(
@@ -86,9 +86,6 @@ export class KoishiService
         ctx.plugin(pluginDef.plugin, pluginDef.options);
       }
     }
-  }
-
-  async onApplicationBootstrap() {
     await this.metascan.registerContext(this.any());
     return this.start();
   }
