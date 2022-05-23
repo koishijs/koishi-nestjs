@@ -9,7 +9,9 @@ describe('KoishiExceptionHandlerService', () => {
       providers: [KoishiExceptionHandlerService],
     }).compile();
 
-    service = module.get<KoishiExceptionHandlerService>(KoishiExceptionHandlerService);
+    service = module.get<KoishiExceptionHandlerService>(
+      KoishiExceptionHandlerService,
+    );
   });
 
   it('should be defined', () => {

@@ -80,7 +80,7 @@ export class KoishiMetascanService {
     ctx: Context,
     instance: any,
     property: string,
-    name: keyof Context.Services,
+    name: keyof Context,
   ) {
     Object.defineProperty(instance, property, {
       enumerable: true,
@@ -89,6 +89,8 @@ export class KoishiMetascanService {
         return ctx[name];
       },
       set(val: any) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         ctx[name] = val;
       },
     });
@@ -114,7 +116,7 @@ export class KoishiMetascanService {
       return;
     }
     for (const property of properties) {
-      const serviceName: keyof Context.Services = Reflect.getMetadata(
+      const serviceName: keyof Context = Reflect.getMetadata(
         KoishiServiceWireProperty,
         instanceClass,
         property,

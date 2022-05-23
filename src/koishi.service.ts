@@ -1,8 +1,7 @@
-import { App, Argv, Command, Context, Router } from 'koishi';
+import { App, Command, Context, Plugin } from 'koishi';
 import {
   Inject,
   Injectable,
-  OnApplicationBootstrap,
   OnModuleDestroy,
   OnModuleInit,
 } from '@nestjs/common';
@@ -20,16 +19,15 @@ import { KoishiHttpDiscoveryService } from './koishi-http-discovery/koishi-http-
 import { Filter, ReplacedContext } from './utility/replaced-context';
 import { applySelector } from 'koishi-decorators';
 import WebSocket from 'ws';
-
-// eslint-disable-next-line @typescript-eslint/no-empty-function
-Router.prepare = () => {};
+import { KoishiNestRouter } from './utility/koa-router';
+import './utility/commander-with-interceptor';
 
 @Injectable()
 export class KoishiService
   extends App
   implements OnModuleInit, OnModuleDestroy
 {
-  private readonly globalInterceptors: KoishiCommandInterceptorRegistration[];
+  private readonly _interceptors: KoishiCommandInterceptorRegistration[];
   constructor(
     @Inject(KOISHI_MODULE_OPTIONS)
     private readonly koishiModuleOptions: KoishiModuleOptions,
@@ -42,8 +40,8 @@ export class KoishiService
       port: 0,
     });
     this.baseDir ??= process.cwd();
-    this.globalInterceptors = this.koishiModuleOptions.globalInterceptors || [];
-    this.router = new Router();
+    this._interceptors = this.koishiModuleOptions.globalInterceptors || [];
+    this.router = new KoishiNestRouter();
     this._nestKoaTmpInstance.use((ctx, next) => {
       ctx.request.ip = ctx.req[KoishiIpSym];
       return next();
@@ -103,58 +101,20 @@ export class KoishiService
 
   private cloneContext(
     filter: Filter,
-    interceptors: KoishiCommandInterceptorRegistration[] = [],
+    plugin: Plugin,
+    interceptors: KoishiCommandInterceptorRegistration[],
   ): Context {
-    return new ReplacedContext(filter, this, null, [
-      ...this.globalInterceptors,
+    return new ReplacedContext(filter, this, plugin, interceptors);
+  }
+
+  withInterceptors(interceptors: KoishiCommandInterceptorRegistration[]) {
+    return this.cloneContext(this.filter, this.plugin, [
+      ...this._interceptors,
       ...interceptors,
     ]);
   }
 
-  withInterceptors(interceptors: KoishiCommandInterceptorRegistration[]) {
-    return this.cloneContext(() => true, interceptors);
-  }
-
-  override any() {
-    return this.cloneContext(() => true);
-  }
-
-  override never() {
-    return this.cloneContext(() => false);
-  }
-
-  override union(arg: Filter | Context) {
-    const filter = typeof arg === 'function' ? arg : arg.filter;
-    return this.cloneContext((s) => this.filter(s) || filter(s));
-  }
-
-  override intersect(arg: Filter | Context) {
-    const filter = typeof arg === 'function' ? arg : arg.filter;
-    return this.cloneContext((s) => this.filter(s) && filter(s));
-  }
-
-  override except(arg: Filter | Context) {
-    const filter = typeof arg === 'function' ? arg : arg.filter;
-    return this.cloneContext((s) => this.filter(s) && !filter(s));
-  }
-
-  override command<D extends string>(
-    def: D,
-    config?: Command.Config,
-  ): Command<never, never, Argv.ArgumentType<D>>;
-  override command<D extends string>(
-    def: D,
-    desc: string,
-    config?: Command.Config,
-  ): Command<never, never, Argv.ArgumentType<D>>;
-  override command(
-    def: string,
-    ...args: [Command.Config?] | [string, Command.Config?]
-  ) {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const cmd = super.command(def, ...args);
-    this.addInterceptors(cmd, this.globalInterceptors);
-    return cmd;
+  override fork(filter: Filter, _plugin: Plugin) {
+    return this.cloneContext(filter, _plugin, this._interceptors);
   }
 }

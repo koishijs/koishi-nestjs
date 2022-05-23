@@ -15,7 +15,7 @@ export const KoishiServiceProvideSym = 'KoishiServiceProvideSym';
 // metadata map
 
 export interface MetadataArrayMap {
-  KoishiServiceProvideSym: keyof Context.Services;
+  KoishiServiceProvideSym: keyof Context;
   KoishiCommandInterceptorDef: KoishiCommandInterceptorRegistration;
 }
 

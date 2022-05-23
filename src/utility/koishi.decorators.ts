@@ -98,9 +98,7 @@ export { PluginDef } from 'koishi-decorators';
 
 // Service
 
-export function WireContextService(
-  name?: keyof Context.Services,
-): PropertyDecorator {
+export function WireContextService(name?: keyof Context): PropertyDecorator {
   return (obj, key) => {
     const objClass = obj.constructor;
     const properties: string[] =
@@ -116,9 +114,7 @@ export function WireContextService(
   };
 }
 
-export function ProvideContextService(
-  name: keyof Context.Services,
-): ClassDecorator {
+export function ProvideContextService(name: keyof Context): ClassDecorator {
   Context.service(name);
   return AppendMetadata(KoishiServiceProvideSym, name);
 }

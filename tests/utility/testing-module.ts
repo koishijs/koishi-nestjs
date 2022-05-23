@@ -1,11 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { KoishiCommandInterceptor } from '../../src/utility/koishi.interfaces';
-import { Argv, Context } from 'koishi';
+import { Argv } from 'koishi';
 import {
   CommandUsage,
   OnGuild,
   OnPlatform,
-  PluginDef,
   PutOption,
   UseCommand,
 } from 'koishi-decorators';

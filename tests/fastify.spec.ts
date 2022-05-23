@@ -6,7 +6,6 @@ import { KoishiService } from '../src/koishi.service';
 import { testingModule } from './utility/testing-module';
 import { KoishiWsAdapter } from '../src/koishi.ws-adapter';
 import http from 'http';
-import request from 'supertest';
 
 describe('Koishi module in Fastify adapter', () => {
   let app: NestFastifyApplication;

@@ -79,7 +79,7 @@ describe('Koishi in Nest.js', () => {
       platform: 'telegram',
     } as Session;
 
-    const methodCtx = command.context;
+    const methodCtx = command.ctx;
     expect(methodCtx.filter(correctSession)).toBe(true);
     expect(methodCtx.filter(wrongSession1)).toBe(false);
     expect(methodCtx.filter(wrongSession2)).toBe(false);
