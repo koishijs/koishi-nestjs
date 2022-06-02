@@ -31,19 +31,18 @@
   "author": "Nanahira <nanahira@momobako.com>",
   "license": "MIT",
   "peerDependencies": {
-    "@nestjs/common": "^8.2.6",
-    "@nestjs/core": "^8.2.6",
+    "@nestjs/common": "^8.4.6",
+    "@nestjs/core": "^8.4.6",
     "koishi": "^4.7.2",
-    "reflect-metadata": "^0.1.13",
     "rxjs": "^7.5.4"
   },
   "devDependencies": {
-    "@nestjs/platform-express": "^8.2.3",
-    "@nestjs/platform-fastify": "^8.3.1",
-    "@nestjs/testing": "^8.2.3",
+    "@nestjs/platform-express": "^8.4.6",
+    "@nestjs/platform-fastify": "^8.4.6",
+    "@nestjs/testing": "^8.4.6",
     "@types/jest": "^27.0.3",
     "@types/koa": "^2.13.4",
-    "@types/koa-bodyparser": "^4.3.3",
+    "@types/koa-bodyparser": "^4.3.7",
     "@types/lodash": "^4.14.175",
     "@types/node": "^16.10.2",
     "@types/supertest": "^2.0.11",
@@ -55,21 +54,22 @@
     "express": "^4.17.1",
     "jest": "^27.4.4",
     "prettier": "^2.4.1",
+    "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "supertest": "^6.1.6",
     "ts-jest": "^27.1.1",
     "typescript": "^4.6.4"
   },
   "dependencies": {
-    "@nestjs/platform-ws": "^8.1.2",
-    "@nestjs/websockets": "^8.1.2",
+    "@nestjs/platform-ws": "^8.4.6",
+    "@nestjs/websockets": "^8.4.6",
     "@types/ws": "^8.5.3",
     "koa": "^2.13.4",
     "koa-bodyparser": "^4.3.0",
     "koishi-decorators": "^2.1.0",
     "lodash": "^4.17.21",
     "typed-reflector": "^1.0.10",
-    "ws": "^8.6.0"
+    "ws": "^8.7.0"
   },
   "jest": {
     "moduleFileExtensions": [

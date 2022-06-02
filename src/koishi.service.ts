@@ -1,4 +1,4 @@
-import { App, Command, Context, Plugin } from 'koishi';
+import { App, Command } from 'koishi';
 import {
   Inject,
   Injectable,
@@ -16,18 +16,17 @@ import { KoishiMetascanService } from './providers/koishi-metascan.service';
 import { KOISHI_MODULE_OPTIONS, KoishiIpSym } from './utility/koishi.constants';
 import { KoishiLoggerService } from './providers/koishi-logger.service';
 import { KoishiHttpDiscoveryService } from './koishi-http-discovery/koishi-http-discovery.service';
-import { Filter, ReplacedContext } from './utility/replaced-context';
 import { applySelector } from 'koishi-decorators';
 import WebSocket from 'ws';
 import { KoishiNestRouter } from './utility/koa-router';
-import './utility/commander-with-interceptor';
+import './utility/koishi.workarounds';
+import './utility/koishi.declares';
 
 @Injectable()
 export class KoishiService
   extends App
   implements OnModuleInit, OnModuleDestroy
 {
-  private readonly _interceptors: KoishiCommandInterceptorRegistration[];
   constructor(
     @Inject(KOISHI_MODULE_OPTIONS)
     private readonly koishiModuleOptions: KoishiModuleOptions,
@@ -40,7 +39,7 @@ export class KoishiService
       port: 0,
     });
     this.baseDir ??= process.cwd();
-    this._interceptors = this.koishiModuleOptions.globalInterceptors || [];
+    this.interceptors = this.koishiModuleOptions.globalInterceptors;
     this.router = new KoishiNestRouter();
     this._nestKoaTmpInstance.use((ctx, next) => {
       ctx.request.ip = ctx.req[KoishiIpSym];
@@ -97,24 +96,5 @@ export class KoishiService
     interceptorDefs: KoishiCommandInterceptorRegistration[],
   ) {
     return this.metascan.addInterceptors(command, interceptorDefs);
-  }
-
-  private cloneContext(
-    filter: Filter,
-    plugin: Plugin,
-    interceptors: KoishiCommandInterceptorRegistration[],
-  ): Context {
-    return new ReplacedContext(filter, this, plugin, interceptors);
-  }
-
-  withInterceptors(interceptors: KoishiCommandInterceptorRegistration[]) {
-    return this.cloneContext(this.filter, this.plugin, [
-      ...this._interceptors,
-      ...interceptors,
-    ]);
-  }
-
-  override fork(filter: Filter, _plugin: Plugin) {
-    return this.cloneContext(filter, _plugin, this._interceptors);
   }
 }
