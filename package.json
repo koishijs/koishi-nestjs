@@ -31,10 +31,9 @@
   "author": "Nanahira <nanahira@momobako.com>",
   "license": "MIT",
   "peerDependencies": {
-    "@nestjs/common": "^8.4.6",
-    "@nestjs/core": "^8.4.6",
-    "koishi": "^4.7.2",
-    "rxjs": "^7.5.4"
+    "@nestjs/common": "^8.0.0",
+    "@nestjs/core": "^8.0.0",
+    "koishi": "^4.7.2"
   },
   "devDependencies": {
     "@nestjs/platform-express": "^8.4.6",
