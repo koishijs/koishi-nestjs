@@ -122,4 +122,10 @@ describe('Koishi in Nest.js', () => {
       'pee!',
     );
   });
+
+  it('should work on template', () => {
+    const command = koishiApp.command('mii');
+    expect(command).toBeDefined();
+    expect(command.execute({ options: {} })).resolves.toBe('miiii');
+  });
 });

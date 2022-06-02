@@ -22,6 +22,8 @@ import { KoishiExceptionHandlerService } from '../koishi-exception-handler/koish
 
 @Injectable()
 export class KoishiMetascanService {
+  private readonly templateParams: any;
+
   constructor(
     private readonly metadataScanner: MetadataScanner,
     private readonly moduleRef: ModuleRef,
@@ -32,7 +34,9 @@ export class KoishiMetascanService {
     private readonly koishiModuleOptions: KoishiModuleOptions,
     private readonly intercepterManager: KoishiInterceptorManagerService,
     private readonly exceptionHandler: KoishiExceptionHandlerService,
-  ) {}
+  ) {
+    this.templateParams = koishiModuleOptions.templateParams || {};
+  }
 
   addInterceptors(
     command: Command,
@@ -46,7 +50,7 @@ export class KoishiMetascanService {
     instance: Record<string, any>,
     methodKey: string,
   ) {
-    const registrar = new Registrar(instance);
+    const registrar = new Registrar(instance, undefined, this.templateParams);
     const baseContext = registrar.getScopeContext(ctx, methodKey, false);
     const result = registrar.register(baseContext, methodKey, false);
     if (result.type === 'command') {
@@ -165,7 +169,11 @@ export class KoishiMetascanService {
     return Promise.all(
       this.runForEachProvider(ctx, (providerCtx, instance) => {
         this.scanInstanceForProvidingContextService(providerCtx, instance);
-        const registrar = new Registrar(instance);
+        const registrar = new Registrar(
+          instance,
+          undefined,
+          this.templateParams,
+        );
         registrar.performTopActions(providerCtx);
         return Promise.all(
           registrar

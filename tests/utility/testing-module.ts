@@ -6,6 +6,7 @@ import {
   OnGuild,
   OnPlatform,
   PutOption,
+  PutValue,
   UseCommand,
 } from 'koishi-decorators';
 import { CommandInterceptors } from '../../src/utility/koishi.decorators';
@@ -67,6 +68,11 @@ class KoishiTestService {
   async onMoo() {
     return 'zzzz';
   }
+
+  @UseCommand('{{abstract.name}}')
+  async onAbstract(@PutValue('{{abstract.content}}') content: string) {
+    return content;
+  }
 }
 
 export function testingModule() {
@@ -75,6 +81,12 @@ export function testingModule() {
       KoishiModule.register({
         useWs: true,
         globalInterceptors: [PeeInterceptor],
+        templateParams: {
+          abstract: {
+            name: 'mii',
+            content: 'miiii',
+          },
+        },
       }),
     ],
     providers: [

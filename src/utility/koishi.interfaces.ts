@@ -23,6 +23,7 @@ export interface KoishiModuleOptions
   moduleSelection?: KoishiModuleSelection[];
   globalInterceptors?: KoishiCommandInterceptorRegistration[];
   actionErrorMessage?: string;
+  templateParams?: any;
 }
 
 export interface KoishiModuleOptionsFactory {
