@@ -11,7 +11,9 @@ import { Module } from '@nestjs/core/injector/module';
 @Injectable()
 export class KoishiContextService {
   moduleSelections = new Map<Type<any>, KoishiModuleSelection>();
-  constructor(@Inject(KOISHI_MODULE_OPTIONS) options: KoishiModuleOptions) {
+  constructor(
+    @Inject(KOISHI_MODULE_OPTIONS) private options: KoishiModuleOptions,
+  ) {
     if (options.moduleSelection) {
       for (const selection of options.moduleSelection) {
         this.moduleSelections.set(selection.module, selection);
@@ -30,7 +32,11 @@ export class KoishiContextService {
 
   getProviderCtx(ctx: Context, ...instances: any[]) {
     for (const instance of instances) {
-      ctx = new Registrar(instance).getScopeContext(ctx);
+      ctx = new Registrar(
+        instance,
+        undefined,
+        this.options.templateParams || {},
+      ).getScopeContext(ctx);
     }
     return ctx;
   }
