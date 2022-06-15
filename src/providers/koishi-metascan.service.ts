@@ -53,6 +53,9 @@ export class KoishiMetascanService {
     const registrar = new Registrar(instance, undefined, this.templateParams);
     const baseContext = registrar.getScopeContext(ctx, methodKey, false);
     const result = registrar.register(baseContext, methodKey, false);
+    if (!result) {
+      return;
+    }
     if (result.type === 'command') {
       const command = result.result as Command;
       const interceptorDefs: KoishiCommandInterceptorRegistration[] = _.uniq(
