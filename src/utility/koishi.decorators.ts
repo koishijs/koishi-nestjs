@@ -13,12 +13,14 @@ import {
   MetadataArrayValueMap,
   MetadataGenericMap,
   MetadataKey,
+  ServiceName,
 } from './koishi.interfaces';
 import { Context } from 'koishi';
 import {
   ContextScopeTypes,
   getContextProvideToken,
 } from './koishi-context.factory';
+import { CallbackLayer } from 'koishi-decorators';
 
 // Injections
 export const InjectContext = () => Inject(KOISHI_CONTEXT);
@@ -98,7 +100,7 @@ export { PluginDef } from 'koishi-decorators';
 
 // Service
 
-export function WireContextService(name?: keyof Context): PropertyDecorator {
+export function WireContextService(name?: ServiceName): PropertyDecorator {
   return (obj, key) => {
     const objClass = obj.constructor;
     const properties: string[] =
@@ -114,10 +116,16 @@ export function WireContextService(name?: keyof Context): PropertyDecorator {
   };
 }
 
-export function ProvideContextService(name: keyof Context): ClassDecorator {
-  Context.service(name);
+export function ProvideContextService(
+  name: ServiceName,
+  options: Context.ServiceOptions,
+): ClassDecorator {
+  Context.service(name, options);
   return AppendMetadata(KoishiServiceProvideSym, name);
 }
+
+export const UsingService = (...services: ServiceName[]) =>
+  CallbackLayer((ctx, cb) => ctx.using(services, cb));
 
 // Command interceptor
 

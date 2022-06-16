@@ -1,5 +1,8 @@
 // Injections
-import { KoishiCommandInterceptorRegistration } from './koishi.interfaces';
+import {
+  KoishiCommandInterceptorRegistration,
+  ServiceName,
+} from './koishi.interfaces';
 import { Context } from 'koishi';
 
 export const KOISHI_MODULE_OPTIONS = 'KOISHI_MODULE_OPTIONS';
@@ -15,7 +18,7 @@ export const KoishiServiceProvideSym = 'KoishiServiceProvideSym';
 // metadata map
 
 export interface MetadataArrayMap {
-  KoishiServiceProvideSym: keyof Context;
+  KoishiServiceProvideSym: ServiceName;
   KoishiCommandInterceptorDef: KoishiCommandInterceptorRegistration;
 }
 

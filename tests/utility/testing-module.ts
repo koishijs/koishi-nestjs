@@ -8,8 +8,12 @@ import {
   PutOption,
   PutValue,
   UseCommand,
+  UseEvent,
 } from 'koishi-decorators';
-import { CommandInterceptors } from '../../src/utility/koishi.decorators';
+import {
+  CommandInterceptors,
+  UsingService,
+} from '../../src/utility/koishi.decorators';
 import { Test } from '@nestjs/testing';
 import { KoishiModule } from '../../src/koishi.module';
 
@@ -72,6 +76,14 @@ class KoishiTestService {
   @UseCommand('{{abstract.name}}')
   async onAbstract(@PutValue('{{abstract.content}}') content: string) {
     return content;
+  }
+
+  @UsingService('ping')
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  @UseEvent('ping')
+  async onPing() {
+    return 'pong';
   }
 }
 

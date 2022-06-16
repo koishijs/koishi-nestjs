@@ -2,9 +2,10 @@ import { KoishiService } from '../src/koishi.service';
 import { KoishiWsAdapter } from '../src/koishi.ws-adapter';
 import http from 'http';
 import request from 'supertest';
-import { Session } from 'koishi';
+import { Context, Session } from 'koishi';
 import { testingModule } from './utility/testing-module';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { EventName } from 'koishi-decorators';
 
 describe('Koishi in Nest.js', () => {
   let app: NestExpressApplication;
@@ -15,8 +16,10 @@ describe('Koishi in Nest.js', () => {
     app = moduleFixture.createNestApplication<NestExpressApplication>();
     app.useWebSocketAdapter(new KoishiWsAdapter(app));
     app.set('trust proxy', ['loopback']);
-    await app.init();
+    Context.service('ping');
     koishiApp = app.get(KoishiService);
+    koishiApp['ping'] = { ping: 'pong' };
+    await app.init();
   });
 
   it('should define koishi', () => {
@@ -127,5 +130,14 @@ describe('Koishi in Nest.js', () => {
     const command = koishiApp.command('mii');
     expect(command).toBeDefined();
     expect(command.execute({ options: {} })).resolves.toBe('miiii');
+  });
+
+  it('should handle partial dep', async () => {
+    koishiApp['ping'] = { ping: 'pong' };
+    expect(await koishiApp.waterfall(<EventName>'ping')).toBe('pong');
+    koishiApp['ping'] = undefined;
+    expect(await koishiApp.waterfall(<EventName>'ping')).toBeUndefined();
+    koishiApp['ping'] = { ping: 'pong' };
+    expect(await koishiApp.waterfall(<EventName>'ping')).toBe('pong');
   });
 });

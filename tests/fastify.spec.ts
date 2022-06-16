@@ -6,6 +6,7 @@ import { KoishiService } from '../src/koishi.service';
 import { testingModule } from './utility/testing-module';
 import { KoishiWsAdapter } from '../src/koishi.ws-adapter';
 import http from 'http';
+import { Context } from 'koishi';
 
 describe('Koishi module in Fastify adapter', () => {
   let app: NestFastifyApplication;
@@ -19,8 +20,10 @@ describe('Koishi module in Fastify adapter', () => {
       }),
     );
     app.useWebSocketAdapter(new KoishiWsAdapter(app));
-    await app.init();
+    Context.service('ping');
     koishiApp = app.get(KoishiService);
+    koishiApp['ping'] = { ping: 'pong' };
+    await app.init();
   });
 
   it('should define koishi', () => {

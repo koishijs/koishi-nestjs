@@ -1,5 +1,5 @@
 import { ModuleMetadata, Provider, Type } from '@nestjs/common';
-import { App, Channel, Command, User } from 'koishi';
+import { App, Channel, Command, Context, User } from 'koishi';
 import { MetadataArrayMap, MetadataMap } from './koishi.constants';
 import { ContextSelector, PluginDefinition } from 'koishi-decorators';
 
@@ -84,3 +84,5 @@ export type KoishiCommandInterceptorRegistration<
   | Type<KoishiCommandInterceptor<U, G, A, O>>
   | string
   | symbol;
+
+export type ServiceName = keyof Context | string;

@@ -19,6 +19,8 @@ import { KoishiMetadataFetcherService } from '../koishi-metadata-fetcher/koishi-
 import { KoishiInterceptorManagerService } from '../koishi-interceptor-manager/koishi-interceptor-manager.service';
 import { CommandRegisterConfig, Registrar } from 'koishi-decorators';
 import { KoishiExceptionHandlerService } from '../koishi-exception-handler/koishi-exception-handler.service';
+import { firstValueFrom, lastValueFrom } from 'rxjs';
+import { takeFirstValue } from '../utility/take-first-value';
 
 @Injectable()
 export class KoishiMetascanService {
@@ -51,36 +53,45 @@ export class KoishiMetascanService {
     methodKey: string,
   ) {
     const registrar = new Registrar(instance, undefined, this.templateParams);
-    const baseContext = registrar.getScopeContext(ctx, methodKey, false);
-    const result = registrar.register(baseContext, methodKey, false);
-    if (!result) {
-      return;
-    }
-    if (result.type === 'command') {
-      const command = result.result as Command;
-      const interceptorDefs: KoishiCommandInterceptorRegistration[] = _.uniq(
-        this.metaFetcher.getPropertyMetadataArray(
-          KoishiCommandInterceptorDef,
-          instance,
-          methodKey,
-        ),
-      );
-      this.addInterceptors(command, interceptorDefs);
-      if (!(result.data as CommandRegisterConfig).config?.empty) {
-        command.action(async (argv) => {
-          try {
-            return await argv.next();
-          } catch (e) {
-            return this.exceptionHandler.handleActionException(e);
+    const scopeContext = registrar.getScopeContext(ctx, methodKey, false);
+    return takeFirstValue(
+      registrar.runLayers(
+        scopeContext,
+        async (baseContext) => {
+          const result = registrar.register(baseContext, methodKey, false);
+          if (!result) {
+            return;
           }
-        }, true);
-      }
-    } else if (result.type === 'plugin') {
-      const mayBePromise = result.result as Promise<any>;
-      if (mayBePromise instanceof Promise) {
-        await mayBePromise;
-      }
-    }
+          if (result.type === 'command') {
+            const command = result.result as Command;
+            const interceptorDefs: KoishiCommandInterceptorRegistration[] =
+              _.uniq(
+                this.metaFetcher.getPropertyMetadataArray(
+                  KoishiCommandInterceptorDef,
+                  instance,
+                  methodKey,
+                ),
+              );
+            this.addInterceptors(command, interceptorDefs);
+            if (!(result.data as CommandRegisterConfig).config?.empty) {
+              command.action(async (argv) => {
+                try {
+                  return await argv.next();
+                } catch (e) {
+                  return this.exceptionHandler.handleActionException(e);
+                }
+              }, true);
+            }
+          } else if (result.type === 'plugin') {
+            const mayBePromise = result.result as Promise<any>;
+            if (mayBePromise instanceof Promise) {
+              await mayBePromise;
+            }
+          }
+        },
+        methodKey,
+      ),
+    );
   }
 
   private registerOnService(
@@ -177,13 +188,21 @@ export class KoishiMetascanService {
           undefined,
           this.templateParams,
         );
-        registrar.performTopActions(providerCtx);
-        return Promise.all(
-          registrar
-            .getAllFieldsToRegister()
-            .map((methodKey: string) =>
-              this.handleInstanceRegistration(providerCtx, instance, methodKey),
-            ),
+        return takeFirstValue(
+          registrar.runLayers(providerCtx, (providerInnerCtx) => {
+            registrar.performTopActions(providerInnerCtx);
+            return Promise.all(
+              registrar
+                .getAllFieldsToRegister()
+                .map((methodKey: string) =>
+                  this.handleInstanceRegistration(
+                    providerInnerCtx,
+                    instance,
+                    methodKey,
+                  ),
+                ),
+            );
+          }),
         );
       }),
     );
