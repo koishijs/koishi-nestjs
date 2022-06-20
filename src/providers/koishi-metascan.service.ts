@@ -19,7 +19,6 @@ import { KoishiMetadataFetcherService } from '../koishi-metadata-fetcher/koishi-
 import { KoishiInterceptorManagerService } from '../koishi-interceptor-manager/koishi-interceptor-manager.service';
 import { CommandRegisterConfig, Registrar } from 'koishi-decorators';
 import { KoishiExceptionHandlerService } from '../koishi-exception-handler/koishi-exception-handler.service';
-import { firstValueFrom, lastValueFrom } from 'rxjs';
 import { takeFirstValue } from '../utility/take-first-value';
 
 @Injectable()
