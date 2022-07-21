@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { KoishiCommandInterceptor } from '../../src/utility/koishi.interfaces';
-import { Argv } from 'koishi';
+import { Argv, Context } from 'koishi';
 import {
   CommandUsage,
   OnGuild,
@@ -12,10 +12,12 @@ import {
 } from 'koishi-thirdeye';
 import {
   CommandInterceptors,
+  InjectContextUser,
   UsingService,
 } from '../../src/utility/koishi.decorators';
 import { Test } from '@nestjs/testing';
 import { KoishiModule } from '../../src/koishi.module';
+import { InjectContext } from '../../src/utility/koishi.decorators';
 
 @Injectable()
 class MooInterceptor implements KoishiCommandInterceptor {
@@ -49,16 +51,21 @@ class PeeInterceptor implements KoishiCommandInterceptor {
 @OnPlatform('discord')
 @Injectable()
 @CommandInterceptors(PooInterceptor)
-class KoishiTestService {
+export class KoishiTestService {
+  constructor(
+    @InjectContext() public ctx1: Context,
+    @InjectContextUser('111111111') public ctx2: Context,
+  ) {}
+
   @OnGuild('1111111111')
   @UseCommand('echo', 'hi')
   @CommandUsage('foo')
-  async onEcho(@PutOption('content', '-c <content:string>') content: string) {
+  async onEcho(@PutOption('content', '-c <content>') content: string) {
     return `bot: ${content}`;
   }
 
   @UseCommand('boo')
-  async onBoo(@PutOption('content', '-c <content:string>') content: string) {
+  async onBoo(@PutOption('content', '-c <content>') content: string) {
     throw new NotFoundException(`boo: ${content}`);
   }
 
@@ -107,5 +114,6 @@ export function testingModule() {
       PooInterceptor,
       PeeInterceptor,
     ],
+    exports: [KoishiTestService],
   }).compile();
 }

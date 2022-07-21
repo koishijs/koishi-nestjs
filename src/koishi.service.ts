@@ -4,6 +4,7 @@ import {
   Injectable,
   OnModuleDestroy,
   OnModuleInit,
+  Scope,
 } from '@nestjs/common';
 import {
   KoishiCommandInterceptorRegistration,
@@ -21,7 +22,9 @@ import { KoishiNestRouter } from './utility/koa-router';
 import './utility/koishi.workarounds';
 import './utility/koishi.declares';
 
-@Injectable()
+@Injectable({
+  scope: Scope.DEFAULT,
+})
 export class KoishiService
   extends Context
   implements OnModuleInit, OnModuleDestroy
@@ -74,15 +77,18 @@ export class KoishiService
   }
 
   async onModuleInit() {
+    if (this.forkedProvider) {
+      return;
+    }
     await this.setHttpServer();
-    this.metascan.preRegisterContext(this.any());
+    this.metascan.preRegisterContext(this);
     if (this.koishiModuleOptions.usePlugins) {
       for (const pluginDef of this.koishiModuleOptions.usePlugins) {
         this.plugin(pluginDef.plugin, pluginDef.options);
       }
     }
-    await this.metascan.registerContext(this.any());
-    return this.start();
+    await this.metascan.registerContext(this);
+    await this.start();
   }
 
   async onModuleDestroy() {
@@ -94,5 +100,12 @@ export class KoishiService
     interceptorDefs: KoishiCommandInterceptorRegistration[],
   ) {
     return this.metascan.addInterceptors(command, interceptorDefs);
+  }
+
+  override extend(meta = {}): this {
+    return super.extend({
+      ...meta,
+      forkedProvider: true,
+    });
   }
 }

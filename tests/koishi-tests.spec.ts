@@ -3,14 +3,13 @@ import { KoishiWsAdapter } from '../src/koishi.ws-adapter';
 import http from 'http';
 import request from 'supertest';
 import { Context, Events, Session } from 'koishi';
-import { testingModule } from './utility/testing-module';
+import { KoishiTestService, testingModule } from './utility/testing-module';
 import { NestExpressApplication } from '@nestjs/platform-express';
-
 type EventName = keyof Events;
 
 describe('Koishi in Nest.js', () => {
   let app: NestExpressApplication;
-  let koishiApp: KoishiService;
+  let koishiApp: Context;
 
   beforeEach(async () => {
     const moduleFixture = await testingModule();
@@ -87,6 +86,45 @@ describe('Koishi in Nest.js', () => {
     expect(methodCtx.filter(correctSession)).toBe(true);
     expect(methodCtx.filter(wrongSession1)).toBe(false);
     expect(methodCtx.filter(wrongSession2)).toBe(false);
+  });
+
+  it('should inject correct context', () => {
+    const testService = app.get(KoishiTestService);
+    expect(testService.ctx1).toBeDefined();
+    expect(testService.ctx2).toBeDefined();
+    expect(testService.ctx1.filter({ platform: 'discord' } as Session)).toBe(
+      true,
+    );
+    expect(testService.ctx1.filter({ platform: 'telegram' } as Session)).toBe(
+      false,
+    );
+    expect(testService.ctx2.filter({ platform: 'telegram' } as Session)).toBe(
+      false,
+    );
+    expect(
+      testService.ctx1.filter({
+        platform: 'discord',
+        userId: '111111111',
+      } as Session),
+    ).toBe(true);
+    expect(
+      testService.ctx2.filter({
+        platform: 'discord',
+        userId: '111111111',
+      } as Session),
+    ).toBe(true);
+    expect(
+      testService.ctx1.filter({
+        platform: 'discord',
+        userId: '111111112',
+      } as Session),
+    ).toBe(true);
+    expect(
+      testService.ctx2.filter({
+        platform: 'discord',
+        userId: '111111112',
+      } as Session),
+    ).toBe(false);
   });
 
   it('should handle command error', () => {

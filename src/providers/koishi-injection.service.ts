@@ -24,7 +24,10 @@ export class KoishiInjectionService {
 
   getInjectContext(inquerier: string | any) {
     const token =
-      typeof inquerier === 'string' ? inquerier : inquerier.constructor;
+      typeof inquerier === 'string' ? inquerier : inquerier?.constructor;
+    if (!token) {
+      return this.koishi;
+    }
     const interceptors = this.metaFetcher.getMetadataArray(
       KoishiCommandInterceptorDef,
       token,
