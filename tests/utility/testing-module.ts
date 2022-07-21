@@ -9,7 +9,7 @@ import {
   PutValue,
   UseCommand,
   UseEvent,
-} from 'koishi-decorators';
+} from 'koishi-thirdeye';
 import {
   CommandInterceptors,
   UsingService,

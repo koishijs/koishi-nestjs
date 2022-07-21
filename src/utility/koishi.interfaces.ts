@@ -1,11 +1,11 @@
 import { ModuleMetadata, Provider, Type } from '@nestjs/common';
 import { App, Channel, Command, Context, User } from 'koishi';
 import { MetadataArrayMap, MetadataMap } from './koishi.constants';
-import { ContextSelector, PluginDefinition } from 'koishi-decorators';
+import { PluginRegistrar, Selection } from 'koishi-thirdeye';
 
-export * from 'koishi-decorators/dist/src/def/interfaces';
+export * from 'koishi-thirdeye/dist/src/def';
 
-export interface KoishiModuleSelection extends ContextSelector {
+export interface KoishiModuleSelection extends Selection {
   module: Type<any>;
 }
 
@@ -17,7 +17,7 @@ export interface KoishiModuleTopOptions {
 export interface KoishiModuleOptions
   extends App.Config,
     KoishiModuleTopOptions {
-  usePlugins?: PluginDefinition<any>[];
+  usePlugins?: PluginRegistrar.PluginDefinition<any>[];
   loggerPrefix?: string;
   loggerColor?: number;
   moduleSelection?: KoishiModuleSelection[];

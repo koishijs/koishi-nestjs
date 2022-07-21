@@ -1,11 +1,18 @@
 import { Observable } from 'rxjs';
 
-export function takeFirstValue<T>(obs: Observable<T>): Promise<T> {
+export function registerAtLeastEach<T extends { key: string }>(
+  obs: Observable<T>,
+  keys: string[],
+): Promise<T> {
+  const remainingKeys = new Set(keys);
   return new Promise<T>((resolve, reject) => {
     let resolved = false;
+    let lastValue: T = undefined;
     obs.subscribe({
       next: (value) => {
-        if (!resolved) {
+        lastValue = value;
+        remainingKeys.delete(value.key);
+        if (!resolved && remainingKeys.size === 0) {
           resolve(value);
           resolved = true;
         }
@@ -18,7 +25,7 @@ export function takeFirstValue<T>(obs: Observable<T>): Promise<T> {
       },
       complete: () => {
         if (!resolved) {
-          resolve(undefined);
+          resolve(lastValue);
           resolved = true;
         }
       },

@@ -20,7 +20,6 @@ import {
   ContextScopeTypes,
   getContextProvideToken,
 } from './koishi-context.factory';
-import { CallbackLayer } from 'koishi-decorators';
 
 // Injections
 export const InjectContext = () => Inject(KOISHI_CONTEXT);
@@ -95,8 +94,8 @@ export const ConcatMetadata = <K extends keyof MetadataArrayValueMap>(
 
 // Export all koishi-decorator decorators
 
-export * from 'koishi-decorators/dist/src/decorators';
-export { PluginDef } from 'koishi-decorators';
+export * from 'koishi-thirdeye/dist/src/decorators/common';
+export { PluginDef } from 'koishi-thirdeye';
 
 // Service
 
@@ -116,16 +115,10 @@ export function WireContextService(name?: ServiceName): PropertyDecorator {
   };
 }
 
-export function ProvideContextService(
-  name: ServiceName,
-  options: Context.ServiceOptions,
-): ClassDecorator {
-  Context.service(name, options);
+export function ProvideContextService(name: ServiceName): ClassDecorator {
+  Context.service(name);
   return AppendMetadata(KoishiServiceProvideSym, name);
 }
-
-export const UsingService = (...services: ServiceName[]) =>
-  CallbackLayer((ctx, cb) => ctx.using(services, cb));
 
 // Command interceptor
 

@@ -17,9 +17,11 @@ import { KoishiContextService } from './koishi-context.service';
 import { Module } from '@nestjs/core/injector/module';
 import { KoishiMetadataFetcherService } from '../koishi-metadata-fetcher/koishi-metadata-fetcher.service';
 import { KoishiInterceptorManagerService } from '../koishi-interceptor-manager/koishi-interceptor-manager.service';
-import { CommandRegisterConfig, Registrar } from 'koishi-decorators';
 import { KoishiExceptionHandlerService } from '../koishi-exception-handler/koishi-exception-handler.service';
-import { takeFirstValue } from '../utility/take-first-value';
+import { registerAtLeastEach } from '../utility/take-first-value';
+import { koishiRegistrar } from 'koishi-thirdeye/dist/src/registrar';
+import { CommandConfigExtended } from 'koishi-thirdeye/dist/src/def';
+import { map } from 'rxjs';
 
 @Injectable()
 export class KoishiMetascanService {
@@ -44,53 +46,6 @@ export class KoishiMetascanService {
     interceptorDefs: KoishiCommandInterceptorRegistration[],
   ) {
     return this.intercepterManager.addInterceptors(command, interceptorDefs);
-  }
-
-  private async handleInstanceRegistration(
-    ctx: Context,
-    instance: Record<string, any>,
-    methodKey: string,
-  ) {
-    const registrar = new Registrar(instance, undefined, this.templateParams);
-    const scopeContext = registrar.getScopeContext(ctx, methodKey, false);
-    return takeFirstValue(
-      registrar.runLayers(
-        scopeContext,
-        async (baseContext) => {
-          const result = registrar.register(baseContext, methodKey, false);
-          if (!result) {
-            return;
-          }
-          if (result.type === 'command') {
-            const command = result.result as Command;
-            const interceptorDefs: KoishiCommandInterceptorRegistration[] =
-              _.uniq(
-                this.metaFetcher.getPropertyMetadataArray(
-                  KoishiCommandInterceptorDef,
-                  instance,
-                  methodKey,
-                ),
-              );
-            this.addInterceptors(command, interceptorDefs);
-            if (!(result.data as CommandRegisterConfig).config?.empty) {
-              command.action(async (argv) => {
-                try {
-                  return await argv.next();
-                } catch (e) {
-                  return this.exceptionHandler.handleActionException(e);
-                }
-              }, true);
-            }
-          } else if (result.type === 'plugin') {
-            const mayBePromise = result.result as Promise<any>;
-            if (mayBePromise instanceof Promise) {
-              await mayBePromise;
-            }
-          }
-        },
-        methodKey,
-      ),
-    );
   }
 
   private registerOnService(
@@ -178,30 +133,51 @@ export class KoishiMetascanService {
     );
   }
 
+  private mutateCommandRegistration(
+    instance: any,
+    key: string,
+    command: Command,
+  ) {
+    const interceptorDefs: KoishiCommandInterceptorRegistration[] = _.uniq(
+      this.metaFetcher.getPropertyMetadataArray(
+        KoishiCommandInterceptorDef,
+        instance,
+        key,
+      ),
+    );
+    this.addInterceptors(command, interceptorDefs);
+    const config = command.config as CommandConfigExtended;
+    if (!config?.empty) {
+      command.action(async (argv) => {
+        try {
+          return await argv.next();
+        } catch (e) {
+          return this.exceptionHandler.handleActionException(e);
+        }
+      }, true);
+    }
+  }
+
   registerContext(ctx: Context) {
     return Promise.all(
       this.runForEachProvider(ctx, (providerCtx, instance) => {
         this.scanInstanceForProvidingContextService(providerCtx, instance);
-        const registrar = new Registrar(
-          instance,
-          undefined,
-          this.templateParams,
-        );
-        return takeFirstValue(
-          registrar.runLayers(providerCtx, (providerInnerCtx) => {
-            registrar.performTopActions(providerInnerCtx);
-            return Promise.all(
-              registrar
-                .getAllFieldsToRegister()
-                .map((methodKey: string) =>
-                  this.handleInstanceRegistration(
-                    providerInnerCtx,
-                    instance,
-                    methodKey,
-                  ),
-                ),
-            );
-          }),
+        const registrar = koishiRegistrar.aspect(instance, this.templateParams);
+        const allFields = registrar.getAllFieldsToRegister();
+        return registerAtLeastEach(
+          registrar.register(providerCtx).pipe(
+            map((result) => {
+              if (result.type === 'command') {
+                this.mutateCommandRegistration(
+                  instance,
+                  result.key,
+                  result.result,
+                );
+              }
+              return result;
+            }),
+          ),
+          allFields,
         );
       }),
     );

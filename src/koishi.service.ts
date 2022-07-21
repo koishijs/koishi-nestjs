@@ -1,4 +1,4 @@
-import { App, Command } from 'koishi';
+import { Command, Context } from 'koishi';
 import {
   Inject,
   Injectable,
@@ -16,7 +16,6 @@ import { KoishiMetascanService } from './providers/koishi-metascan.service';
 import { KOISHI_MODULE_OPTIONS, KoishiIpSym } from './utility/koishi.constants';
 import { KoishiLoggerService } from './providers/koishi-logger.service';
 import { KoishiHttpDiscoveryService } from './koishi-http-discovery/koishi-http-discovery.service';
-import { applySelector } from 'koishi-decorators';
 import WebSocket from 'ws';
 import { KoishiNestRouter } from './utility/koa-router';
 import './utility/koishi.workarounds';
@@ -24,7 +23,7 @@ import './utility/koishi.declares';
 
 @Injectable()
 export class KoishiService
-  extends App
+  extends Context
   implements OnModuleInit, OnModuleDestroy
 {
   constructor(
@@ -57,15 +56,15 @@ export class KoishiService
     const httpServer: Server = httpAdapter?.getHttpServer();
     if (httpServer && httpServer instanceof Server) {
       this.logger('app').info('App using Nest HTTP Server.');
-      this._httpServer = httpServer;
+      this.router._http = httpServer;
     } else {
       this.logger('app').info('No http adapters found from Nest application.');
-      this._httpServer = createServer(this._nestKoaTmpInstance.callback());
-      this._wsServer = new WebSocket.Server({
-        server: this._httpServer,
+      this.router._http = createServer(this._nestKoaTmpInstance.callback());
+      this.router._ws = new WebSocket.Server({
+        server: this.router._http,
       });
 
-      this._wsServer.on('connection', (socket, request) => {
+      this.router._ws.on('connection', (socket, request) => {
         for (const manager of this.router.wsStack) {
           if (manager.accept(socket, request)) return;
         }
@@ -79,8 +78,7 @@ export class KoishiService
     this.metascan.preRegisterContext(this.any());
     if (this.koishiModuleOptions.usePlugins) {
       for (const pluginDef of this.koishiModuleOptions.usePlugins) {
-        const ctx = applySelector(this, pluginDef);
-        ctx.plugin(pluginDef.plugin, pluginDef.options);
+        this.plugin(pluginDef.plugin, pluginDef.options);
       }
     }
     await this.metascan.registerContext(this.any());

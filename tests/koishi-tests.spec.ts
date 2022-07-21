@@ -2,10 +2,11 @@ import { KoishiService } from '../src/koishi.service';
 import { KoishiWsAdapter } from '../src/koishi.ws-adapter';
 import http from 'http';
 import request from 'supertest';
-import { Context, Session } from 'koishi';
+import { Context, Events, Session } from 'koishi';
 import { testingModule } from './utility/testing-module';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { EventName } from 'koishi-decorators';
+
+type EventName = keyof Events;
 
 describe('Koishi in Nest.js', () => {
   let app: NestExpressApplication;
@@ -27,13 +28,13 @@ describe('Koishi in Nest.js', () => {
   });
 
   it('should register http and ws server', () => {
-    expect(koishiApp._httpServer).toBeDefined();
-    expect(koishiApp._wsServer).toBeDefined();
+    expect(koishiApp.router._http).toBeDefined();
+    expect(koishiApp.router._ws).toBeDefined();
   });
 
   it('should be nest http server', () => {
-    expect(koishiApp._httpServer).toBeInstanceOf(http.Server);
-    expect(app.getHttpServer()).toEqual(koishiApp._httpServer);
+    expect(koishiApp.router._http).toBeInstanceOf(http.Server);
+    expect(app.getHttpServer()).toEqual(koishiApp.router._http);
   });
 
   it('should response to koishi routes', () => {

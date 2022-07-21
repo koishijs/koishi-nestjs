@@ -20,7 +20,7 @@ export class KoishiWebsocketGateway
   afterInit(server: any): any {
     // console.log('Init ws server', server, server === this.wsServer);
     this.wsServer.path = '__koishi_fallback';
-    this.koishi._wsServer = this.wsServer;
+    this.koishi.router._ws = this.wsServer;
   }
 
   handleConnection(socket: WebSocket, request: IncomingMessage) {

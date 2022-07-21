@@ -19,6 +19,7 @@ describe('Koishi in Nest.js context', () => {
   });
 
   it('should register http service', () => {
-    expect(koishiApp._httpServer).toBeDefined();
+    expect(koishiApp.router._http).toBeDefined();
+    expect(koishiApp.router._ws).toBeDefined();
   });
 });

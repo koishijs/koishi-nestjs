@@ -4,9 +4,10 @@ import {
   KoishiModuleOptions,
   KoishiModuleSelection,
 } from '../utility/koishi.interfaces';
-import { applySelector, Registrar } from 'koishi-decorators';
 import { Context } from 'koishi';
 import { Module } from '@nestjs/core/injector/module';
+import { selectContext } from 'koishi-thirdeye';
+import { koishiRegistrar } from 'koishi-thirdeye/dist/src/registrar';
 
 @Injectable()
 export class KoishiContextService {
@@ -24,7 +25,7 @@ export class KoishiContextService {
   getModuleCtx(ctx: Context, module: Module) {
     const moduleSelection = this.moduleSelections.get(module.metatype);
     if (moduleSelection) {
-      return applySelector(ctx, moduleSelection);
+      return selectContext(ctx, moduleSelection);
     } else {
       return ctx;
     }
@@ -32,11 +33,9 @@ export class KoishiContextService {
 
   getProviderCtx(ctx: Context, ...instances: any[]) {
     for (const instance of instances) {
-      ctx = new Registrar(
-        instance,
-        undefined,
-        this.options.templateParams || {},
-      ).getScopeContext(ctx);
+      ctx = koishiRegistrar
+        .aspect(instance, this.options.templateParams || {})
+        .getScopeContext(ctx);
     }
     return ctx;
   }

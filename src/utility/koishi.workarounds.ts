@@ -20,6 +20,8 @@ export class IntercepterManagerService {
     return this[Context.current] || this.ctx;
   }
 
+  static methods = ['withInterceptors'];
+
   withInterceptors(
     interceptors: KoishiCommandInterceptorRegistration[],
   ): Context {
@@ -30,7 +32,4 @@ export class IntercepterManagerService {
   }
 }
 
-Context.service('$interceptorManager', {
-  constructor: IntercepterManagerService,
-  methods: ['withInterceptors'],
-});
+Context.service('$interceptorManager', IntercepterManagerService);

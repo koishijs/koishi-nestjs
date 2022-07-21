@@ -31,13 +31,13 @@ describe('Koishi module in Fastify adapter', () => {
   });
 
   it('should register http and ws server', () => {
-    expect(koishiApp._httpServer).toBeDefined();
-    expect(koishiApp._wsServer).toBeDefined();
+    expect(koishiApp.router._http).toBeDefined();
+    expect(koishiApp.router._ws).toBeDefined();
   });
 
   it('should be nest http server', () => {
-    expect(koishiApp._httpServer).toBeInstanceOf(http.Server);
-    expect(app.getHttpServer()).toEqual(koishiApp._httpServer);
+    expect(koishiApp.router._http).toBeInstanceOf(http.Server);
+    expect(app.getHttpServer()).toEqual(koishiApp.router._http);
   });
 
   it('should response to koishi routes', () => {
