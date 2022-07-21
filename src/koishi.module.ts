@@ -52,7 +52,7 @@ const koishiContextProvider: Provider<Context> = {
     KoishiInterceptorManagerService,
     KoishiExceptionHandlerService,
   ],
-  exports: [koishiContextProvider],
+  exports: [KoishiService, koishiContextProvider],
 })
 export class KoishiModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
