@@ -92,6 +92,9 @@ export class KoishiService
   }
 
   async onModuleDestroy() {
+    if (this.forkedProvider) {
+      return;
+    }
     await this.stop();
   }
 

@@ -47,6 +47,6 @@ deploy_npm:
   script:
     - apt update;apt -y install coreutils
     - echo $NPMRC | base64 --decode > ~/.npmrc
-    - npm publish . || true
+    - npm publish . --access public && curl -X PUT "https://registry-direct.npmmirror.com/$(cat package.json | jq '.name' | sed 's/\"//g')/sync?sync_upstream=true" || true
   only:
     - master
