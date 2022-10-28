@@ -22,9 +22,11 @@ export class KoishiContextService {
     }
   }
 
-  getModuleCtx(ctx: Context, module: Module) {
+  getModuleCtx(ctx: Context, module: Module): Context {
     const moduleSelection = this.moduleSelections.get(module.metatype);
     if (moduleSelection) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       return selectContext(ctx, moduleSelection);
     } else {
       return ctx;

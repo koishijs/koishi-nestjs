@@ -62,9 +62,10 @@ export class KoishiService
       this.router._http = httpServer;
     } else {
       this.logger('app').info('No http adapters found from Nest application.');
-      this.router._http = createServer(this._nestKoaTmpInstance.callback());
+      const tmpServer = createServer(this._nestKoaTmpInstance.callback());
+      this.router._http = tmpServer;
       this.router._ws = new WebSocket.Server({
-        server: this.router._http,
+        server: tmpServer,
       });
 
       this.router._ws.on('connection', (socket, request) => {
