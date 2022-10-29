@@ -78,8 +78,6 @@ export const AppendMetadata = <K extends keyof MetadataArrayMap>(
 ): CustomDecorator<K> =>
   TransformMetadata<K, MetadataArrayValueMap>(metadataKey, (arr) => {
     const newArr = arr || [];
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     newArr.push(metadataValue);
     return newArr;
   });
