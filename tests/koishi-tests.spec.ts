@@ -165,6 +165,16 @@ describe('Koishi in Nest.js', () => {
     );
   });
 
+  /*
+  it('should handle SessionError', () => {
+    const command = koishiApp.command('hoo');
+    expect(command).toBeDefined();
+    expect(command.execute({ options: { content: 'hoo' } })).resolves.toBe(
+      'hoo!',
+    );
+  });
+  */
+
   it('should work on template', () => {
     const command = koishiApp.command('mii');
     expect(command).toBeDefined();

@@ -1,7 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { KoishiCommandInterceptor } from '../../src/utility/koishi.interfaces';
-import { Argv, Context } from 'koishi';
+import { Argv, Context, SessionError } from 'koishi';
 import {
+  CommandTemplate,
   CommandUsage,
   OnGuild,
   OnPlatform,
@@ -72,6 +73,12 @@ export class KoishiTestService {
   @UseCommand('bow')
   async onBow() {
     throw new Error('bow!');
+  }
+
+  @UseCommand('hoo')
+  @CommandTemplate('.hoo', 'hoo!')
+  async onHoo() {
+    throw new SessionError('.hoo');
   }
 
   @UseCommand('moo')

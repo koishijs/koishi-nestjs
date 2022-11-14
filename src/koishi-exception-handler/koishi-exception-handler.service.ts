@@ -5,6 +5,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
+import { SessionError } from 'koishi';
 import { KOISHI_MODULE_OPTIONS } from '../utility/koishi.constants';
 import { KoishiModuleOptions } from '../utility/koishi.interfaces';
 
@@ -18,16 +19,19 @@ export class KoishiExceptionHandlerService extends ConsoleLogger {
   }
 
   handleActionException(e: Error) {
+    if (e instanceof SessionError) {
+      console.log('session error');
+      throw e;
+    }
     if (e instanceof HttpException || e instanceof WsException) {
       return e.message;
-    } else {
-      this.error(e.message, e.stack);
-      if (this.koishiModuleOptions.actionErrorMessage === '') {
-        return;
-      }
-      return (
-        this.koishiModuleOptions.actionErrorMessage ?? 'Internal Server Error'
-      );
     }
+    this.error(e.message, e.stack);
+    if (this.koishiModuleOptions.actionErrorMessage === '') {
+      return;
+    }
+    return (
+      this.koishiModuleOptions.actionErrorMessage ?? 'Internal Server Error'
+    );
   }
 }
