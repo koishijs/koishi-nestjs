@@ -21,6 +21,7 @@ import WebSocket from 'ws';
 import { KoishiNestRouter } from './utility/koa-router';
 import './utility/koishi.workarounds';
 import './utility/koishi.declares';
+import { selectContext } from 'koishi-thirdeye';
 
 @Injectable({
   scope: Scope.DEFAULT,
@@ -85,7 +86,8 @@ export class KoishiService
     this.metascan.preRegisterContext(this);
     if (this.koishiModuleOptions.usePlugins) {
       for (const pluginDef of this.koishiModuleOptions.usePlugins) {
-        this.plugin(pluginDef.plugin, pluginDef.options);
+        const ctx = selectContext(this, pluginDef.selection);
+        ctx.plugin(pluginDef.plugin, pluginDef.options);
       }
     }
     await this.metascan.registerContext(this);

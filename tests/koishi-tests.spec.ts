@@ -127,6 +127,12 @@ describe('Koishi in Nest.js', () => {
     ).toBe(false);
   });
 
+  it('should response to plugin', () => {
+    const command = koishiApp.command('from-plugin');
+    expect(command).toBeDefined();
+    expect(command.execute({})).resolves.toBe('fooo');
+  });
+
   it('should handle command error', () => {
     const command = koishiApp.command('boo');
     expect(command).toBeDefined();

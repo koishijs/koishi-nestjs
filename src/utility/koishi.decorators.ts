@@ -13,9 +13,10 @@ import {
   MetadataArrayValueMap,
   MetadataGenericMap,
   MetadataKey,
+  PluginDefinitionWithSelection,
   ServiceName,
 } from './koishi.interfaces';
-import { Context } from 'koishi';
+import { Context, Plugin } from 'koishi';
 import {
   ContextScopeTypes,
   getContextProvideToken,
@@ -93,7 +94,29 @@ export const ConcatMetadata = <K extends keyof MetadataArrayValueMap>(
 // Export all koishi-decorator decorators
 
 export * from 'koishi-thirdeye/dist/src/decorators/common';
-export { PluginDef } from 'koishi-thirdeye';
+import {
+  PluginDef as _pluginDef,
+  PluginRegistrar,
+  Selection,
+} from 'koishi-thirdeye';
+
+export function PluginDef(
+  name: string,
+  options?: any,
+  selection?: Selection,
+): PluginRegistrar.PluginDefinitionName & { selection?: Selection };
+export function PluginDef<T extends Plugin>(
+  plugin: T,
+  options?: PluginRegistrar.PluginOptions<T>,
+  selection?: Selection,
+): PluginDefinitionWithSelection<T>;
+export function PluginDef<T extends Plugin>(
+  plugin: T,
+  options?: PluginRegistrar.PluginOptions<T>,
+  selection: Selection = {},
+): PluginDefinitionWithSelection<T> {
+  return { ..._pluginDef(plugin, options), selection };
+}
 
 // Service
 

@@ -1,5 +1,5 @@
 import { ModuleMetadata, Provider, Type } from '@nestjs/common';
-import { App, Channel, Command, Context, User } from 'koishi';
+import { App, Channel, Command, Context, User, Plugin } from 'koishi';
 import { MetadataArrayMap, MetadataMap } from './koishi.constants';
 import { PluginRegistrar, Selection } from 'koishi-thirdeye';
 
@@ -14,10 +14,13 @@ export interface KoishiModuleTopOptions {
   useWs?: boolean;
 }
 
+export type PluginDefinitionWithSelection<T extends Plugin> =
+  PluginRegistrar.PluginDefinition<Context, T> & { selection: Selection };
+
 export interface KoishiModuleOptions
   extends App.Config,
     KoishiModuleTopOptions {
-  usePlugins?: PluginRegistrar.PluginDefinition<any>[];
+  usePlugins?: PluginDefinitionWithSelection<any>[];
   loggerPrefix?: string;
   loggerColor?: number;
   moduleSelection?: KoishiModuleSelection[];

@@ -4,16 +4,21 @@ import { Argv, Context, SessionError } from 'koishi';
 import {
   CommandTemplate,
   CommandUsage,
+  DefinePlugin,
   OnGuild,
   OnPlatform,
   PutOption,
   PutValue,
+  RegisterSchema,
+  SchemaProperty,
+  StarterPlugin,
   UseCommand,
   UseEvent,
 } from 'koishi-thirdeye';
 import {
   CommandInterceptors,
   InjectContextUser,
+  PluginDef,
   UsingService,
 } from '../../src/utility/koishi.decorators';
 import { Test } from '@nestjs/testing';
@@ -101,6 +106,20 @@ export class KoishiTestService {
   }
 }
 
+@RegisterSchema()
+class TestingPluginConfig {
+  @SchemaProperty({ default: 'foo' })
+  foo: string;
+}
+
+@DefinePlugin()
+class TestingPlugin extends StarterPlugin(TestingPluginConfig) {
+  @UseCommand('from-plugin')
+  testingCommand() {
+    return this.config.foo;
+  }
+}
+
 export function testingModule() {
   return Test.createTestingModule({
     imports: [
@@ -113,6 +132,15 @@ export function testingModule() {
             content: 'miiii',
           },
         },
+        usePlugins: [
+          PluginDef(
+            TestingPlugin,
+            { foo: 'fooo' },
+            {
+              self: 'koishi',
+            },
+          ),
+        ],
       }),
     ],
     providers: [
