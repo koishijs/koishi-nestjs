@@ -12,7 +12,6 @@ import {
   KoishiCommandInterceptorRegistration,
   KoishiModuleOptions,
 } from '../utility/koishi.interfaces';
-import _ from 'lodash';
 import { KoishiContextService } from './koishi-context.service';
 import { Module } from '@nestjs/core/injector/module';
 import { KoishiMetadataFetcherService } from '../koishi-metadata-fetcher/koishi-metadata-fetcher.service';
@@ -22,6 +21,7 @@ import { registerAtLeastEach } from '../utility/take-first-value';
 import { koishiRegistrar } from 'koishi-thirdeye/dist/src/registrar';
 import { CommandConfigExtended } from 'koishi-thirdeye/dist/src/def';
 import { map } from 'rxjs';
+import { uniq } from '../utility/utility';
 
 @Injectable()
 export class KoishiMetascanService {
@@ -111,20 +111,15 @@ export class KoishiMetascanService {
     fun: (ctx: Context, instance: any) => T,
   ): T[] {
     const modules = Array.from(this.moduleContainer.values());
-    return _.flatten(
-      modules.map((module) => {
-        const moduleCtx = this.ctxService.getModuleCtx(ctx, module);
-        const allProviders = this.getAllActiveProvidersFromModule(module);
-        return allProviders.map((provider) => {
-          const instance = provider.instance;
-          const providerCtx = this.ctxService.getProviderCtx(
-            moduleCtx,
-            instance,
-          );
-          return fun(providerCtx, instance);
-        });
-      }),
-    );
+    return modules.flatMap((module) => {
+      const moduleCtx = this.ctxService.getModuleCtx(ctx, module);
+      const allProviders = this.getAllActiveProvidersFromModule(module);
+      return allProviders.map((provider) => {
+        const instance = provider.instance;
+        const providerCtx = this.ctxService.getProviderCtx(moduleCtx, instance);
+        return fun(providerCtx, instance);
+      });
+    });
   }
 
   preRegisterContext(ctx: Context) {
@@ -138,7 +133,7 @@ export class KoishiMetascanService {
     key: string,
     command: Command,
   ) {
-    const interceptorDefs: KoishiCommandInterceptorRegistration[] = _.uniq(
+    const interceptorDefs: KoishiCommandInterceptorRegistration[] = uniq(
       this.metaFetcher.getPropertyMetadataArray(
         KoishiCommandInterceptorDef,
         instance,
