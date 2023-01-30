@@ -3,7 +3,6 @@ import {
   KoishiCommandInterceptorRegistration,
   ServiceName,
 } from './koishi.interfaces';
-import { Context } from 'koishi';
 
 export const KOISHI_MODULE_OPTIONS = 'KOISHI_MODULE_OPTIONS';
 export const KOISHI_CONTEXT = 'KOISHI_CONTEXT';

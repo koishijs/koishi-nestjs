@@ -1,4 +1,4 @@
-import { Command, Context, Router } from 'koishi';
+import { Command, Context } from 'koishi';
 import {
   Inject,
   Injectable,

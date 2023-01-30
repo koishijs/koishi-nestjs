@@ -1,5 +1,5 @@
 import { ModuleMetadata, Provider, Type } from '@nestjs/common';
-import { App, Channel, Command, Context, User, Plugin } from 'koishi';
+import { App, Channel, Command, Context, Plugin, User } from 'koishi';
 import { MetadataArrayMap, MetadataMap } from './koishi.constants';
 import { PluginRegistrar, Selection } from 'koishi-thirdeye';
 

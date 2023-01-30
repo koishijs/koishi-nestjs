@@ -9,7 +9,6 @@ import {
 } from '../utility/koishi.constants';
 import { KoishiModuleOptions } from '../utility/koishi.interfaces';
 import { Context } from 'koishi';
-import {} from '../utility/koishi.workarounds';
 
 @Injectable()
 export class KoishiInjectionService {

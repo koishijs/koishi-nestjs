@@ -21,6 +21,11 @@ import {
   ContextScopeTypes,
   getContextProvideToken,
 } from './koishi-context.factory';
+import {
+  PluginDef as _pluginDef,
+  PluginRegistrar,
+  Selection,
+} from 'koishi-thirdeye';
 
 // Injections
 export const InjectContext = () => Inject(KOISHI_CONTEXT);
@@ -94,11 +99,6 @@ export const ConcatMetadata = <K extends keyof MetadataArrayValueMap>(
 // Export all koishi-decorator decorators
 
 export * from 'koishi-thirdeye/dist/src/decorators/common';
-import {
-  PluginDef as _pluginDef,
-  PluginRegistrar,
-  Selection,
-} from 'koishi-thirdeye';
 
 export function PluginDef(
   name: string,
