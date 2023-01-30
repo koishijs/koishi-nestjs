@@ -33,7 +33,7 @@
   "peerDependencies": {
     "@nestjs/common": "^9.0.3 || ^8.0.0",
     "@nestjs/core": "^9.0.3 || ^8.0.0",
-    "koishi": "^4.11.1",
+    "koishi": "^4.11.4",
     "rxjs": "^7.5.5"
   },
   "devDependencies": {

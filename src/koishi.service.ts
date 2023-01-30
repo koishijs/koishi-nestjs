@@ -1,4 +1,4 @@
-import { Command, Context } from 'koishi';
+import { Command, Context, Router } from 'koishi';
 import {
   Inject,
   Injectable,
@@ -10,15 +10,13 @@ import {
   KoishiCommandInterceptorRegistration,
   KoishiModuleOptions,
 } from './utility/koishi.interfaces';
-import { createServer, Server } from 'http';
+import { Server } from 'http';
 import Koa from 'koa';
 import KoaBodyParser from 'koa-bodyparser';
 import { KoishiMetascanService } from './providers/koishi-metascan.service';
 import { KOISHI_MODULE_OPTIONS, KoishiIpSym } from './utility/koishi.constants';
 import { KoishiLoggerService } from './providers/koishi-logger.service';
 import { KoishiHttpDiscoveryService } from './koishi-http-discovery/koishi-http-discovery.service';
-import WebSocket from 'ws';
-import { KoishiNestRouter } from './utility/koa-router';
 import './utility/koishi.workarounds';
 import './utility/koishi.declares';
 import { selectContext } from 'koishi-thirdeye';
@@ -43,7 +41,6 @@ export class KoishiService
     });
     this.baseDir ??= process.cwd();
     this.interceptors = this.koishiModuleOptions.globalInterceptors;
-    this.router = new KoishiNestRouter();
     this._nestKoaTmpInstance.use((ctx, next) => {
       ctx.request.ip = ctx.req[KoishiIpSym];
       return next();
@@ -63,18 +60,6 @@ export class KoishiService
       this.router._http = httpServer;
     } else {
       this.logger('app').info('No http adapters found from Nest application.');
-      const tmpServer = createServer(this._nestKoaTmpInstance.callback());
-      this.router._http = tmpServer;
-      this.router._ws = new WebSocket.Server({
-        server: tmpServer,
-      });
-
-      this.router._ws.on('connection', (socket, request) => {
-        for (const manager of this.router.wsStack) {
-          if (manager.accept(socket, request)) return;
-        }
-        socket.close();
-      });
     }
   }
 

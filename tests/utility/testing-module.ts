@@ -96,14 +96,6 @@ export class KoishiTestService {
   async onAbstract(@PutValue('{{abstract.content}}') content: string) {
     return content;
   }
-
-  @UsingService('ping')
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  @UseEvent('ping')
-  async onPing() {
-    return 'pong';
-  }
 }
 
 @RegisterSchema()

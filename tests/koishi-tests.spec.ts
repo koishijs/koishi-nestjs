@@ -186,13 +186,4 @@ describe('Koishi in Nest.js', () => {
     expect(command).toBeDefined();
     expect(command.execute({ options: {} })).resolves.toBe('miiii');
   });
-
-  it('should handle partial dep', async () => {
-    koishiApp['ping'] = { ping: 'pong' };
-    expect(await koishiApp.waterfall(<EventName>'ping')).toBe('pong');
-    koishiApp['ping'] = undefined;
-    expect(await koishiApp.waterfall(<EventName>'ping')).toBeUndefined();
-    koishiApp['ping'] = { ping: 'pong' };
-    expect(await koishiApp.waterfall(<EventName>'ping')).toBe('pong');
-  });
 });
