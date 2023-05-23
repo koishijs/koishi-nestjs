@@ -20,7 +20,6 @@ export class KoishiExceptionHandlerService extends ConsoleLogger {
 
   handleActionException(e: Error) {
     if (e instanceof SessionError) {
-      console.log('session error');
       throw e;
     }
     if (e instanceof HttpException || e instanceof WsException) {

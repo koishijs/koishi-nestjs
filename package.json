@@ -33,7 +33,7 @@
   "peerDependencies": {
     "@nestjs/common": "^9.0.3 || ^8.0.0",
     "@nestjs/core": "^9.0.3 || ^8.0.0",
-    "koishi": "^4.11.4",
+    "koishi": "^4.13.0",
     "rxjs": "^7.5.5"
   },
   "devDependencies": {
@@ -65,7 +65,7 @@
     "@types/ws": "^8.5.3",
     "koa": "^2.13.4",
     "koa-bodyparser": "^4.3.0",
-    "koishi-thirdeye": "^11.1.21",
+    "koishi-thirdeye": "^11.2.0",
     "typed-reflector": "^1.0.11",
     "ws": "^8.7.0"
   },
